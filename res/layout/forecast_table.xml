@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content">
+<TextView android:id="@+id/areaName" style="@style/HeaderRow"/>
+<ScrollView
+  android:id="@+id/scroller"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content">
+<TableLayout
+  android:id="@+id/forecast_table"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content"
+  android:background="#ffffff">
+  
+  <TableRow
+  android:padding="3px"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content"
+  android:background="#eeeeee">
+  
+  <TextView android:text="Forecast" style="@style/ForecastHeader"/>
+  <TextView android:text="" style="@style/ForecastHeader"/>
+  <TextView android:text="Hi/Low" style="@style/ForecastHeader"/>
+  <TextView android:text="Precip" style="@style/ForecastHeader"/>
+  <TextView android:text="Wind/Hum" style="@style/ForecastHeader"/>
+  
+</TableRow>
+  
+  
+  
+</TableLayout>
+</ScrollView>
+
+</LinearLayout>

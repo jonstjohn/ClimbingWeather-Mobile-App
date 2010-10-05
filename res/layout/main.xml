@@ -3,10 +3,43 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="#fff"
     >
-<TextView  
+<ImageView
+	android:src="@drawable/logo_top_center"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"/>
+	
+<LinearLayout android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
+	<EditText
+		android:id="@+id/search_edit"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	/>
+	<ImageButton android:id="@+id/search_button"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:src="@android:drawable/ic_menu_search"/>
+</LinearLayout>
+<Button
+	android:id="@+id/closest_button"
     android:layout_width="fill_parent" 
     android:layout_height="wrap_content" 
-    android:text="@string/hello"
+    android:text="@string/closest_button"
     />
+<Button
+	android:id="@+id/state_button"
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" 
+    android:text="@string/state_button"
+    />
+<Button
+	android:id="@+id/favorite_button"
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" 
+    android:text="@string/favorite_button"
+    />
+    
 </LinearLayout>

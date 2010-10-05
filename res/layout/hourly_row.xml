@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content"
+  android:layout_gravity="center">
+  <LinearLayout style="@style/ForecastContainer">
+    <TextView android:id="@+id/day" style="@style/ForecastText"/>
+    <TextView android:id="@+id/time" style="@style/ForecastTextSmall"/>
+  </LinearLayout>
+  
+  <LinearLayout style="@style/ForecastContainer">
+	  <ImageView android:id="@+id/symbol" 
+	  	android:adjustViewBounds="true" 
+	  	android:padding="10dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+  </LinearLayout>
+  	
+  <LinearLayout style="@style/ForecastContainer">
+    <TextView android:id="@+id/temp" style="@style/ForecastText"/>
+    <TextView android:id="@+id/sky" style="@style/ForecastTextSmall"/>
+  </LinearLayout>
+  
+  <LinearLayout style="@style/ForecastContainer">
+    <TextView android:id="@+id/precip" style="@style/ForecastText"/>
+  </LinearLayout>
+  <LinearLayout style="@style/ForecastContainer">
+    <TextView android:id="@+id/wind" style="@style/ForecastText"/>
+    <TextView android:id="@+id/humidity" style="@style/ForecastTextSmall"/>
+  </LinearLayout>
+</TableRow>

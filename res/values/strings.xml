@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, home!</string>
-    <string name="app_name">cw</string>
+    <string name="favorite_button">Favorites</string>
+    <string name="app_name">Climbing Weather</string>
+    <string name="search_title">Search this</string>
+    <string name="state_button">Find Areas by State</string>
+    <string name="closest_button">Show Nearby Areas</string>
 </resources>

@@ -1,0 +1,334 @@
+package com.climbingweather.cw;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+public class climbingweather extends Activity {
+    
+    private final static int MENU_ABOUT = 1;
+    private final static int MENU_SUGGEST = 2;
+    
+    /**
+     * Location manager for location updates
+     */
+    private LocationManager lm;
+    
+    /**
+     * Location listener to receive location updates
+     */
+    private LocationListener locationListener;
+    
+    /**
+     * User latitude
+     */
+    private double latitude;
+    
+    /**
+     * User longitude
+     */
+    private double longitude;
+    
+    /** 
+     * Called when the activity is first created. 
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        
+        super.onCreate(savedInstanceState);
+        
+        setContentView(R.layout.main);
+        
+        // Favorite button
+        Button button = (Button)findViewById(R.id.favorite_button);
+        button.setOnClickListener(favoriteListener);
+        
+        // States button
+        Button stateButton = (Button) findViewById(R.id.state_button);
+        stateButton.setOnClickListener(stateListener);
+        
+        // Nearest areas button
+        Button nearestButton = (Button) findViewById(R.id.closest_button);
+        nearestButton.setOnClickListener(closestListener);
+        
+        // Search text
+        final EditText searchEdit = (EditText) findViewById(R.id.search_edit);
+
+        // Capture key actions
+        searchEdit.setOnKeyListener(new OnKeyListener() {
+            
+            /**
+             * Capture key actions
+             */
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                
+                // If enter is pressed, do search
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) 
+                    && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+
+                    Intent i = new Intent(getApplicationContext(), AreaList.class);
+                    i.putExtra("srch", searchEdit.getText().toString());
+                    startActivity(i);
+                    return true;
+                    
+                }
+                
+                return false;
+            }
+        });
+        
+        // Start location manager
+        lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new MyLocationListener();
+        
+        // Get last known location
+        Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        
+        // If GPS location is found, use that
+        if (loc != null) {
+            latitude = loc.getLatitude();
+            longitude = loc.getLongitude();
+            
+        // If no GPS location is found, try network provider
+        } else {
+            Location locNetwork = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            
+            if (locNetwork != null) {
+                latitude = locNetwork.getLatitude();
+                longitude = locNetwork.getLongitude();
+            }
+        }
+        
+        // Add location listener
+        addLocationListener();
+        
+    }
+    
+    /**
+     * On destory activity
+     */
+    public void onDestroy()
+    {
+        super.onDestroy();
+        removeLocationListener();
+    }
+    
+    /**
+     * On start activity
+     */
+    public void onStart()
+    {
+        super.onStart();
+        addLocationListener();
+    }
+    
+    /**
+     * On stop activity
+     */
+    public void onStop()
+    {
+        super.onStop();
+        removeLocationListener();
+    }
+    
+    /**
+     * On restart activity
+     */
+    public void onRestart()
+    {
+        super.onRestart();
+        addLocationListener();
+    }
+    
+    /**
+     * On pause activity
+     */
+    public void onPause()
+    {
+        super.onPause();
+        removeLocationListener();
+    }
+    
+    /**
+     * On resume activity
+     */
+    public void onResume()
+    {
+        super.onResume();
+        addLocationListener();
+    }
+    
+    /**
+     * On click listener for favorites button
+     */
+    private OnClickListener favoriteListener = new OnClickListener() {
+        
+        public void onClick(View v) {
+            
+            Intent i = new Intent(getApplicationContext(), FavoriteList.class);
+            startActivity(i);
+        }
+        
+    };
+    
+    /**
+     * On click listener for states button
+     */
+    private OnClickListener stateListener = new OnClickListener() {
+        
+        public void onClick(View v) {
+            launchStates();
+        }
+    };
+    
+    /**
+     * On click listener for closest areas
+     */
+    private OnClickListener closestListener = new OnClickListener() {
+    
+        /**
+         * On click
+         */
+        public void onClick(View v) {
+
+            // If location cannot be determined, do something
+            if (latitude == 0.0) {
+                
+                Toast.makeText(getBaseContext(), "Unable to determine location", Toast.LENGTH_SHORT).show();
+
+            // Location has been determined, start area list activiy with lat/long info
+            } else {
+            
+                Intent i = new Intent(getApplicationContext(), AreaList.class);
+                i.putExtra("latitude", Double.toString(latitude));
+                i.putExtra("longitude", Double.toString(longitude));
+                startActivity(i);
+                
+            }
+            
+        }
+    };
+    
+    /**
+     * Create options menu
+     */
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, MENU_SUGGEST, 0, "Suggest Area");
+        menu.add(0, MENU_ABOUT, 1, "About");
+        return true;
+    }
+    
+    /**
+     * Handle options menu clicks
+     */
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId()) {
+        case MENU_SUGGEST:
+            return true;
+        case MENU_ABOUT:
+            return true;
+        }
+        return false;
+
+    }
+    
+    /**
+     * Launches the Forecast activity to display a forecast
+     */
+    protected void launchForecast(String id) {
+        Intent i = new Intent(getApplicationContext(), Area.class);
+        i.putExtra("areaId", id);
+        startActivity(i);
+    }
+    
+    /**
+     * Launches areas activity
+     */
+    protected void launchAreas() {
+        Intent i = new Intent(this, AreaList.class);
+        startActivity(i);
+    }
+    
+    /**
+     * Launches states activity
+     */
+    protected void launchStates() {
+        Intent i = new Intent(this, StateList.class);
+        startActivity(i);
+    }
+    
+    /**
+     * Launches states activity
+     */
+    protected void launchTest() {
+        Intent i = new Intent(this, Area.class);
+        i.putExtra("areaId", "3");
+        startActivity(i);
+    }
+    
+    /**
+     * Location listener
+     */
+    private class MyLocationListener implements LocationListener 
+    {
+        /**
+         * On location change, update lat/long
+         */
+        public void onLocationChanged(Location loc) {
+            if (loc != null) {
+                latitude = loc.getLatitude();
+                longitude = loc.getLongitude();
+            }
+        }
+
+        public void onProviderDisabled(String provider) {
+            // TODO Auto-generated method stub
+        }
+
+        public void onProviderEnabled(String provider) {
+            // TODO Auto-generated method stub
+        }
+
+        public void onStatusChanged(String provider, int status, 
+            Bundle extras) {
+            // TODO Auto-generated method stub
+        }
+    }
+    
+    /**
+     * Add location listener
+     */
+    private void addLocationListener()
+    {
+        lm.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                600000,
+                2000,
+                locationListener);
+    }
+
+    /**
+     * Remove location listener
+     */
+    private void removeLocationListener()
+    {
+        lm.removeUpdates(locationListener);
+    }
+
+}
+

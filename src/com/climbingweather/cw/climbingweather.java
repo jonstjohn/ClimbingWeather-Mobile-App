@@ -17,6 +17,7 @@ import android.view.View.OnKeyListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import java.net.URLEncoder;
 
 public class climbingweather extends Activity {
     
@@ -80,9 +81,7 @@ public class climbingweather extends Activity {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) 
                     && (keyCode == KeyEvent.KEYCODE_ENTER)) {
 
-                    Intent i = new Intent(getApplicationContext(), AreaList.class);
-                    i.putExtra("srch", searchEdit.getText().toString());
-                    startActivity(i);
+                	doSearch();
                     return true;
                     
                 }
@@ -90,6 +89,10 @@ public class climbingweather extends Activity {
                 return false;
             }
         });
+        
+        // Search button
+        Button searchButton = (Button) findViewById(R.id.search_button);
+        searchButton.setOnClickListener(searchListener);
         
         // Start location manager
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -186,6 +189,19 @@ public class climbingweather extends Activity {
     };
     
     /**
+     * On click listener for favorites button
+     */
+    private OnClickListener searchListener = new OnClickListener() {
+        
+        public void onClick(View v) {
+            
+        	doSearch();
+
+        }
+        
+    };
+    
+    /**
      * On click listener for states button
      */
     private OnClickListener stateListener = new OnClickListener() {
@@ -223,6 +239,20 @@ public class climbingweather extends Activity {
         }
     };
     
+    private boolean doSearch() {
+
+    	EditText searchEdit = (EditText) findViewById(R.id.search_edit);
+    	String srch = searchEdit.getText().toString();
+    	srch = URLEncoder.encode(srch);
+    	
+    	// Clean-up search string - URL encode
+    	Intent i = new Intent(getApplicationContext(), AreaList.class);
+        i.putExtra("srch", srch);
+        startActivity(i);
+        return true;
+        
+    }
+    
     /**
      * Create options menu
      */
@@ -241,6 +271,8 @@ public class climbingweather extends Activity {
         case MENU_SUGGEST:
             return true;
         case MENU_ABOUT:
+        	Intent i = new Intent(getApplicationContext(), About.class);
+            startActivity(i);
             return true;
         }
         return false;

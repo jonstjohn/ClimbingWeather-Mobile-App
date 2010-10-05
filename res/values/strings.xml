@@ -5,4 +5,5 @@
     <string name="search_title">Search this</string>
     <string name="state_button">Find Areas by State</string>
     <string name="closest_button">Show Nearby Areas</string>
+    <string name="search">Go</string>
 </resources>

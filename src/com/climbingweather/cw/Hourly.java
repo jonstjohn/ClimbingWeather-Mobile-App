@@ -260,8 +260,8 @@ public class Hourly extends Activity {
             }
             
             // Scroll to id
-            TableRow selectedRow = ((TableRow)table.findViewById(Integer.parseInt(dayIndex)));
-            ((ScrollView)findViewById(R.id.scroller)).scrollTo(0, selectedRow.getTop());
+            //TableRow selectedRow = ((TableRow)table.findViewById(Integer.parseInt(dayIndex)));
+            //((ScrollView)findViewById(R.id.scroller)).scrollTo(0, selectedRow.getTop());
             //table.scrollTo(0, selectedRow.getTop());
             
             

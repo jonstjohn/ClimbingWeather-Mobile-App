@@ -1,51 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_root"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="#fff"
     >
-<ImageView
-	android:src="@drawable/logo_top_center"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"/>
-	
-<LinearLayout android:orientation="horizontal"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:gravity="center">
-	<TextView android:text="About Us"/>
-	 <Button
-	 android:id="@+id/search_button"
-     android:layout_height="wrap_content"
-     android:layout_width="50sp"
-     android:text="@string/search"
-      />
-     <!-- 
-	<ImageButton android:id="@+id/search_button"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:src="@android:drawable/ic_menu_search"/>
-	-->
-</LinearLayout>
-<Button
-	android:id="@+id/closest_button"
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="@string/closest_button"
-    />
-<Button
-	android:id="@+id/state_button"
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="@string/state_button"
-    />
-<Button
-	android:id="@+id/favorite_button"
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="@string/favorite_button"
-    />
+    <!-- 
+    <ImageView
+        android:src="@drawable/logo_top_center"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
+    -->
+    <TextView 
+        android:text="Version 1.0" 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:padding="5sp"
+        style="@style/About"
+     />
+     
+    <TextView 
+        android:id="@+id/copyright"
+        android:autoLink="all"
+        android:text="\u00A9 ClimbingWeather.com 2010" 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:padding="5sp"
+        style="@style/About"
+     />
+
+    <TextView
+        android:id="@+id/rights"
+        android:autoLink="all"
+        android:text="ClimbingWeather.com and the ClimbingWeather.com logos are trademarks of ClimbingWeather.com.  All rights reserved." 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:padding="5sp"
+        style="@style/About"
+     />
+     
+    <TextView 
+        android:id="@+id/feedback"
+        android:autoLink="all"
+        android:text="Thanks for using the mobile app and website!  Send your ideas and feedback through the website!" 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:padding="5sp"
+        style="@style/About"
+     />
+    
+    <LinearLayout android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center">
+
+
+    </LinearLayout>
     
 </LinearLayout>

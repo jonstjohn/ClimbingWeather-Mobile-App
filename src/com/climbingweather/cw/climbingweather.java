@@ -1,21 +1,28 @@
 package com.climbingweather.cw;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import java.net.URLEncoder;
 
@@ -54,17 +61,26 @@ public class climbingweather extends Activity {
         
         setContentView(R.layout.main);
         
-        // Favorite button
-        Button button = (Button)findViewById(R.id.favorite_button);
-        button.setOnClickListener(favoriteListener);
+        // Favorite text and image
+        TextView favoriteText = (TextView)findViewById(R.id.favorite_text);
+        favoriteText.setOnClickListener(favoriteListener);
         
-        // States button
-        Button stateButton = (Button) findViewById(R.id.state_button);
+        ImageView favoriteImage = (ImageView) findViewById(R.id.favorite_image);
+        favoriteImage.setOnClickListener(favoriteListener);
+        
+        // States text and image
+        TextView stateButton = (TextView) findViewById(R.id.state_text);
         stateButton.setOnClickListener(stateListener);
         
-        // Nearest areas button
-        Button nearestButton = (Button) findViewById(R.id.closest_button);
-        nearestButton.setOnClickListener(closestListener);
+        ImageView stateImage = (ImageView) findViewById(R.id.state_image);
+        stateImage.setOnClickListener(stateListener);
+        
+        // Nearest areas text and image
+        TextView nearestText = (TextView) findViewById(R.id.closest_text);
+        nearestText.setOnClickListener(closestListener);
+        
+        ImageView nearestImage = (ImageView) findViewById(R.id.closest_image);
+        nearestImage.setOnClickListener(closestListener);
         
         // Search text
         final EditText searchEdit = (EditText) findViewById(R.id.search_edit);
@@ -91,7 +107,7 @@ public class climbingweather extends Activity {
         });
         
         // Search button
-        Button searchButton = (Button) findViewById(R.id.search_button);
+        ImageView searchButton = (ImageView) findViewById(R.id.search_button);
         searchButton.setOnClickListener(searchListener);
         
         // Start location manager
@@ -271,8 +287,17 @@ public class climbingweather extends Activity {
         case MENU_SUGGEST:
             return true;
         case MENU_ABOUT:
-        	Intent i = new Intent(getApplicationContext(), About.class);
-            startActivity(i);
+        	
+        	Dialog dialog = new Dialog(this);
+
+        	dialog.setContentView(R.layout.about);
+        	dialog.setTitle("About");
+        	
+        	//TextView noteView = (TextView) findViewById(R.id.rights);
+        	//noteView.setText(someContent);
+        	//Linkify.addLinks(noteView, Linkify.ALL);
+        	
+        	dialog.show();
             return true;
         }
         return false;

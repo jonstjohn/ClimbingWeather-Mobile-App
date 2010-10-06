@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="favorite_button">Favorites</string>
+    <string name="favorite_button">View Favorite Areas</string>
     <string name="app_name">Climbing Weather</string>
     <string name="search_title">Search this</string>
     <string name="state_button">Find Areas by State</string>

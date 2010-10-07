@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.net.URLEncoder;
@@ -68,19 +69,32 @@ public class climbingweather extends Activity {
         ImageView favoriteImage = (ImageView) findViewById(R.id.favorite_image);
         favoriteImage.setOnClickListener(favoriteListener);
         
+        LinearLayout favoriteLayout = (LinearLayout) findViewById(R.id.favorite);
+        favoriteLayout.setOnClickListener(favoriteListener);
+        
         // States text and image
+        /*
         TextView stateButton = (TextView) findViewById(R.id.state_text);
         stateButton.setOnClickListener(stateListener);
         
         ImageView stateImage = (ImageView) findViewById(R.id.state_image);
         stateImage.setOnClickListener(stateListener);
+        */
+        
+        LinearLayout stateLayout = (LinearLayout) findViewById(R.id.state);
+        stateLayout.setOnClickListener(stateListener);
         
         // Nearest areas text and image
+        /*
         TextView nearestText = (TextView) findViewById(R.id.closest_text);
         nearestText.setOnClickListener(closestListener);
         
         ImageView nearestImage = (ImageView) findViewById(R.id.closest_image);
         nearestImage.setOnClickListener(closestListener);
+        */
+        
+        LinearLayout nearestLayout = (LinearLayout) findViewById(R.id.closest);
+        nearestLayout.setOnClickListener(closestListener);
         
         // Search text
         final EditText searchEdit = (EditText) findViewById(R.id.search_edit);

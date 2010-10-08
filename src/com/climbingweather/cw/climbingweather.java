@@ -287,7 +287,7 @@ public class climbingweather extends Activity {
      * Create options menu
      */
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, MENU_SUGGEST, 0, "Suggest Area");
+        //menu.add(0, MENU_SUGGEST, 0, "Suggest Area");
         menu.add(0, MENU_ABOUT, 1, "About");
         return true;
     }
@@ -298,18 +298,16 @@ public class climbingweather extends Activity {
     public boolean onOptionsItemSelected(MenuItem item)
     {
         switch (item.getItemId()) {
-        case MENU_SUGGEST:
-            return true;
+        //case MENU_SUGGEST:
+        //	Intent i = new Intent(getApplicationContext(), Tab.class);
+        //    startActivity(i);
+        //    return true;
         case MENU_ABOUT:
         	
         	Dialog dialog = new Dialog(this);
 
         	dialog.setContentView(R.layout.about);
         	dialog.setTitle("About");
-        	
-        	//TextView noteView = (TextView) findViewById(R.id.rights);
-        	//noteView.setText(someContent);
-        	//Linkify.addLinks(noteView, Linkify.ALL);
         	
         	dialog.show();
             return true;

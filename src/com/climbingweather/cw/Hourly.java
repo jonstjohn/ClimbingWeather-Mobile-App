@@ -199,7 +199,7 @@ public class Hourly extends Activity {
             JSONObject jsonObj = new JSONObject(result);
             
             name = jsonObj.getString("n");
-            ((TextView)findViewById(R.id.areaName)).setText(name);
+            //((TextView)findViewById(R.id.areaName)).setText(name);
             JSONArray forecastData = jsonObj.getJSONArray("f");
             
             String lastDay = "";

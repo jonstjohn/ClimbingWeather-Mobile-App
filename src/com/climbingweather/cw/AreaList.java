@@ -188,9 +188,11 @@ public class AreaList extends ListActivity {
               Object item = parent.getItemAtPosition(position);
               HashMap<String, String> hashMap = (HashMap<String, String>) item;
               String str = hashMap.get("areaId"); // id
+              String areaName = hashMap.get("name");
         
-              Intent i = new Intent(getApplicationContext(), Area.class);
+              Intent i = new Intent(getApplicationContext(), Tab.class);
               i.putExtra("areaId", str);
+              i.putExtra("name", areaName);
               startActivity(i);
           }
           

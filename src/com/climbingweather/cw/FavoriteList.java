@@ -67,8 +67,9 @@ public class FavoriteList extends ListActivity {
         startManagingCursor(fav);
         // launchForecast(fav.getString(fav.getColumnIndex(FavoriteDbAdapter.KEY_AREAID)));
         
-        Intent i = new Intent(this, Area.class);
+        Intent i = new Intent(this, Tab.class);
         i.putExtra("areaId", fav.getString(fav.getColumnIndex(FavoriteDbAdapter.KEY_AREAID)));
+        i.putExtra("name", fav.getString(fav.getColumnIndex(FavoriteDbAdapter.KEY_NAME)));
         startActivity(i);
         
     }

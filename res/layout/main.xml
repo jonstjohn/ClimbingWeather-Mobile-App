@@ -4,18 +4,21 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:layout_gravity="center"
+    android:gravity="center"
     android:background="#fff"
     >
     <ImageView
         android:src="@drawable/logo_top_center"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:paddingRight="30dp"/>
         
     <LinearLayout android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:gravity="center">
+        android:gravity="center"
+        android:paddingLeft="10dp">
         <EditText
             android:id="@+id/search_edit"
             android:layout_width="200dp"

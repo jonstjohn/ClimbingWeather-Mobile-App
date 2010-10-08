@@ -193,7 +193,7 @@ public class Area extends Activity {
             JSONObject jsonObj = new JSONObject(result);
             
             name = jsonObj.getString("n");
-            ((TextView)findViewById(R.id.areaName)).setText(name);
+            //((TextView)findViewById(R.id.name)).setText(name);
             JSONArray forecastData = jsonObj.getJSONArray("f");
             
             // Loop over forecast data
@@ -218,6 +218,7 @@ public class Area extends Activity {
                 String symbol = dayData.getString("sy").replace(".png", "");
                 ((ImageView)row.findViewById(R.id.symbol)).setImageResource(getResources().getIdentifier(symbol, "drawable", "com.climbingweather.cw"));
                 
+                /*
                 row.setClickable(true);
                 row.setId(i);
                 if (i % 2 == 1) {
@@ -235,6 +236,7 @@ public class Area extends Activity {
                     }
                     
                 });
+                */
                 table.addView(row);
                 
                 String conditions = dayData.getString("c");

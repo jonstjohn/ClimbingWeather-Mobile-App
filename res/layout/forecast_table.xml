@@ -3,7 +3,7 @@
   android:orientation="vertical"
   android:layout_width="fill_parent"
   android:layout_height="wrap_content">
-<TextView android:id="@+id/areaName" style="@style/HeaderRow"/>
+<!-- <TextView android:id="@+id/areaName" style="@style/HeaderRow"/>-->
 <ScrollView
   android:id="@+id/scroller"
   android:layout_width="fill_parent"

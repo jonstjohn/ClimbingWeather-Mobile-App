@@ -25,7 +25,7 @@ import android.widget.AdapterView.OnItemClickListener;
 /**
  * Displays a clickable list of areas
  */
-public class AreaList extends ListActivity {
+public class AreaListActivity extends ListActivity {
     
     /**
      * Area list
@@ -190,7 +190,7 @@ public class AreaList extends ListActivity {
               String str = hashMap.get("areaId"); // id
               String areaName = hashMap.get("name");
         
-              Intent i = new Intent(getApplicationContext(), Tab.class);
+              Intent i = new Intent(getApplicationContext(), AreaActivity.class);
               i.putExtra("areaId", str);
               i.putExtra("name", areaName);
               startActivity(i);

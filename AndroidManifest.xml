@@ -4,24 +4,24 @@
       android:versionCode="1"
       android:versionName="1.0">
     <application android:label="@string/app_name" android:icon="@drawable/ic_launcher">
-        <activity android:name=".climbingweather"
+        <activity android:name=".MainActivity"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <uses-library android:name="com.google.android.maps" android:required="false"/>
 
-    <activity android:name=".AreaList"></activity>
-    <activity android:name=".Area" android:theme="@android:style/Theme.NoTitleBar"></activity>
-    <activity android:name=".StateList"></activity>
-    <activity android:name=".FavoriteList"></activity>
-    <activity android:name=".Hourly" android:theme="@android:style/Theme.NoTitleBar"></activity>
-    <activity android:name=".About"></activity>
-    <activity android:name=".TabTest"></activity>
-    <activity android:name=".Tab" android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar"></activity>
+    <activity android:name=".AreaListActivity"></activity>
+    <activity android:name=".AreaActivity" android:theme="@android:style/Theme.NoTitleBar"></activity>
+    <activity android:name=".DailyActivity" android:theme="@android:style/Theme.NoTitleBar"></activity>
+    <activity android:name=".StateListActivity"></activity>
+    <activity android:name=".FavoriteListActivity"></activity>
+    <activity android:name=".HourlyActivity" android:theme="@android:style/Theme.NoTitleBar"></activity>
+    <activity android:name=".AreaMapActivity" android:theme="@android:style/Theme.NoTitleBar"></activity>
 </application>
-    <uses-sdk android:minSdkVersion="3" />
+    <uses-sdk android:minSdkVersion="7" />
 
 
 <uses-permission android:name="android.permission.INTERNET"></uses-permission>

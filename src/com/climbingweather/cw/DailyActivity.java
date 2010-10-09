@@ -26,7 +26,7 @@ import android.widget.Toast;
 /**
  * Area/forecast page activity
  */
-public class Area extends Activity {
+public class DailyActivity extends Activity {
     
     /**
      * Menu item for favorite
@@ -228,7 +228,7 @@ public class Area extends Activity {
                     
                     public void onClick(View view) {
                         
-                        Intent intent = new Intent(getApplicationContext(), Hourly.class);
+                        Intent intent = new Intent(getApplicationContext(), HourlyActivity.class);
                         intent.putExtra("areaId", areaId);
                         intent.putExtra("dayIndex", new Integer(view.getId()).toString());
                         startActivity(intent);

@@ -6,10 +6,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
-import android.widget.TableRow;
 import android.widget.TextView;
 
-public class Tab extends TabActivity {
+public class AreaActivity extends TabActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tab);
@@ -23,7 +22,7 @@ public class Tab extends TabActivity {
         String areaId = extras.getString("areaId");
 
         // Create an Intent to launch an Activity for the tab (to be reused)
-        intent = new Intent().setClass(this, Area.class);
+        intent = new Intent().setClass(this, DailyActivity.class);
 
         // Initialize a TabSpec for each tab and add it to the TabHost
         LayoutInflater inflater = getLayoutInflater();
@@ -36,13 +35,23 @@ public class Tab extends TabActivity {
         tabHost.addTab(spec);
 
         // Do the same for the other tabs
-        intent = new Intent().setClass(this, Hourly.class);
+        intent = new Intent().setClass(this, HourlyActivity.class);
         LinearLayout hourlyTab = (LinearLayout)inflater.inflate(R.layout.tab_content, tabHost, false);
         TextView hourlyText = (TextView)hourlyTab.findViewById(R.id.name);
         hourlyText.setText("Hourly");
         spec = tabHost.newTabSpec("hourly").setIndicator(hourlyTab).setContent(intent);
         intent.putExtra("areaId", areaId);
         intent.putExtra("dayIndex", "0");
+        tabHost.addTab(spec);
+        
+        // Map
+        intent = new Intent().setClass(this, AreaMapActivity.class);
+        LinearLayout mapTab = (LinearLayout)inflater.inflate(R.layout.tab_content, tabHost, false);
+        TextView mapText = (TextView)mapTab.findViewById(R.id.name);
+        mapText.setText("Map");
+        spec = tabHost.newTabSpec("map").setIndicator(mapTab).setContent(intent);
+        //intent.putExtra("areaId", areaId);
+        //intent.putExtra("dayIndex", "0");
         tabHost.addTab(spec);
 
         //TextView areaView = (TextView)inflater.inflate(R.layout.tab_content, tabHost, false);

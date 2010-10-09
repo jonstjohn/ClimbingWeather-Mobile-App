@@ -12,7 +12,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-public class FavoriteList extends ListActivity {
+public class FavoriteListActivity extends ListActivity {
 
 	private FavoriteDbAdapter mDbHelper;
 	
@@ -67,7 +67,7 @@ public class FavoriteList extends ListActivity {
         startManagingCursor(fav);
         // launchForecast(fav.getString(fav.getColumnIndex(FavoriteDbAdapter.KEY_AREAID)));
         
-        Intent i = new Intent(this, Tab.class);
+        Intent i = new Intent(this, AreaActivity.class);
         i.putExtra("areaId", fav.getString(fav.getColumnIndex(FavoriteDbAdapter.KEY_AREAID)));
         i.putExtra("name", fav.getString(fav.getColumnIndex(FavoriteDbAdapter.KEY_NAME)));
         startActivity(i);

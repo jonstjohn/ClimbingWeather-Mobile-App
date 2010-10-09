@@ -23,7 +23,7 @@ import android.widget.AdapterView.OnItemClickListener;
 /**
  * Display list of states
  */
-public class StateList extends ListActivity {
+public class StateListActivity extends ListActivity {
     
     /**
      * State array list
@@ -105,7 +105,7 @@ public class StateList extends ListActivity {
                 HashMap<String, String> hashMap = (HashMap<String, String>) item;
                 String stateCode = hashMap.get("code");
                 
-                Intent i = new Intent(getApplicationContext(), AreaList.class);
+                Intent i = new Intent(getApplicationContext(), AreaListActivity.class);
                 i.putExtra("stateCode", stateCode);
                 startActivity(i);
             }

@@ -26,7 +26,7 @@ import android.widget.Toast;
 /**
  * Area/forecast page activity
  */
-public class Hourly extends Activity {
+public class HourlyActivity extends Activity {
     
     /**
      * Menu item for favorite

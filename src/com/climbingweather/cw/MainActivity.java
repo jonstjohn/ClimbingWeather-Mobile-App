@@ -27,7 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.net.URLEncoder;
 
-public class climbingweather extends Activity {
+public class MainActivity extends Activity {
     
     private final static int MENU_ABOUT = 1;
     private final static int MENU_SUGGEST = 2;
@@ -212,7 +212,7 @@ public class climbingweather extends Activity {
         
         public void onClick(View v) {
             
-            Intent i = new Intent(getApplicationContext(), FavoriteList.class);
+            Intent i = new Intent(getApplicationContext(), FavoriteListActivity.class);
             startActivity(i);
         }
         
@@ -259,7 +259,7 @@ public class climbingweather extends Activity {
             // Location has been determined, start area list activiy with lat/long info
             } else {
             
-                Intent i = new Intent(getApplicationContext(), AreaList.class);
+                Intent i = new Intent(getApplicationContext(), AreaListActivity.class);
                 i.putExtra("latitude", Double.toString(latitude));
                 i.putExtra("longitude", Double.toString(longitude));
                 startActivity(i);
@@ -276,7 +276,7 @@ public class climbingweather extends Activity {
     	srch = URLEncoder.encode(srch);
     	
     	// Clean-up search string - URL encode
-    	Intent i = new Intent(getApplicationContext(), AreaList.class);
+    	Intent i = new Intent(getApplicationContext(), AreaListActivity.class);
         i.putExtra("srch", srch);
         startActivity(i);
         return true;
@@ -299,7 +299,7 @@ public class climbingweather extends Activity {
     {
         switch (item.getItemId()) {
         //case MENU_SUGGEST:
-        //	Intent i = new Intent(getApplicationContext(), Tab.class);
+        //	Intent i = new Intent(getApplicationContext(), AreaActivity.class);
         //    startActivity(i);
         //    return true;
         case MENU_ABOUT:
@@ -320,7 +320,7 @@ public class climbingweather extends Activity {
      * Launches the Forecast activity to display a forecast
      */
     protected void launchForecast(String id) {
-        Intent i = new Intent(getApplicationContext(), Area.class);
+        Intent i = new Intent(getApplicationContext(), DailyActivity.class);
         i.putExtra("areaId", id);
         startActivity(i);
     }
@@ -329,7 +329,7 @@ public class climbingweather extends Activity {
      * Launches areas activity
      */
     protected void launchAreas() {
-        Intent i = new Intent(this, AreaList.class);
+        Intent i = new Intent(this, AreaListActivity.class);
         startActivity(i);
     }
     
@@ -337,7 +337,7 @@ public class climbingweather extends Activity {
      * Launches states activity
      */
     protected void launchStates() {
-        Intent i = new Intent(this, StateList.class);
+        Intent i = new Intent(this, StateListActivity.class);
         startActivity(i);
     }
     
@@ -345,7 +345,7 @@ public class climbingweather extends Activity {
      * Launches states activity
      */
     protected void launchTest() {
-        Intent i = new Intent(this, Area.class);
+        Intent i = new Intent(this, DailyActivity.class);
         i.putExtra("areaId", "3");
         startActivity(i);
     }

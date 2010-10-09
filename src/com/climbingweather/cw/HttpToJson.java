@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class HttpToJson {
 	
-	private final static String baseUrl = "http://dev.climbingweather.com";
+	private final static String baseUrl = "http://www.climbingweather.com";
 	
     public String getJsonFromUrl(String relativeUrl)
     {

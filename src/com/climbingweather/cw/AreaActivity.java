@@ -50,7 +50,7 @@ public class AreaActivity extends TabActivity {
         TextView mapText = (TextView)mapTab.findViewById(R.id.name);
         mapText.setText("Map");
         spec = tabHost.newTabSpec("map").setIndicator(mapTab).setContent(intent);
-        //intent.putExtra("areaId", areaId);
+        intent.putExtra("areaId", areaId);
         //intent.putExtra("dayIndex", "0");
         tabHost.addTab(spec);
 

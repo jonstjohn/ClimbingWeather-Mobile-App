@@ -22,7 +22,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 /**
  * Simple notes database access helper class. Defines the basic CRUD operations
@@ -72,8 +71,6 @@ public class AreasDbAdapter {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
-                    + newVersion + ", which will destroy all old data");
             db.execSQL("DROP TABLE IF EXISTS area");
             onCreate(db);
         }

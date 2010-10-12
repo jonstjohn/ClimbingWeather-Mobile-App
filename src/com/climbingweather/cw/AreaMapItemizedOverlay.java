@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import android.app.AlertDialog;
 import android.content.Context;
 
-import android.util.Log;
-
 import android.graphics.drawable.Drawable;
 
 import com.google.android.maps.ItemizedOverlay;

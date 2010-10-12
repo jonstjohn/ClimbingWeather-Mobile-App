@@ -4,20 +4,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.climbingweather.cw.R;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.ScrollView;
-import android.widget.SimpleAdapter;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -29,24 +25,9 @@ import android.widget.Toast;
 public class HourlyActivity extends Activity {
     
     /**
-     * Menu item for favorite
-     */
-    private static final int MENU_FAVORITE = 0;
-    
-    /**
-     * Menu item to remove favorite
-     */
-    private static final int MENU_REMOVE_FAVORITE = 1;
-    
-    /**
      * Area id
      */
     private String areaId;
-    
-    /**
-     * Day index
-     */
-    private String dayIndex;
     
     /**
      * Name
@@ -58,6 +39,8 @@ public class HourlyActivity extends Activity {
      */
     private ProgressDialog dialog;
     
+    private Context mContext;
+    
     /** 
      * On create 
      */
@@ -68,13 +51,14 @@ public class HourlyActivity extends Activity {
 
         Bundle extras = getIntent().getExtras(); 
         areaId = extras.getString("areaId");
-        dayIndex = extras.getString("day");
         
-        String url = "/api/hourly/" + areaId;
+        String url = "/api/area/hourly/" + areaId;
         
         name = "";
         
         setContentView(R.layout.hourly_table);
+        
+        mContext = this;
         
         // Show loading dialog
         dialog = ProgressDialog.show(this, "", "Loading. Please wait...", true);
@@ -83,16 +67,26 @@ public class HourlyActivity extends Activity {
         new GetJsonTask().execute(url);
         
     }
-    
 
     /**
      * Create menu options
      */
     public boolean onCreateOptionsMenu(Menu menu) {
+        
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.area_menu, menu);
+        MenuItem fav = menu.findItem(R.id.favorite);
+        
         if (isFavorite()) {
-            menu.add(0, MENU_REMOVE_FAVORITE, 0, "Remove Favorite");
+            
+            fav.setTitle("Remove Favorite");
+            fav.setIcon(R.drawable.btn_star_big_off);
+
         } else {
-            menu.add(0, MENU_FAVORITE, 0, "Add to Favorite");
+            
+            fav.setTitle("Add Favorite");
+            fav.setIcon(R.drawable.btn_star_big_on);
+
         }
         return true;
     }
@@ -102,11 +96,12 @@ public class HourlyActivity extends Activity {
      */
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case MENU_FAVORITE:
-            saveFavorite();
-            return true;
-        case MENU_REMOVE_FAVORITE:
-            removeFavorite();
+        case R.id.favorite:
+            if (isFavorite()) {
+                removeFavorite();
+            } else {
+                saveFavorite();
+            }
             return true;
         }
         return false;
@@ -117,12 +112,15 @@ public class HourlyActivity extends Activity {
      * Setup menu dynamically
      */
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.removeItem(MENU_FAVORITE);
-        menu.removeItem(MENU_REMOVE_FAVORITE);
+
+        MenuItem fav = menu.findItem(R.id.favorite);
+        
         if (isFavorite()) {
-            menu.add(0, MENU_REMOVE_FAVORITE, 0, "Remove Favorite");
+            fav.setTitle("Remove Favorite");
+            fav.setIcon(R.drawable.btn_star_big_off);
         } else {
-            menu.add(0, MENU_FAVORITE, 0, "Add to Favorite");
+            fav.setTitle("Add Favorite");
+            fav.setIcon(R.drawable.btn_star_big_on);
         }
         return true;
     }
@@ -170,9 +168,8 @@ public class HourlyActivity extends Activity {
          * Execute in background
          */
         protected String doInBackground(String... args) {
-              HttpToJson toJson = new HttpToJson();
-              String result = toJson.getJsonFromUrl(args[0]);
-              return result;
+            CwApi api = new CwApi(mContext);
+            return api.getJson(args[0]);
         }
         
         /**
@@ -234,8 +231,6 @@ public class HourlyActivity extends Activity {
                 String symbol = dayData.getString("sy").replace(".png", "");
                 ((ImageView)row.findViewById(R.id.symbol)).setImageResource(getResources().getIdentifier(symbol, "drawable", "com.climbingweather.cw"));
                 
-                row.setId(i);
-                
                 if (i % 2 == 1) {
                     row.setBackgroundResource(R.color.silver);
                 }
@@ -259,15 +254,9 @@ public class HourlyActivity extends Activity {
                 
             }
             
-            // Scroll to id
-            //TableRow selectedRow = ((TableRow)table.findViewById(Integer.parseInt(dayIndex)));
-            //((ScrollView)findViewById(R.id.scroller)).scrollTo(0, selectedRow.getTop());
-            //table.scrollTo(0, selectedRow.getTop());
-            
-            
         } catch (JSONException e) {
             
-            e.printStackTrace();
+        	Toast.makeText(mContext, "An error occurred while retrieving forecast data", Toast.LENGTH_SHORT).show();
             
         }
         

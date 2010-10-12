@@ -7,20 +7,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.climbingweather.cw.R;
-
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 /**
  * Displays a clickable list of areas
@@ -46,6 +46,11 @@ public class AreaListActivity extends ListActivity {
      * The empty area view
      */
     private TextView emptyView;
+    
+    /**
+     * Context
+     */
+    private Context mContext;
 
     /**
      * On create
@@ -62,7 +67,7 @@ public class AreaListActivity extends ListActivity {
       String url = "";
       if (extras.containsKey("stateCode")) { // state search
           
-          url = "/api/area/" + extras.getString("stateCode");
+          url = "/api/state/area/" + extras.getString("stateCode");
           noneText = "No areas for this state";
           
       } else if (extras.containsKey("latitude")) { // lat/long search
@@ -94,6 +99,8 @@ public class AreaListActivity extends ListActivity {
       // Show loading dialog
       dialog = ProgressDialog.show(this, "", "Loading. Please wait...", true);
       
+      mContext = this;
+      
       // async task
       new GetJsonTask().execute(url);
       
@@ -108,9 +115,10 @@ public class AreaListActivity extends ListActivity {
          * Execute in background
          */
         protected String doInBackground(String... args) {
-              HttpToJson toJson = new HttpToJson();
-              String result = toJson.getJsonFromUrl(args[0]);
-              return result;
+            
+              CwApi api = new CwApi(mContext);
+              return api.getJson(args[0]);
+
         }
         
         /**
@@ -155,7 +163,7 @@ public class AreaListActivity extends ListActivity {
           
         } catch (JSONException e) {
           
-            e.printStackTrace();
+        	Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
           
         }
     

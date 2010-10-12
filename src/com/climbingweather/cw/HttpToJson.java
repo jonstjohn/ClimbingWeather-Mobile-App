@@ -11,18 +11,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import android.util.Log;
-
 public class HttpToJson {
 	
-	private final static String baseUrl = "http://www.climbingweather.com";
-	
-    public String getJsonFromUrl(String relativeUrl)
+    public String getJsonFromUrl(String url)
     {
         HttpClient httpclient = new DefaultHttpClient();
         
-        String url = baseUrl + relativeUrl;
-        Log.i("CW", url);
         HttpGet httpget = new HttpGet(url);
         
         HttpResponse response;
@@ -39,7 +33,7 @@ public class HttpToJson {
             
         } catch (Exception e) {
         	
-        	e.printStackTrace();
+        	result = "{}";
         	
         }
         
@@ -63,12 +57,12 @@ public class HttpToJson {
                 sb.append(line + "\n");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            return "";
         } finally {
             try {
                 is.close();
             } catch (IOException e) {
-                e.printStackTrace();
+            	return "";
             }
         }
         return sb.toString();

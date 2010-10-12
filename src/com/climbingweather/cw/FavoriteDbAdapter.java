@@ -5,10 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class FavoriteDbAdapter {
-	
+    
     private CwDbHelper cwDbHelper;
     private SQLiteDatabase mDb;
     
@@ -39,17 +38,17 @@ public class FavoriteDbAdapter {
      * @throws SQLException if the database could be neither opened or created
      */
     public FavoriteDbAdapter open() throws SQLException {
-    	
-    	if (mDb == null || !mDb.isOpen()) {
-	        cwDbHelper = new CwDbHelper(ctx);
-	        mDb = cwDbHelper.getWritableDatabase();
-    	}
+        
+        if (mDb == null || !mDb.isOpen()) {
+            cwDbHelper = new CwDbHelper(ctx);
+            mDb = cwDbHelper.getWritableDatabase();
+        }
         return this;
     }
     
     public void close()
     {
-    	mDb.close();
+        mDb.close();
     }
     
     /**
@@ -62,10 +61,8 @@ public class FavoriteDbAdapter {
      * @return rowId or -1 if failed
      */
     public long addFavorite(Integer areaId, String name) {
-    	
-    	// Try to delete first
-    	Log.i("CW", "Removing fav: " + Long.toString(removeFavorite(areaId)));
-    	
+        
+        // Try to delete first
         ContentValues initialValues = new ContentValues();
         initialValues.put(KEY_AREAID, areaId);
         initialValues.put(KEY_NAME, name);
@@ -75,8 +72,8 @@ public class FavoriteDbAdapter {
     
     public long removeFavorite(Integer areaId)
     {
-    	mDb.execSQL("DELETE FROM favorite WHERE area_id = " + Integer.toString(areaId));
-    	return 1; // mDb.delete(DATABASE_TABLE, KEY_ROWID + " = " + Integer.toString(areaId), null);
+        mDb.execSQL("DELETE FROM favorite WHERE area_id = " + Integer.toString(areaId));
+        return 1; // mDb.delete(DATABASE_TABLE, KEY_ROWID + " = " + Integer.toString(areaId), null);
     }
     
     /**
@@ -118,9 +115,8 @@ public class FavoriteDbAdapter {
      */
     public boolean isFavorite(Integer areaId)
     {
-    	Cursor mCursor = fetchFavoriteByAreaId(areaId);
-    	Log.i("CW", "Cursor: " + mCursor.toString());
-    	return mCursor.getCount() == 1;
+        Cursor mCursor = fetchFavoriteByAreaId(areaId);
+        return mCursor.getCount() == 1;
     }
     
     /**
@@ -132,13 +128,13 @@ public class FavoriteDbAdapter {
     {
         Cursor mCursor =
 
-	        mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
-	                KEY_AREAID, KEY_NAME}, KEY_AREAID + "=" + Integer.toString(areaId), null,
-	                null, null, null, null);
-	    if (mCursor != null) {
-	        mCursor.moveToFirst();
-	    }
-	    return mCursor;
+            mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
+                    KEY_AREAID, KEY_NAME}, KEY_AREAID + "=" + Integer.toString(areaId), null,
+                    null, null, null, null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
     }
 
 }

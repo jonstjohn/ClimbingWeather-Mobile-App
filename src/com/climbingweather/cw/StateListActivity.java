@@ -11,13 +11,13 @@ import com.climbingweather.cw.R;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 /**
@@ -70,13 +70,12 @@ public class StateListActivity extends ListActivity {
                 HashMap<String, String> map = new HashMap<String,String>();
                 map.put("code", code);
                 map.put("name", name);
-                Log.i("CW", map.toString());
                 states.add(map);
             }
         
         } catch (JSONException e) {
             
-            e.printStackTrace();
+        	Toast.makeText(this, "An error occurred while retrieving state data", Toast.LENGTH_SHORT).show();
             
         }
         

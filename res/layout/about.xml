@@ -49,6 +49,16 @@
         android:padding="5sp"
         style="@style/About"
      />
+     
+    <TextView 
+        android:id="@+id/disclaimer"
+        android:autoLink="all"
+        android:text="Disclaimer: Climbing is a dangerous activity and weather is unpredictable.  Weather forecasts are often innacurate.  Climb at your own risk." 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:padding="5sp"
+        style="@style/About"
+     />
     
     <LinearLayout android:orientation="horizontal"
         android:layout_width="fill_parent"

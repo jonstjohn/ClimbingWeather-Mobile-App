@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -281,8 +282,8 @@ public class MainActivity extends Activity {
      * Create options menu
      */
     public boolean onCreateOptionsMenu(Menu menu) {
-        //menu.add(0, MENU_SUGGEST, 0, "Suggest Area");
-        menu.add(0, MENU_ABOUT, 1, "About");
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
         return true;
     }
     
@@ -296,7 +297,7 @@ public class MainActivity extends Activity {
         //	Intent i = new Intent(getApplicationContext(), AreaActivity.class);
         //    startActivity(i);
         //    return true;
-        case MENU_ABOUT:
+        case R.id.about:
         	
         	Dialog dialog = new Dialog(this);
 

@@ -107,6 +107,21 @@ public class AreaListActivity extends ListActivity {
     }
     
     /**
+     * On pause activity
+     */
+    public void onPause()
+    {
+        super.onPause();
+        dialog.dismiss();
+    }
+    
+    public void onStop()
+    {
+        super.onStop();
+        dialog.dismiss();
+    }
+    
+    /**
      * Asynchronous get JSON task
      */
     private class GetJsonTask extends AsyncTask<String, Void, String> {

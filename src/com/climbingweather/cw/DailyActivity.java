@@ -32,7 +32,7 @@ public class DailyActivity extends Activity {
     /**
      * Name
      */
-    private String name;
+    private String name = "";
     
     /**
      * Progress dialog
@@ -52,20 +52,33 @@ public class DailyActivity extends Activity {
         Bundle extras = getIntent().getExtras(); 
         areaId = extras.getString("areaId");
         
-        String url = "/api/area/daily/" + areaId;
+        //String url = "/api/area/daily/" + areaId;
         
-        name = "";
+        //name = "";
         
         setContentView(R.layout.forecast_table);
         
         // Show loading dialog
-        dialog = ProgressDialog.show(this, "", "Loading. Please wait...", true);
+        //dialog = ProgressDialog.show(this, "", "Loading. Please wait...", true);
         
         mContext = this;
         
+        loadContent();
+        
+        // async task
+        //new GetJsonTask().execute(url);
+        
+    }
+    
+    public void loadContent()
+    {
+        String url = "/api/area/daily/" + areaId;
+        
+        // Show loading dialog
+        dialog = ProgressDialog.show(this, "", "Loading. Please wait...", true);
+        
         // async task
         new GetJsonTask().execute(url);
-        
     }
     
     /**
@@ -74,6 +87,13 @@ public class DailyActivity extends Activity {
     public void onPause()
     {
         super.onPause();
+        dialog.dismiss();
+    }
+    
+    public void onStop()
+    {
+        super.onStop();
+        dialog.dismiss();
     }
     
 
@@ -111,6 +131,9 @@ public class DailyActivity extends Activity {
             } else {
                 saveFavorite();
             }
+            return true;
+        case R.id.refresh:
+            loadContent();
             return true;
         }
         return false;

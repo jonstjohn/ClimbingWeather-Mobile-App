@@ -66,6 +66,21 @@ public class AreaMapActivity extends MapActivity {
 
 	}
 	
+    /**
+     * On pause activity
+     */
+    public void onPause()
+    {
+        super.onPause();
+        dialog.dismiss();
+    }
+    
+    public void onStop()
+    {
+        super.onStop();
+        dialog.dismiss();
+    }
+	
 	
 	@Override
 	protected boolean isRouteDisplayed() {

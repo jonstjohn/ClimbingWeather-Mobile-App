@@ -8,12 +8,19 @@ import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
 
+/**
+ * Area activity - tabs and content
+ */
 public class AreaActivity extends TabActivity {
+    
+    /**
+     * On create
+     */
     public void onCreate(Bundle savedInstanceState) {
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tab);
 
-        //Resources res = getResources(); // Resource object to get Drawables
         TabHost tabHost = getTabHost();  // The activity TabHost
         TabHost.TabSpec spec;  // Resusable TabSpec for each tab
         Intent intent;  // Reusable Intent for each tab
@@ -58,13 +65,6 @@ public class AreaActivity extends TabActivity {
         TextView areaView = (TextView)tabHost.findViewById(R.id.areaName);
         areaView.setText(extras.getString("name"));
         
-        /*
-        intent = new Intent().setClass(this, SongsActivity.class);
-        spec = tabHost.newTabSpec("songs").setIndicator("Songs",
-                          res.getDrawable(R.drawable.ic_tab_songs))
-                      .setContent(intent);
-        tabHost.addTab(spec);
-		*/
         tabHost.setCurrentTab(0);
     }
 }

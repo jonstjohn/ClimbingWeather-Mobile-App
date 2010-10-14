@@ -12,9 +12,14 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+/**
+ * Favorite list activity
+ */
 public class FavoriteListActivity extends ListActivity {
 
 	private FavoriteDbAdapter mDbHelper;
+	
+	private Cursor mCursor;
 	
     /** Called when the activity is first created. */
     @Override
@@ -33,10 +38,66 @@ public class FavoriteListActivity extends ListActivity {
         registerForContextMenu(getListView());
     }
     
+    /**
+     * On destroy activity
+     */
+    public void onDestroy()
+    {
+        super.onDestroy();
+        mDbHelper.close();
+    }
+    
+    /**
+     * On start activity
+     */
+    public void onStart()
+    {
+        super.onStart();
+        mDbHelper.open();
+        fillData();
+    }
+    
+    /**
+     * On stop activity
+     */
+    public void onStop()
+    {
+        super.onStop();
+        mDbHelper.close();
+    }
+    
+    /**
+     * On restart activity
+     */
+    public void onRestart()
+    {
+        super.onRestart();
+        mDbHelper.open();
+        fillData();
+    }
+    
+    /**
+     * On pause activity
+     */
+    public void onPause()
+    {
+        super.onPause();
+        mDbHelper.close();
+    }
+    
+    /**
+     * On resume activity
+     */
+    public void onResume()
+    {
+        super.onResume();
+        mDbHelper.open();
+        fillData();
+    }
     
     private void fillData() {
         // Get all of the rows from the database and create the item list
-        Cursor mCursor = mDbHelper.fetchAllFavorites();
+        mCursor = mDbHelper.fetchAllFavorites();
         startManagingCursor(mCursor);
         
         // Create an array to specify the fields we want to display in the list (only TITLE)
@@ -70,6 +131,7 @@ public class FavoriteListActivity extends ListActivity {
         Intent i = new Intent(this, AreaActivity.class);
         i.putExtra("areaId", fav.getString(fav.getColumnIndex(FavoriteDbAdapter.KEY_AREAID)));
         i.putExtra("name", fav.getString(fav.getColumnIndex(FavoriteDbAdapter.KEY_NAME)));
+        fav.close();
         startActivity(i);
         
     }

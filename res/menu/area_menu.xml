@@ -3,4 +3,7 @@
     <item android:id="@+id/favorite"
           android:icon="@drawable/btn_star_big_off"
           android:title="@string/add_favorite" />
+    <item android:id="@+id/refresh"
+          android:icon="@drawable/ic_menu_refresh"
+          android:title="Refresh" />
 </menu>

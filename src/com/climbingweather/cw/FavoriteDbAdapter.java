@@ -63,16 +63,21 @@ public class FavoriteDbAdapter {
     public long addFavorite(Integer areaId, String name) {
         
         // Try to delete first
+        open();
         ContentValues initialValues = new ContentValues();
         initialValues.put(KEY_AREAID, areaId);
         initialValues.put(KEY_NAME, name);
 
-        return mDb.insert(DATABASE_TABLE, null, initialValues);
+        long result = mDb.insert(DATABASE_TABLE, null, initialValues);
+        close();
+        return result;
     }
     
     public long removeFavorite(Integer areaId)
     {
+        open();
         mDb.execSQL("DELETE FROM favorite WHERE area_id = " + Integer.toString(areaId));
+        close();
         return 1; // mDb.delete(DATABASE_TABLE, KEY_ROWID + " = " + Integer.toString(areaId), null);
     }
     
@@ -81,10 +86,11 @@ public class FavoriteDbAdapter {
      * 
      * @return Cursor over all faves
      */
-    public Cursor fetchAllFavorites() {
-
-        return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_AREAID,
+    public Cursor fetchAllFavorites()
+    {
+        Cursor cursor = mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_AREAID,
                 KEY_NAME}, null, null, null, null, null);
+        return cursor;
     }
     
     /**
@@ -115,8 +121,11 @@ public class FavoriteDbAdapter {
      */
     public boolean isFavorite(Integer areaId)
     {
+        open();
         Cursor mCursor = fetchFavoriteByAreaId(areaId);
-        return mCursor.getCount() == 1;
+        Boolean bool = mCursor.getCount() == 1;
+        close();
+        return bool;
     }
     
     /**

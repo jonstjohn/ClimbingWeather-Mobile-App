@@ -39,6 +39,9 @@ public class HourlyActivity extends Activity {
      */
     private ProgressDialog dialog;
     
+    /**
+     * Context
+     */
     private Context mContext;
     
     /** 
@@ -52,22 +55,42 @@ public class HourlyActivity extends Activity {
         Bundle extras = getIntent().getExtras(); 
         areaId = extras.getString("areaId");
         
-        String url = "/api/area/hourly/" + areaId;
-        
-        name = "";
-        
         setContentView(R.layout.hourly_table);
         
         mContext = this;
+        
+        loadContent();
+    }
+    
+    /**
+     * Load forecast content
+     */
+    public void loadContent()
+    {
+        String url = "/api/area/hourly/" + areaId;
         
         // Show loading dialog
         dialog = ProgressDialog.show(this, "", "Loading. Please wait...", true);
         
         // async task
         new GetJsonTask().execute(url);
-        
     }
-
+    
+    /**
+     * On pause activity
+     */
+    public void onPause()
+    {
+        super.onPause();
+        dialog.dismiss();
+    }
+    
+    public void onStop()
+    {
+        super.onStop();
+        dialog.dismiss();
+    }
+    
     /**
      * Create menu options
      */
@@ -102,6 +125,9 @@ public class HourlyActivity extends Activity {
             } else {
                 saveFavorite();
             }
+            return true;
+        case R.id.refresh:
+            loadContent();
             return true;
         }
         return false;
@@ -142,7 +168,6 @@ public class HourlyActivity extends Activity {
     public void removeFavorite() {
         
         FavoriteDbAdapter dbAdapter = new FavoriteDbAdapter(this);
-        dbAdapter.open();
         dbAdapter.removeFavorite(Integer.parseInt(areaId));
         
     }
@@ -153,7 +178,6 @@ public class HourlyActivity extends Activity {
     public boolean isFavorite() {
 
         FavoriteDbAdapter dbAdapter = new FavoriteDbAdapter(this);
-        dbAdapter.open();
         boolean isFavorite = dbAdapter.isFavorite(Integer.parseInt(areaId));
         return isFavorite;
 

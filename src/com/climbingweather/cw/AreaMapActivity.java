@@ -80,6 +80,12 @@ public class AreaMapActivity extends MapActivity {
         super.onStop();
         dialog.dismiss();
     }
+    
+    public void onDestroy()
+    {
+        super.onDestroy();
+        dialog.dismiss();
+    }
 	
 	
 	@Override

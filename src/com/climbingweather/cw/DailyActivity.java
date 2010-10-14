@@ -90,6 +90,12 @@ public class DailyActivity extends Activity {
         dialog.dismiss();
     }
     
+    public void onDestroy()
+    {
+        super.onDestroy();
+        dialog.dismiss();
+    }
+    
     public void onStop()
     {
         super.onStop();

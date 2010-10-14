@@ -91,6 +91,12 @@ public class HourlyActivity extends Activity {
         dialog.dismiss();
     }
     
+    public void onDestroy()
+    {
+        super.onDestroy();
+        dialog.dismiss();
+    }
+    
     /**
      * Create menu options
      */

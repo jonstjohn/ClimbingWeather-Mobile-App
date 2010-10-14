@@ -24,9 +24,6 @@ import java.net.URLEncoder;
 
 public class MainActivity extends Activity {
     
-    private final static int MENU_ABOUT = 1;
-//    private final static int MENU_SUGGEST = 2;
-    
     /**
      * Location manager for location updates
      */
@@ -67,26 +64,8 @@ public class MainActivity extends Activity {
         LinearLayout favoriteLayout = (LinearLayout) findViewById(R.id.favorite);
         favoriteLayout.setOnClickListener(favoriteListener);
         
-        // States text and image
-        /*
-        TextView stateButton = (TextView) findViewById(R.id.state_text);
-        stateButton.setOnClickListener(stateListener);
-        
-        ImageView stateImage = (ImageView) findViewById(R.id.state_image);
-        stateImage.setOnClickListener(stateListener);
-        */
-        
         LinearLayout stateLayout = (LinearLayout) findViewById(R.id.state);
         stateLayout.setOnClickListener(stateListener);
-        
-        // Nearest areas text and image
-        /*
-        TextView nearestText = (TextView) findViewById(R.id.closest_text);
-        nearestText.setOnClickListener(closestListener);
-        
-        ImageView nearestImage = (ImageView) findViewById(R.id.closest_image);
-        nearestImage.setOnClickListener(closestListener);
-        */
         
         LinearLayout nearestLayout = (LinearLayout) findViewById(R.id.closest);
         nearestLayout.setOnClickListener(closestListener);
@@ -106,7 +85,7 @@ public class MainActivity extends Activity {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) 
                     && (keyCode == KeyEvent.KEYCODE_ENTER)) {
 
-                	doSearch();
+                    doSearch();
                     return true;
                     
                 }
@@ -220,7 +199,7 @@ public class MainActivity extends Activity {
         
         public void onClick(View v) {
             
-        	doSearch();
+            doSearch();
 
         }
         
@@ -266,12 +245,12 @@ public class MainActivity extends Activity {
     
     private boolean doSearch() {
 
-    	EditText searchEdit = (EditText) findViewById(R.id.search_edit);
-    	String srch = searchEdit.getText().toString();
-    	srch = URLEncoder.encode(srch);
-    	
-    	// Clean-up search string - URL encode
-    	Intent i = new Intent(getApplicationContext(), AreaListActivity.class);
+        EditText searchEdit = (EditText) findViewById(R.id.search_edit);
+        String srch = searchEdit.getText().toString();
+        srch = URLEncoder.encode(srch);
+        
+        // Clean-up search string - URL encode
+        Intent i = new Intent(getApplicationContext(), AreaListActivity.class);
         i.putExtra("srch", srch);
         startActivity(i);
         return true;
@@ -293,18 +272,18 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item)
     {
         switch (item.getItemId()) {
-        //case MENU_SUGGEST:
-        //	Intent i = new Intent(getApplicationContext(), AreaActivity.class);
-        //    startActivity(i);
-        //    return true;
         case R.id.about:
-        	
-        	Dialog dialog = new Dialog(this);
+            
+            Dialog dialog = new Dialog(this);
 
-        	dialog.setContentView(R.layout.about);
-        	dialog.setTitle("About");
-        	
-        	dialog.show();
+            dialog.setContentView(R.layout.about);
+            dialog.setTitle("About");
+            
+            dialog.show();
+            return true;
+        case R.id.settings:
+            Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(i);
             return true;
         }
         return false;

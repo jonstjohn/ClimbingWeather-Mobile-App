@@ -1,6 +1,8 @@
 package com.climbingweather.cw;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 
 /**
@@ -36,7 +38,11 @@ public class CwApi {
     {
         String apiKey = getApiKey();
         
-        String absoluteUrl = mBaseUrl + url + "?apiKey=" + apiKey;
+        String divider = url.contains("?") ? "&" : "?";
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        String absoluteUrl = mBaseUrl + url + divider + "apiKey=" + apiKey + "&tempUnit=" + prefs.getString("tempUnit", "f") +
+            "&device=android&version=0.9";
         
         HttpToJson toJson = new HttpToJson();
         return toJson.getJsonFromUrl(absoluteUrl);

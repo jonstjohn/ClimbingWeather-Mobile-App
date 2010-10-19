@@ -7,8 +7,11 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,6 +44,8 @@ public class DailyActivity extends Activity {
     
     private Context mContext;
     
+    private String tempUnit;
+    
     /** 
      * On create 
      */
@@ -52,21 +57,13 @@ public class DailyActivity extends Activity {
         Bundle extras = getIntent().getExtras(); 
         areaId = extras.getString("areaId");
         
-        //String url = "/api/area/daily/" + areaId;
-        
-        //name = "";
-        
         setContentView(R.layout.forecast_table);
-        
-        // Show loading dialog
-        //dialog = ProgressDialog.show(this, "", "Loading. Please wait...", true);
         
         mContext = this;
         
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        tempUnit = prefs.getString("tempUnit", "f");
         loadContent();
-        
-        // async task
-        //new GetJsonTask().execute(url);
         
     }
     
@@ -100,6 +97,29 @@ public class DailyActivity extends Activity {
     {
         super.onStop();
         dialog.dismiss();
+    }
+    
+    public void onResume()
+    {
+        super.onResume();
+        
+        // If tempUnit has changed, refresh
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        if (!prefs.getString("tempUnit", "f").equals(tempUnit)) {
+            refresh();
+        }
+    }
+    
+    /**
+     * Refresh activity
+     */
+    private void refresh()
+    {
+        Intent refreshIntent = new Intent(getApplicationContext(), AreaActivity.class);
+        refreshIntent.putExtra("areaId", areaId);
+        refreshIntent.putExtra("name", name);
+        startActivity(refreshIntent);
+        this.getParent().finish();
     }
     
 
@@ -139,7 +159,15 @@ public class DailyActivity extends Activity {
             }
             return true;
         case R.id.refresh:
-            loadContent();
+            refresh();
+            return true;
+        case R.id.home:
+            Intent homeIntent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(homeIntent);
+            return true;
+        case R.id.settings:
+            Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(settingsIntent);
             return true;
         }
         return false;
@@ -259,6 +287,9 @@ public class DailyActivity extends Activity {
                 String symbol = dayData.getString("sy").replace(".png", "");
                 ((ImageView)row.findViewById(R.id.symbol)).setImageResource(getResources().getIdentifier(symbol, "drawable", "com.climbingweather.cw"));
                 
+                if (i % 2 == 1) {
+                    row.setBackgroundResource(R.color.silver);
+                }
                 table.addView(row);
                 
                 String conditions = dayData.getString("c");

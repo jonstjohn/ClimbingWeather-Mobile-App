@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -202,9 +203,30 @@ public class AreaMapActivity extends MapActivity {
                 saveFavorite();
             }
             return true;
+        case R.id.refresh:
+            refresh();
+            return true;
+        case R.id.home:
+            Intent homeIntent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(homeIntent);
+            return true;
+        case R.id.settings:
+            Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(settingsIntent);
+            return true;
         }
         return false;
 
+    }
+    
+    private void refresh()
+    {
+        Intent refreshIntent = new Intent(getApplicationContext(), AreaActivity.class);
+        refreshIntent.putExtra("areaId", areaId);
+        refreshIntent.putExtra("name", name);
+        refreshIntent.putExtra("tabSelected", 2);
+        startActivity(refreshIntent);
+        this.getParent().finish();
     }
     
     /**

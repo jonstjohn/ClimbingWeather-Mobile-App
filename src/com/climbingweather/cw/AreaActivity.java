@@ -65,6 +65,7 @@ public class AreaActivity extends TabActivity {
         TextView areaView = (TextView)tabHost.findViewById(R.id.areaName);
         areaView.setText(extras.getString("name"));
         
-        tabHost.setCurrentTab(0);
+        int tabSelected = extras.getInt("tabSelected");
+        tabHost.setCurrentTab(tabSelected);
     }
 }

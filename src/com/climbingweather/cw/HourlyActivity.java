@@ -7,8 +7,11 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -44,6 +47,11 @@ public class HourlyActivity extends Activity {
      */
     private Context mContext;
     
+    /**
+     * Temp unit preference setting when activity is started
+     */
+    private String tempUnit;
+    
     /** 
      * On create 
      */
@@ -58,6 +66,9 @@ public class HourlyActivity extends Activity {
         setContentView(R.layout.hourly_table);
         
         mContext = this;
+        
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        tempUnit = prefs.getString("tempUnit", "f");
         
         loadContent();
     }
@@ -97,6 +108,31 @@ public class HourlyActivity extends Activity {
         dialog.dismiss();
     }
     
+    public void onResume()
+    {
+        super.onResume();
+        
+        // If tempUnit has changed, refresh
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        if (!prefs.getString("tempUnit", "f").equals(tempUnit)) {
+            refresh();
+        }
+    }
+    
+    /**
+     * Refresh activity
+     */
+    private void refresh()
+    {
+        Intent refreshIntent = new Intent(getApplicationContext(), AreaActivity.class);
+        refreshIntent.putExtra("areaId", areaId);
+        refreshIntent.putExtra("name", name);
+        refreshIntent.putExtra("tabSelected", 1);
+        startActivity(refreshIntent);
+        
+        this.getParent().finish();
+    }
+    
     /**
      * Create menu options
      */
@@ -133,7 +169,15 @@ public class HourlyActivity extends Activity {
             }
             return true;
         case R.id.refresh:
-            loadContent();
+            refresh();
+            return true;
+        case R.id.home:
+            Intent homeIntent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(homeIntent);
+            return true;
+        case R.id.settings:
+            Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(settingsIntent);
             return true;
         }
         return false;

@@ -42,7 +42,7 @@ public class CwApi {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         String absoluteUrl = mBaseUrl + url + divider + "apiKey=" + apiKey + "&tempUnit=" + prefs.getString("tempUnit", "f") +
-            "&device=android&version=0.9";
+            "&device=android&version=1.0";
         
         HttpToJson toJson = new HttpToJson();
         return toJson.getJsonFromUrl(absoluteUrl);

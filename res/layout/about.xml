@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"/>
     -->
     <TextView 
-        android:text="Version 0.9" 
+        android:text="Version 1.0" 
         android:layout_width="fill_parent" 
         android:layout_height="wrap_content"
         android:padding="5sp"

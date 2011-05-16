@@ -285,7 +285,7 @@ public class DailyActivity extends Activity {
                 ((TextView)row.findViewById(R.id.wind)).setText(dayData.getString("ws") + " mph");
                 
                 String symbol = dayData.getString("sy").replace(".png", "");
-                ((ImageView)row.findViewById(R.id.symbol)).setImageResource(getResources().getIdentifier(symbol, "drawable", "com.climbingweather.cw"));
+                ((ImageView)row.findViewById(R.id.symbol)).setImageResource(getResources().getIdentifier(symbol, "drawable", "net.newriverclimbing.vous"));
                 
                 if (i % 2 == 1) {
                     row.setBackgroundResource(R.color.silver);

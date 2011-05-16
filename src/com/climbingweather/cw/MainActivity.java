@@ -126,7 +126,7 @@ public class MainActivity extends Activity {
     }
     
     /**
-     * On destory activity
+     * On destroy activity
      */
     public void onDestroy()
     {

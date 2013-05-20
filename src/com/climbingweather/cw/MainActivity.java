@@ -1,6 +1,5 @@
 package com.climbingweather.cw;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -8,10 +7,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
@@ -20,9 +17,27 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.MenuInflater;
+
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
+
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-public class MainActivity extends Activity {
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.viewpagerindicator.TabPageIndicator;
+
+public class MainActivity extends SherlockFragmentActivity {
+    
+    private static final String[] CONTENT = new String[] { "Home", "Favorites", "Nearby", "By State", "Map" };
     
     /**
      * Location manager for location updates
@@ -52,8 +67,10 @@ public class MainActivity extends Activity {
         
         super.onCreate(savedInstanceState);
         
-        setContentView(R.layout.main);
+        //setContentView(R.layout.main);
+        setContentView(R.layout.simple_tabs);
         
+        /*
         // Favorite text and image
         TextView favoriteText = (TextView)findViewById(R.id.favorite_text);
         favoriteText.setOnClickListener(favoriteListener);
@@ -76,9 +93,7 @@ public class MainActivity extends Activity {
         // Capture key actions
         searchEdit.setOnKeyListener(new OnKeyListener() {
             
-            /**
-             * Capture key actions
-             */
+            // Capture key actions
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 
                 // If enter is pressed, do search
@@ -97,11 +112,13 @@ public class MainActivity extends Activity {
         // Search button
         ImageView searchButton = (ImageView) findViewById(R.id.search_button);
         searchButton.setOnClickListener(searchListener);
+        */
         
         // Start location manager
+        
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new MyLocationListener();
-        
+        /*
         // Get last known location
         Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         
@@ -119,10 +136,81 @@ public class MainActivity extends Activity {
                 longitude = locNetwork.getLongitude();
             }
         }
+        */
+        /*
         
         // Add location listener
         addLocationListener();
+        */
+        /*
+        final ActionBar actionBar = getSupportActionBar();
+
+        // Specify that tabs should be displayed in the action bar.
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        // Create a tab listener that is called when the user changes tabs.
+        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
+            public void onTabSelected(ActionBar.Tab tab,
+                    FragmentTransaction ft) { }
+
+            public void onTabUnselected(ActionBar.Tab tab,
+                    FragmentTransaction ft) { }
+
+            public void onTabReselected(ActionBar.Tab tab,
+                    FragmentTransaction ft) { }
+        };
+
+        // Add 3 tabs.
+        for (int i = 0; i < 3; i++) {
+            actionBar.addTab(
+                    actionBar.newTab()
+                            .setText("Tab " + (i + 1))
+                            .setTabListener(tabListener));
+        }
+        */
         
+        FragmentPagerAdapter adapter = new CwPagerAdapter(getSupportFragmentManager());
+
+        ViewPager pager = (ViewPager)findViewById(R.id.pager);
+        pager.setAdapter(adapter);
+
+        TabPageIndicator indicator = (TabPageIndicator)findViewById(R.id.indicator);
+        indicator.setViewPager(pager);
+    }
+    
+    /**
+     * CW Pager adapter
+     */
+    class CwPagerAdapter extends FragmentPagerAdapter {
+        
+        /**
+         * Constructor
+         * @param fm
+         */
+        public CwPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if (position == 3) {
+                return new StateListFragment();
+            } else if (position == 1) {
+                return new FavoriteListFragment();
+            } else {
+                return TestFragment.newInstance(CONTENT[position % CONTENT.length]);
+            }
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return CONTENT[position % CONTENT.length].toUpperCase();
+        }
+
+        @Override
+        public int getCount() {
+          return CONTENT.length;
+        }
     }
     
     /**
@@ -247,7 +335,12 @@ public class MainActivity extends Activity {
 
         EditText searchEdit = (EditText) findViewById(R.id.search_edit);
         String srch = searchEdit.getText().toString();
-        srch = URLEncoder.encode(srch);
+        try {
+            srch = URLEncoder.encode(srch, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         
         // Clean-up search string - URL encode
         Intent i = new Intent(getApplicationContext(), AreaListActivity.class);
@@ -261,7 +354,7 @@ public class MainActivity extends Activity {
      * Create options menu
      */
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
+        MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         return true;
     }

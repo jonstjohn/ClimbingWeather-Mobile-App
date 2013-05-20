@@ -7,6 +7,10 @@
     android:gravity="center"
     android:background="#fff"
     >
+    <com.viewpagerindicator.TitlePageIndicator
+	android:id="@+id/titles"
+	android:layout_height="wrap_content"
+	android:layout_width="fill_parent" />
     <ImageView
         android:src="@drawable/logo_top_center"
         android:layout_width="fill_parent"

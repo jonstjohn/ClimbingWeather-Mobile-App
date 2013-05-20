@@ -307,6 +307,17 @@ public class StateListFragment extends ExpandableListFragment {
                 new GetAreasJsonTask(stateCode).execute("/api/state/area/" + stateCode);
             }
         }
+        
+        /**
+         * Add areas to state
+         * @param String stateCode
+         * @param String areaId
+         * @param HashMap<String, String> areaData
+         */
+        public void addAreasToState(String stateCode, String areaId, HashMap<String, String> areaData)
+        {
+            
+        }
 
     }
     
@@ -408,11 +419,30 @@ public class StateListFragment extends ExpandableListFragment {
          */
         protected void onPostExecute(String result)
         {
-            //try {
+            
+            
+        /*
+        // State codes
+        private ArrayList<String> stateCodes = new ArrayList<String>();
+        
+        // Area ids indexed by state code
+        private ArrayList<ArrayList<String>> areaIds = new ArrayList<ArrayList<String>>();
+        
+        // State data
+        private HashMap<String, HashMap<String, String>> stateData = new HashMap<String, HashMap<String, String>>();
+        
+        // State areas
+        private HashMap<String, String[]> stateAreas = new HashMap<String, String[]>();;
+        
+        // Area data
+        private HashMap<String, HashMap<String, String>> areaData;
+        
+         */
+            try {
                 
-                Log.i("CW", result);
+                //Log.i("CW", result);
                 
-                /*
+                
                 // Convert result into JSONArray
                 JSONArray json = new JSONArray(result);
               
@@ -446,15 +476,16 @@ public class StateListFragment extends ExpandableListFragment {
                     
                     String[] namesStrings = new String[stateCodeList.size()];
                     String[] stateCodes = stateCodeList.toArray(namesStrings);
-                    
+                    /*
                     stateAdapter = new StateExpandableListAdapter(
                             mContext,
                             stateCodes,
                             stateData
                         );
                         setListAdapter(stateAdapter);
+                    */
                 }
-                */
+                
               
             /*} catch (JSONException e) {
               

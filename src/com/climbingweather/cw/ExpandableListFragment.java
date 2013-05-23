@@ -1,9 +1,10 @@
 package com.climbingweather.cw;
 
+import com.actionbarsherlock.app.SherlockFragment;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
@@ -21,7 +22,7 @@ import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class ExpandableListFragment extends Fragment
+public class ExpandableListFragment extends SherlockFragment
     implements OnCreateContextMenuListener,
     ExpandableListView.OnChildClickListener, ExpandableListView.OnGroupCollapseListener,
     ExpandableListView.OnGroupExpandListener

@@ -1338,7 +1338,7 @@ containing a value of this type.
         public static final int vpi__tab_unselected_pressed_holo=0x7f0200c5;
     }
     public static final class id {
-        public static final int about=0x7f04006d;
+        public static final int about=0x7f040080;
         public static final int abs__action_bar=0x7f04002c;
         public static final int abs__action_bar_container=0x7f04002b;
         public static final int abs__action_bar_subtitle=0x7f04001b;
@@ -1379,75 +1379,94 @@ containing a value of this type.
         public static final int abs__title=0x7f040025;
         public static final int abs__titleDivider=0x7f040026;
         public static final int abs__up=0x7f040010;
-        public static final int areaName=0x7f040068;
-        public static final int bar=0x7f040069;
+        public static final int area=0x7f040051;
+        public static final int areaCount=0x7f040067;
+        public static final int areaName=0x7f04007b;
+        public static final int bar=0x7f04007c;
         public static final int bottom=0x7f040003;
-        public static final int button=0x7f040054;
-        public static final int closest=0x7f040058;
-        public static final int closest_image=0x7f040059;
-        public static final int closest_text=0x7f04005a;
+        public static final int button=0x7f040066;
+        public static final int closest=0x7f04006b;
+        public static final int closest_image=0x7f04006c;
+        public static final int closest_text=0x7f04006d;
+        public static final int conditions=0x7f040064;
         public static final int copyright=0x7f040016;
+        public static final int d1=0x7f040053;
+        public static final int d2=0x7f040054;
+        public static final int d3=0x7f040055;
         public static final int date=0x7f040043;
         public static final int day=0x7f040042;
+        public static final int days=0x7f040052;
+        public static final int dd=0x7f04005b;
         public static final int disableHome=0x7f04000e;
         public static final int disclaimer=0x7f040019;
+        public static final int dy=0x7f04005a;
         public static final int edit_query=0x7f040031;
-        public static final int entry=0x7f040061;
-        public static final int favorite=0x7f04005e;
-        public static final int favorite_image=0x7f04005f;
-        public static final int favorite_text=0x7f040060;
+        public static final int entry=0x7f040074;
+        public static final int favorite=0x7f040071;
+        public static final int favorite_image=0x7f040072;
+        public static final int favorite_text=0x7f040073;
         public static final int feedback=0x7f040018;
+        public static final int firstRow=0x7f040059;
         public static final int forecast_table=0x7f040041;
+        public static final int h=0x7f040063;
+        public static final int hi=0x7f04005d;
         public static final int high=0x7f040045;
-        public static final int home=0x7f04006b;
+        public static final int home=0x7f04007e;
         public static final int homeAsUp=0x7f04000b;
         public static final int humidity=0x7f04004a;
-        public static final int indicator=0x7f040066;
+        public static final int indicator=0x7f040079;
+        public static final int l=0x7f04005e;
         public static final int layout_root=0x7f040015;
         public static final int listMode=0x7f040007;
-        public static final int list_item=0x7f040052;
+        public static final int list_item=0x7f040058;
         public static final int list_item_child=0x7f040050;
-        public static final int list_item_text_child=0x7f040051;
-        public static final int list_item_text_view=0x7f040053;
+        public static final int list_item_text_child=0x7f040057;
+        public static final int list_item_text_view=0x7f040065;
+        public static final int loading=0x7f040056;
         public static final int low=0x7f040046;
         public static final int mainlayout=0x7f04003d;
         public static final int mapview=0x7f04003e;
         public static final int name=0x7f040040;
         public static final int none=0x7f040000;
         public static final int normal=0x7f040006;
-        public static final int pager=0x7f040067;
+        public static final int pager=0x7f04007a;
+        public static final int pd=0x7f04005f;
+        public static final int pn=0x7f040060;
         public static final int precip=0x7f04004f;
         public static final int precipDay=0x7f040047;
         public static final int precipNight=0x7f040048;
-        public static final int refresh=0x7f04006a;
+        public static final int refresh=0x7f04007d;
         public static final int rights=0x7f040017;
         public static final int scroller=0x7f04004b;
-        public static final int search_button=0x7f040057;
-        public static final int search_edit=0x7f040056;
-        public static final int settings=0x7f04006c;
+        public static final int search_button=0x7f04006a;
+        public static final int search_edit=0x7f040069;
+        public static final int settings=0x7f04007f;
         public static final int showCustom=0x7f04000d;
         public static final int showHome=0x7f04000a;
         public static final int showTitle=0x7f04000c;
         public static final int sky=0x7f04004e;
-        public static final int state=0x7f04005b;
-        public static final int state_image=0x7f04005c;
-        public static final int state_text=0x7f04005d;
+        public static final int state=0x7f04006e;
+        public static final int state_image=0x7f04006f;
+        public static final int state_text=0x7f040070;
+        public static final int sy=0x7f04005c;
         public static final int symbol=0x7f040044;
         public static final int tabMode=0x7f040008;
         public static final int temp=0x7f04004d;
-        public static final int tempUnitContainer=0x7f040063;
-        public static final int tempUnitMore=0x7f040065;
-        public static final int tempUnitRow=0x7f040062;
-        public static final int tempUnitValue=0x7f040064;
+        public static final int tempUnitContainer=0x7f040076;
+        public static final int tempUnitMore=0x7f040078;
+        public static final int tempUnitRow=0x7f040075;
+        public static final int tempUnitValue=0x7f040077;
         public static final int time=0x7f04004c;
-        public static final int titles=0x7f040055;
+        public static final int titles=0x7f040068;
         public static final int top=0x7f040004;
         public static final int triangle=0x7f040001;
         public static final int underline=0x7f040002;
         public static final int useLogo=0x7f040009;
         public static final int weather=0x7f04003f;
         public static final int wind=0x7f040049;
+        public static final int windHumidity=0x7f040061;
         public static final int wrap_content=0x7f040005;
+        public static final int ws=0x7f040062;
     }
     public static final class integer {
         public static final int abs__max_action_buttons=0x7f070005;
@@ -1492,17 +1511,21 @@ containing a value of this type.
         public static final int hourly_table=0x7f03001f;
         public static final int list=0x7f030020;
         public static final int list_expandable=0x7f030021;
-        public static final int list_item_child=0x7f030022;
-        public static final int list_item_parent=0x7f030023;
-        public static final int list_row=0x7f030024;
-        public static final int main=0x7f030025;
-        public static final int search=0x7f030026;
-        public static final int settings=0x7f030027;
-        public static final int sherlock_spinner_dropdown_item=0x7f030028;
-        public static final int sherlock_spinner_item=0x7f030029;
-        public static final int simple_tabs=0x7f03002a;
-        public static final int tab=0x7f03002b;
-        public static final int tab_content=0x7f03002c;
+        public static final int list_item_area=0x7f030022;
+        public static final int list_item_child=0x7f030023;
+        public static final int list_item_daily=0x7f030024;
+        public static final int list_item_loading=0x7f030025;
+        public static final int list_item_parent=0x7f030026;
+        public static final int list_item_state=0x7f030027;
+        public static final int list_row=0x7f030028;
+        public static final int main=0x7f030029;
+        public static final int search=0x7f03002a;
+        public static final int settings=0x7f03002b;
+        public static final int sherlock_spinner_dropdown_item=0x7f03002c;
+        public static final int sherlock_spinner_item=0x7f03002d;
+        public static final int simple_tabs=0x7f03002e;
+        public static final int tab=0x7f03002f;
+        public static final int tab_content=0x7f030030;
     }
     public static final class menu {
         public static final int area_menu=0x7f0c0000;
@@ -1558,6 +1581,8 @@ containing a value of this type.
         public static final int app_name=0x7f0a0010;
         public static final int closest_button=0x7f0a0013;
         public static final int favorite_button=0x7f0a000f;
+        public static final int loading=0x7f0a0016;
+        public static final int loadingDescription=0x7f0a0017;
         public static final int search=0x7f0a0014;
         public static final int search_title=0x7f0a0011;
         public static final int state_button=0x7f0a0012;
@@ -1569,6 +1594,8 @@ containing a value of this type.
         public static final int CodeFont=0x7f09005d;
         public static final int CustomCirclePageIndicator=0x7f09006a;
         public static final int CustomLinePageIndicator=0x7f090069;
+        /**  "Implementation" of VPI theme. We just set the text size and color. 
+         */
         public static final int CustomTabPageIndicator=0x7f09006b;
         public static final int CustomTabPageIndicator_Text=0x7f09006c;
         public static final int CustomTitlePageIndicator=0x7f090068;
@@ -1624,6 +1651,13 @@ containing a value of this type.
         public static final int Theme_Sherlock_Light_Dialog=0x7f09005c;
         public static final int Theme_Sherlock_Light_NoActionBar=0x7f09005a;
         public static final int Theme_Sherlock_NoActionBar=0x7f090059;
+        public static final int Theme_Styled=0x7f09006e;
+        /**  This is our ViewPagerIndicator theme. We inherit from the ABS theme 
+         */
+        public static final int Theme_VPI=0x7f09006f;
+        /**  More customizations for ABS 
+         */
+        public static final int TitleText=0x7f090071;
         public static final int Widget=0x7f090001;
         public static final int Widget_IconPageIndicator=0x7f090004;
         public static final int Widget_Sherlock_ActionBar=0x7f090006;
@@ -1672,6 +1706,9 @@ containing a value of this type.
         public static final int Widget_Sherlock_SearchAutoCompleteTextView=0x7f090038;
         public static final int Widget_Sherlock_Spinner_DropDown_ActionBar=0x7f090028;
         public static final int Widget_Sherlock_TextView_SpinnerItem=0x7f090036;
+        /**  "Implementation" of our ABS custom theme 
+         */
+        public static final int Widget_Styled_ActionBar=0x7f090070;
         public static final int Widget_TabPageIndicator=0x7f090002;
     }
     public static final class styleable {

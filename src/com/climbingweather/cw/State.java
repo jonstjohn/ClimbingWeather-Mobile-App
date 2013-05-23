@@ -8,14 +8,17 @@ public class State
     
     private String code;
     
-    private ArrayList<Area> areas;
+    // States areas
+    private ArrayList<Area> stateAreas;
+    
+    private int areas;
     
     public void addArea(Area area)
     {
-        if (areas == null) {
-            areas = new ArrayList<Area>();
+        if (stateAreas == null) {
+            stateAreas = new ArrayList<Area>();
         }
-        areas.add(area);
+        stateAreas.add(area);
     }
     
     public State(String pName, String pCode)
@@ -36,16 +39,20 @@ public class State
     
     public Area getArea(int position)
     {
-        return areas.get(position);
+        return stateAreas.get(position);
     }
     
     public boolean hasAreas()
     {
-        return areas != null;
+        return stateAreas != null;
     }
     
     public int getAreaCount()
     {
-        return areas.size();
+        if (stateAreas == null) {
+            return areas;
+        } else {
+            return stateAreas.size();
+        }
     }
 }

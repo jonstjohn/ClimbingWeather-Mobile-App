@@ -20,6 +20,8 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,7 +86,7 @@ public class StateListFragment extends ExpandableListFragment {
             int childPosition, long id) {
         // use groupPosition and childPosition to locate the current item in the adapter
         Area area = states.get(groupPosition).getArea(childPosition);
-        Intent i = new Intent(getActivity(), AreaActivity.class);
+        Intent i = new Intent(getActivity(), AreaFragmentActivity.class);
         i.putExtra("areaId", Integer.valueOf(area.getId()).toString());
         i.putExtra("name", area.getName());
         startActivity(i);
@@ -95,6 +97,7 @@ public class StateListFragment extends ExpandableListFragment {
     public void onDestroyView()
     {
     	super.onDestroyView();
+    	Log.i("CW", "Destroying view");
     	setListAdapter(null);
     }
     
@@ -104,6 +107,10 @@ public class StateListFragment extends ExpandableListFragment {
     public class StateExpandableListAdapter extends BaseExpandableListAdapter {
         
         private LayoutInflater inflater;
+        
+        private View stateView;
+        
+        private View loadingView;
         
         public StateExpandableListAdapter(Context context)
         {
@@ -152,16 +159,65 @@ public class StateListFragment extends ExpandableListFragment {
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
                 View convertView, ViewGroup parent)
         {
+            State state = states.get(groupPosition);
+            
+            /*
+            // State has areas, show
+            if (state.hasAreas()) {
+                // If convert view is not the 
+                if (convertView == null || convertView.getId() != R.layout.list_item_area) {
+                    if (stateView == null) {
+                        stateView = inflater.inflate(R.layout.list_item_area, parent, false);
+                    }
+                    convertView = stateView;
+                }
+                
+                Area area = state.getArea(childPosition);
+                
+                TextView textView = (TextView) convertView.findViewById(R.id.name);
+                textView.setText(area.getName());
+                //((TextView) convertView.findViewById(R.id.name)).setText(area.getName());
+                
+            } else {
+                
+                if (convertView == null || convertView.getId() != R.layout.list_item_loading){
+                    loadingView = inflater.inflate(R.layout.list_item_loading, parent, false);
+                }
+                convertView = loadingView;
+            }
+            */
             if (convertView == null) {
-                convertView = inflater.inflate(R.layout.list_item_child, parent,false);
+                convertView = inflater.inflate(R.layout.list_item_area, parent,false);
             }
      
-            TextView textView = (TextView) convertView.findViewById(R.id.list_item_text_child);
+            TextView nameTextView = (TextView) convertView.findViewById(R.id.name);
+            LinearLayout areaLinearLayout = (LinearLayout) convertView.findViewById(R.id.area);
+            ImageView loadingImageView = (ImageView) convertView.findViewById(R.id.loading);
+            ImageView day1ImageView = (ImageView) convertView.findViewById(R.id.d1);
+            ImageView day2ImageView = (ImageView) convertView.findViewById(R.id.d2);
+            ImageView day3ImageView = (ImageView) convertView.findViewById(R.id.d3);
             
-            if (states.get(groupPosition).hasAreas()) {
-                textView.setText(states.get(groupPosition).getArea(childPosition).toString());
+            if (state.hasAreas()) {
+                
+                Area area = state.getArea(childPosition);
+                nameTextView.setText(area.getName());
+                
+                String symbol1 = area.getDay(0).getSymbol().replace(".png", "");
+                day1ImageView.setImageResource(getResources().getIdentifier(symbol1, "drawable", "com.climbingweather.cw"));
+                
+                String symbol2 = area.getDay(1).getSymbol().replace(".png", "");
+                day2ImageView.setImageResource(getResources().getIdentifier(symbol2, "drawable", "com.climbingweather.cw"));
+                
+                String symbol3 = area.getDay(2).getSymbol().replace(".png", "");
+                day3ImageView.setImageResource(getResources().getIdentifier(symbol3, "drawable", "com.climbingweather.cw"));
+                
+                areaLinearLayout.setVisibility(View.VISIBLE);
+                loadingImageView.setVisibility(View.INVISIBLE);
+                
             } else {
-                textView.setText("Loading areas ...");
+                nameTextView.setText("Loading areas ...");
+                areaLinearLayout.setVisibility(View.INVISIBLE);
+                loadingImageView.setVisibility(View.VISIBLE);
             }
      
             //return the entire view
@@ -184,13 +240,16 @@ public class StateListFragment extends ExpandableListFragment {
                 ViewGroup parent) {
             
             if (convertView == null) {
-                convertView = inflater.inflate(R.layout.list_item_parent, parent,false);
+                convertView = inflater.inflate(R.layout.list_item_state, parent,false);
             }
      
-            TextView textView = (TextView) convertView.findViewById(R.id.list_item_text_view);
-            
+            TextView nameTextView = (TextView) convertView.findViewById(R.id.name);
             String stateStr = states.get(groupPosition).getName();
-            textView.setText(stateStr);
+            nameTextView.setText(stateStr);
+            
+            TextView areaCountTextView = (TextView) convertView.findViewById(R.id.areaCount);
+            String areaCount = Integer.toString(states.get(groupPosition).getAreaCount());
+            areaCountTextView.setText(areaCount + " areas");
      
             return convertView;
         }
@@ -250,6 +309,8 @@ public class StateListFragment extends ExpandableListFragment {
             Log.i("CW", "Finishing JSON task");
             try {
                 
+                Gson gson = new Gson();
+                
                 // Convert result into JSONArray
                 JSONArray json = new JSONArray(result);
               
@@ -258,8 +319,9 @@ public class StateListFragment extends ExpandableListFragment {
                 
                 // Loop over JSONarray
                 for (int i = 0; i < json.length(); i++) {
-                    JSONObject jsonState = json.getJSONObject(i);
-                    stateAdapter.addState(new State(jsonState.getString("name"), jsonState.getString("code")));
+                    //JSONObject jsonState = json.getJSONObject(i);
+                    State state = gson.fromJson(json.getJSONObject(i).toString(), State.class);
+                    stateAdapter.addState(state);
                 }
                 
                 setListAdapter(stateAdapter);

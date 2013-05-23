@@ -7,4 +7,6 @@
     <string name="closest_button">Show Nearby Areas</string>
     <string name="search">Go</string>
     <string name="add_favorite">Add to Favorites</string>
+    <string name="loading">Loading &#8230;</string>
+    <string name="loadingDescription">Loading image</string>
 </resources>

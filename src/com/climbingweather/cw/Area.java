@@ -29,4 +29,9 @@ public class Area
     {
         return name;
     }
+    
+    public ForecastDay getDay(int i)
+    {
+        return f[i];
+    }
 }

@@ -160,20 +160,31 @@ public class ForecastListFragment  extends ExpandableListFragment
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
                 View convertView, ViewGroup parent)
         {
+            
+            // Get day
+
+            
+            /*
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.list_item_child, parent,false);
             }
      
             TextView textView = (TextView) convertView.findViewById(R.id.list_item_text_child);
             
+            */
+            
             if (days.get(groupPosition).hasHours()) {
-                textView.setText(days.get(groupPosition).getHour(childPosition).toString());
+                ForecastHour hour = days.get(groupPosition).getHour(childPosition);
+                convertView = hour.getListRowView(convertView, parent, inflater, getActivity());
             } else {
+                convertView = inflater.inflate(R.layout.list_item_child, parent,false);
+                TextView textView = (TextView) convertView.findViewById(R.id.list_item_text_child);
                 textView.setText("Loading areas ...");
             }
      
             //return the entire view
             return convertView;
+            
         }
 
         public Object getGroup(int groupPosition) {

@@ -5,6 +5,7 @@
           android:showAsAction="ifRoom|withText"
           android:title="@string/add_favorite" />
     <item android:id="@+id/refresh"
+          android:showAsAction="ifRoom|withText"
           android:icon="@drawable/ic_menu_refresh"
           android:title="Refresh" />
     <item android:id="@+id/home"

@@ -1,9 +1,12 @@
 package com.climbingweather.cw;
 
+import java.io.IOException;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+import android.util.Log;
 
 /**
  * Handle ClimbingWeather.com api requests
@@ -44,8 +47,41 @@ public class CwApi {
         String absoluteUrl = mBaseUrl + url + divider + "apiKey=" + apiKey + "&tempUnit=" + prefs.getString("tempUnit", "f") +
             "&device=android&version=1.0";
         
-        HttpToJson toJson = new HttpToJson();
-        return toJson.getJsonFromUrl(absoluteUrl);
+        String cacheFileName = url.replace("/",  "_") + "-" + prefs.getString("tempUnit", "f");
+        
+        CwCache cache = new CwCache(mContext);
+        
+        // Cache for 60 seconds
+        if (cache.isFresh(cacheFileName)) {
+        //if (file.exists() && file.lastModified() / 1000L > (System.currentTimeMillis() / 1000L - cacheSeconds)) {
+            
+            Log.i("CW", "Using cached file " + cacheFileName);
+            try {
+                return cache.read(cacheFileName);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return "";
+            }
+            
+        } else {
+        
+            HttpToJson toJson = new HttpToJson();
+            String json = toJson.getJsonFromUrl(absoluteUrl);
+            
+            cache.write(cacheFileName, json);
+            
+                Log.i("CW", "File contents:");
+                try {
+                    Log.i("CW", cache.read(cacheFileName));
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            
+            return json;
+            
+        }
         
     }
     

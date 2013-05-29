@@ -60,6 +60,8 @@ public class ForecastDay {
     
     private ArrayList<ForecastHour> hours;
     
+    boolean hoursLoaded = false;
+    
     public ForecastDay(String date, String high, String low, String precipDay, String precipNight, String symbol)
     {
         d = date;
@@ -78,6 +80,16 @@ public class ForecastDay {
     public ForecastHour getHour(int position)
     {
         return hours.get(position);
+    }
+    
+    public void markHoursLoaded()
+    {
+        hoursLoaded = true;
+    }
+    
+    public boolean getHoursLoaded()
+    {
+        return hoursLoaded;
     }
     
     public boolean hasHours()

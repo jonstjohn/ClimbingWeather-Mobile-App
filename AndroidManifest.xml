@@ -18,12 +18,22 @@
     <activity android:name=".AreaListActivity"></activity>
     <activity android:name=".AreaActivity" android:theme="@android:style/Theme.NoTitleBar"></activity>
     <activity android:name=".DailyActivity" android:theme="@android:style/Theme.NoTitleBar"></activity>
-    <activity android:name=".AreaFragmentActivity" android:theme="@style/Theme.VPI"></activity>
+    <activity android:name=".AreaFragmentActivity" android:theme="@style/Theme.VPI">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.climbingweather.cw.MainActivity" />
+        
+    </activity>
     <activity android:name=".StateListActivity"></activity>
     <activity android:name=".FavoriteListActivity"></activity>
     <activity android:name=".SettingsActivity"></activity>
     <activity android:name=".HourlyActivity" android:theme="@android:style/Theme.NoTitleBar"></activity>
     <activity android:name=".AreaMapActivity" android:theme="@android:style/Theme.NoTitleBar"></activity>
+    
+      <provider
+          android:name=".CwContentProvider"
+          android:authorities="com.climbingweather.cw" >
+      </provider>
 </application>
 
 <uses-permission android:name="android.permission.INTERNET"></uses-permission>

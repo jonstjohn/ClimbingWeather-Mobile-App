@@ -3,7 +3,9 @@ package com.climbingweather.cw;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +34,7 @@ public class FavoriteListFragment extends SherlockListFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
+        Log.i("CW", "Favorite onCreateView()");
         super.onCreate(savedInstanceState);
         return inflater.inflate(R.layout.list, null);
         
@@ -39,27 +42,18 @@ public class FavoriteListFragment extends SherlockListFragment
     
     public void onActivityCreated (Bundle savedInstanceState)
     {
+        Log.i("CW", "Favorite onActivityCreated()");
         super.onActivityCreated(savedInstanceState);
         
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         
-        if (headerView == null) {
+        //if (headerView == null) {
             headerView = (TextView) inflater.inflate(R.layout.header_row, null);
             headerView.setText("Favorite Areas");
             getListView().addHeaderView(headerView);
-        }
+        //}
         
-        cursorAdapter = new SimpleCursorAdapter(
-            getActivity(),
-            R.layout.list_row,
-            null,
-            new String[] { FavoriteDbAdapter.KEY_NAME },
-            new int[] { R.id.name },
-            0
-        );
-        setListAdapter(cursorAdapter);
-        
-        getLoaderManager().initLoader(0, null, this);
+        fillData();
     }
     
     /**
@@ -67,6 +61,7 @@ public class FavoriteListFragment extends SherlockListFragment
      */
     public void onDestroy()
     {
+        Log.i("CW", "Favorite onDestroy()");
         super.onDestroy();
     }
     
@@ -75,6 +70,7 @@ public class FavoriteListFragment extends SherlockListFragment
      */
     public void onStart()
     {
+        Log.i("CW", "Favorite onStart()");
         super.onStart();
     }
     
@@ -83,6 +79,7 @@ public class FavoriteListFragment extends SherlockListFragment
      */
     public void onStop()
     {
+        Log.i("CW", "Favorite onStop()");
         super.onStop();
     }
     
@@ -91,6 +88,7 @@ public class FavoriteListFragment extends SherlockListFragment
      */
     public void onPause()
     {
+        Log.i("CW", "Favorite onPause()");
         super.onPause();
     }
     
@@ -99,11 +97,37 @@ public class FavoriteListFragment extends SherlockListFragment
      */
     public void onResume()
     {
+        Log.i("CW", "Favorite onResume()");
+        getLoaderManager().getLoader(0).forceLoad();
         super.onResume();
     }
     
+    
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
+    public void onDestroyView()
+    {
+        super.onDestroyView();
+        Log.i("CW", "Favorite onDestroyView()");
+        setListAdapter(null);
+    }
+    
+    private void fillData()
+    {
+        getLoaderManager().initLoader(0, null, this);
+        cursorAdapter = new SimpleCursorAdapter(
+                getActivity(),
+                R.layout.list_row,
+                null,
+                new String[] { FavoriteDbAdapter.KEY_NAME },
+                new int[] { R.id.name },
+                0
+            );
+        setListAdapter(cursorAdapter);
+      }
+    
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id)
+    {
         super.onListItemClick(l, v, position, id);
         
         if (position == 0) {
@@ -112,6 +136,27 @@ public class FavoriteListFragment extends SherlockListFragment
             
         }
         
+        Log.i("CW", Integer.toString(position));
+        Log.i("CW", Long.toString(id));
+        
+        Intent i = new Intent(getActivity(), AreaFragmentActivity.class);
+        Uri favoriteUri = Uri.parse(CwContentProvider.CONTENT_URI + "/" + id);
+        
+        Cursor cursor = getActivity().getContentResolver().query(favoriteUri, null, null, null, null);
+        cursor.moveToFirst();
+        
+        String name = cursor.getString(cursor.getColumnIndexOrThrow(FavoriteDbAdapter.KEY_NAME));
+        String areaId = cursor.getString(cursor.getColumnIndexOrThrow(FavoriteDbAdapter.KEY_AREAID));
+            
+        i.putExtra("areaId", areaId);
+        i.putExtra("name", name);
+        
+        cursor.close();
+        
+        //i.putExtra(CwContentProvider.CONTENT_ITEM_TYPE, favoriteUri);
+        startActivity(i);
+        
+        /*
         FavoriteDbAdapter dbAdapter = new FavoriteDbAdapter(getActivity());
         dbAdapter.open();
         Cursor fav = dbAdapter.fetchFavorite(id);
@@ -122,8 +167,9 @@ public class FavoriteListFragment extends SherlockListFragment
         i.putExtra("areaId", fav.getString(fav.getColumnIndex(FavoriteDbAdapter.KEY_AREAID)));
         i.putExtra("name", fav.getString(fav.getColumnIndex(FavoriteDbAdapter.KEY_NAME)));
         fav.close();
-        dbAdapter.close();
+        //dbAdapter.close();
         startActivity(i);
+        */
         
     }
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -131,7 +177,7 @@ public class FavoriteListFragment extends SherlockListFragment
         // sample only has one Loader, so we don't care about the ID.
         // First, pick the base URI to use depending on whether we are
         // currently filtering.
-        
+        String[] dataColumns = { FavoriteDbAdapter.KEY_NAME, FavoriteDbAdapter.KEY_AREAID };
         return new CursorLoader(
             getActivity(),
             CwContentProvider.CONTENT_URI,
@@ -146,6 +192,7 @@ public class FavoriteListFragment extends SherlockListFragment
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         // Swap the new cursor in.  (The framework will take care of closing the
         // old cursor once we return.)
+        Log.i("CW", "load finished");
         cursorAdapter.swapCursor(data);
     }
 

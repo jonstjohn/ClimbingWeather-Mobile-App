@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -47,6 +48,7 @@ public class StateListFragment extends ExpandableListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         
+        Log.i("CW", "StateListFragment onCreateView()");
         super.onCreate(savedInstanceState);
         
         mContext = getActivity();
@@ -60,6 +62,7 @@ public class StateListFragment extends ExpandableListFragment {
     
     public void onActivityCreated (Bundle savedInstanceState) {
     	
+        Log.i("CW", "StateListFragment onActivityCreated()");
     	super.onActivityCreated(savedInstanceState);
 
     	
@@ -71,9 +74,7 @@ public class StateListFragment extends ExpandableListFragment {
         headerView.setText("US States");
         lv.addHeaderView(headerView);
         
-        if (stateAdapter == null) {
-            new GetStatesJsonTask().execute("/api/state/list");
-        }
+        new GetStatesJsonTask(this).execute("/api/state/list");
           
         lv.setTextFilterEnabled(true);
         
@@ -93,11 +94,57 @@ public class StateListFragment extends ExpandableListFragment {
         return true;
     }
     
+    /**
+     * On destroy activity
+     */
+    public void onDestroy()
+    {
+        Log.i("CW", "StateListFragment onDestroy()");
+        super.onDestroy();
+    }
+    
+    /**
+     * On start activity
+     */
+    public void onStart()
+    {
+        Log.i("CW", "StateListFragment onStart()");
+        super.onStart();
+    }
+    
+    /**
+     * On stop activity
+     */
+    public void onStop()
+    {
+        Log.i("CW", "StateListFragment onStop()");
+        super.onStop();
+    }
+    
+    /**
+     * On pause activity
+     */
+    public void onPause()
+    {
+        Log.i("CW", "StateListFragment onPause()");
+        super.onPause();
+    }
+    
+    /**
+     * On resume activity
+     */
+    public void onResume()
+    {
+        Log.i("CW", "StateListFragment onResume()");
+        super.onResume();
+    }
+  
+    
     @Override
     public void onDestroyView()
     {
     	super.onDestroyView();
-    	Log.i("CW", "Destroying view");
+    	Log.i("CW", "StateListFragment onDestroyView()");
     	setListAdapter(null);
     }
     
@@ -291,6 +338,21 @@ public class StateListFragment extends ExpandableListFragment {
      */
     private class GetStatesJsonTask extends AsyncTask<String, Void, String> {
         
+        private ExpandableListFragment listFragment;
+        
+        private ProgressDialog dialog;
+        
+        public GetStatesJsonTask(ExpandableListFragment listFragment) {
+            this.listFragment = listFragment;
+            dialog = new ProgressDialog(listFragment.getActivity());
+        }
+        
+        protected void onPreExecute() {
+            listFragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE); 
+            this.dialog.setMessage("Progress start");
+            this.dialog.show();
+        }
+        
         /**
          * Execute in background
          */
@@ -307,6 +369,13 @@ public class StateListFragment extends ExpandableListFragment {
         protected void onPostExecute(String result)
         {
             Log.i("CW", "Finishing JSON task");
+            
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+            
+            listFragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
+            
             try {
                 
                 Gson gson = new Gson();

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 
@@ -34,6 +35,7 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
         areaId = extras.getString("areaId");
         name = extras.getString("name");
         
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
         setContentView(R.layout.simple_tabs);
       
@@ -97,14 +99,14 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
         MenuItem fav = menu.findItem(R.id.favorite);
         
         if (isFavorite()) {
-            
+            Log.i("CW", "Is favorite onCreateOptionsMenu()");
             fav.setTitle("Remove Favorite");
-            fav.setIcon(R.drawable.btn_star_big_off);
+            fav.setIcon(R.drawable.btn_star_big_on);
 
         } else {
-            
+            Log.i("CW", "Is not favorite onCreateOptionsMenu()");
             fav.setTitle("Add Favorite");
-            fav.setIcon(R.drawable.btn_star_big_on);
+            fav.setIcon(R.drawable.btn_star_big_off);
 
         }
         return true;
@@ -115,24 +117,34 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
      */
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.favorite:
-            if (isFavorite()) {
-                removeFavorite();
-            } else {
-                saveFavorite();
-            }
-            return true;
-        case R.id.refresh:
-            // refresh();
-            return true;
-        case R.id.home:
-            Intent homeIntent = new Intent(this, MainActivity.class);
-            startActivity(homeIntent);
-            return true;
-        case R.id.settings:
-            Intent settingsIntent = new Intent(this, SettingsActivity.class);
-            startActivity(settingsIntent);
-            return true;
+            // Home
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.favorite:
+    
+                
+                if (isFavorite()) {
+                    removeFavorite();
+                    item.setTitle("Add Favorite");
+                    item.setIcon(R.drawable.btn_star_big_off);
+                } else {
+                    saveFavorite();
+                    item.setTitle("Remove Favorite");
+                    item.setIcon(R.drawable.btn_star_big_on);
+                }
+                return true;
+            case R.id.refresh:
+                // refresh();
+                return true;
+            case R.id.home:
+                Intent homeIntent = new Intent(this, MainActivity.class);
+                startActivity(homeIntent);
+                return true;
+            case R.id.settings:
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
         }
         return false;
 
@@ -148,10 +160,10 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
         
         if (isFavorite()) {
             fav.setTitle("Remove Favorite");
-            fav.setIcon(R.drawable.btn_star_big_off);
+            fav.setIcon(R.drawable.btn_star_big_on);
         } else {
             fav.setTitle("Add Favorite");
-            fav.setIcon(R.drawable.btn_star_big_on);
+            fav.setIcon(R.drawable.btn_star_big_off);
         }
         return true;
     }

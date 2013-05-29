@@ -1,6 +1,7 @@
 package com.climbingweather.cw;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -8,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 // http://www.mysamplecode.com/2012/11/android-database-content-provider.html
 
@@ -18,7 +20,7 @@ public class CwContentProvider extends ContentProvider
     private static final int ALL_FAVORITES = 1;
     private static final int SINGLE_FAVORITE = 2;
     
-    private static final String AUTHORITY = "com.climbingweather.contentprovider";
+    private static final String AUTHORITY = "com.climbingweather.cw";
     
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/favorites");
     
@@ -28,6 +30,11 @@ public class CwContentProvider extends ContentProvider
         uriMatcher.addURI(AUTHORITY, "favorites", ALL_FAVORITES);
         uriMatcher.addURI(AUTHORITY, "favorites/#", SINGLE_FAVORITE);
     }
+    
+    public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
+            + "/favorites";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
+            + "/favorites";
     
     // system calls onCreate() when it starts up the provider.
     @Override
@@ -43,9 +50,9 @@ public class CwContentProvider extends ContentProvider
       
      switch (uriMatcher.match(uri)) {
      case ALL_FAVORITES: 
-      return "vnd.android.cursor.dir/vnd.com.climbingweather.contentprovider.favorits";
+      return "vnd.android.cursor.dir/vnd.com.climbingweather.cw.favorites";
      case SINGLE_FAVORITE: 
-      return "vnd.android.cursor.item/vnd.com.climbingweather.contentprovider.favorites";
+      return "vnd.android.cursor.item/vnd.com.climbingweather.cw.favorites";
      default: 
       throw new IllegalArgumentException("Unsupported URI: " + uri);
      }
@@ -80,11 +87,10 @@ public class CwContentProvider extends ContentProvider
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
       String[] selectionArgs, String sortOrder) {
-    
      SQLiteDatabase db = dbHelper.getWritableDatabase();
      SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
      queryBuilder.setTables(FavoriteDbAdapter.DATABASE_TABLE);
-    
+     Log.i("CW", "QUERY");
      switch (uriMatcher.match(uri)) {
      case ALL_FAVORITES:
       //do nothing 

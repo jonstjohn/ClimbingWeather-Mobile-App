@@ -209,7 +209,7 @@ public class ForecastListFragment  extends ExpandableListFragment
         public void onGroupExpanded (int groupPosition)
         {
             // Check for state areas
-            if (!days.get(groupPosition).hasHours()) {
+            if (!days.get(groupPosition).getHoursLoaded()) {
                 // Load async
                 new GetHoursJsonTask(groupPosition).execute("/api/area/hourly/" + areaId);
             }
@@ -324,6 +324,12 @@ public class ForecastListFragment  extends ExpandableListFragment
                     if (day.getDayOfWeek().equals(hour.getDayOfWeek())) {
                         forecastAdapter.addHourToDay(dayPosition, hour);
                     }
+                    
+                }
+                
+                // Mark all days as loaded
+                for (int i = 0; i < days.size(); i++) {
+                    days.get(i).markHoursLoaded();
                 }
                 
                 forecastAdapter.notifyDataSetChanged();

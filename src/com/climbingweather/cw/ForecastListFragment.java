@@ -45,6 +45,8 @@ public class ForecastListFragment  extends ExpandableListFragment
     // Area name
     private String name;
     
+    private long lastUpdateMillis = 0L;
+    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         
@@ -96,7 +98,23 @@ public class ForecastListFragment  extends ExpandableListFragment
         startActivity(i);
         return true;
     }
+    *
     */
+    
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        if (!isFresh()) {
+            new GetDaysJsonTask().execute("/api/area/daily/" + areaId);
+        }
+    }
+    
+    // Check to see if data is fresh
+    private boolean isFresh()
+    {
+        return lastUpdateMillis > System.currentTimeMillis() - CwCache.cacheMillis; 
+    }
     
     @Override
     public void onDestroyView()
@@ -271,6 +289,7 @@ public class ForecastListFragment  extends ExpandableListFragment
                 }
                 
                 setListAdapter(forecastAdapter);
+                lastUpdateMillis = System.currentTimeMillis();
               
             } catch (JSONException e) {
               

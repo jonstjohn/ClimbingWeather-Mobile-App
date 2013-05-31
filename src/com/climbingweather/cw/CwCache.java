@@ -14,7 +14,8 @@ public class CwCache {
     private Context context;
     
     // Cache time for API results
-    private final Long cacheSeconds = 1800L; // 1800 = 30 minutes
+    private final static Long cacheSeconds = 1800L; // 1800 = 30 minutes
+    public final static Long cacheMillis = cacheSeconds * 1000;
     
     public CwCache(Context context)
     {

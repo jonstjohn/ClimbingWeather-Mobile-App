@@ -1,6 +1,5 @@
 package com.climbingweather.cw;
 
-import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -153,23 +152,7 @@ public class FavoriteListFragment extends SherlockListFragment
         
         cursor.close();
         
-        //i.putExtra(CwContentProvider.CONTENT_ITEM_TYPE, favoriteUri);
         startActivity(i);
-        
-        /*
-        FavoriteDbAdapter dbAdapter = new FavoriteDbAdapter(getActivity());
-        dbAdapter.open();
-        Cursor fav = dbAdapter.fetchFavorite(id);
-        getActivity().startManagingCursor(fav);
-        // launchForecast(fav.getString(fav.getColumnIndex(FavoriteDbAdapter.KEY_AREAID)));
-        
-        Intent i = new Intent(getActivity(), AreaActivity.class);
-        i.putExtra("areaId", fav.getString(fav.getColumnIndex(FavoriteDbAdapter.KEY_AREAID)));
-        i.putExtra("name", fav.getString(fav.getColumnIndex(FavoriteDbAdapter.KEY_NAME)));
-        fav.close();
-        //dbAdapter.close();
-        startActivity(i);
-        */
         
     }
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {

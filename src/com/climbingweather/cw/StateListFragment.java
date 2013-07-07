@@ -69,10 +69,10 @@ public class StateListFragment extends ExpandableListFragment {
     	ExpandableListView lv = getExpandableListView();
         
         // Set header row text
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        TextView headerView = (TextView) inflater.inflate(R.layout.header_row, null);
-        headerView.setText("US States");
-        lv.addHeaderView(headerView);
+        //LayoutInflater inflater = LayoutInflater.from(getActivity());
+        //TextView headerView = (TextView) inflater.inflate(R.layout.header_row, null);
+        //headerView.setText("US States");
+        //lv.addHeaderView(headerView);
         
         new GetStatesJsonTask(this).execute("/api/state/list");
           
@@ -167,6 +167,12 @@ public class StateListFragment extends ExpandableListFragment {
         public void addState(State state)
         {
             states.add(state);
+        }
+        
+        public void removeAllStates()
+        {
+            Log.i("CW", "Remove all states");
+            states.clear();
         }
         
         public Object getChild(int groupPosition, int childPosition) {
@@ -385,6 +391,7 @@ public class StateListFragment extends ExpandableListFragment {
               
                 // Setup adapter
                 stateAdapter = new StateExpandableListAdapter(mContext);
+                stateAdapter.removeAllStates();
                 
                 // Loop over JSONarray
                 for (int i = 0; i < json.length(); i++) {

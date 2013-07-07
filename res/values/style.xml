@@ -132,12 +132,16 @@
     
     
     
-        <style name="Theme.Styled" parent="Theme.Sherlock.Light.DarkActionBar">
+    
+    <style name="Theme.Styled" parent="Theme.Sherlock.Light.DarkActionBar">
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
-    </style><!-- This is our ViewPagerIndicator theme. We inherit from the ABS theme -->
+    </style>
+    
+    <!-- This is our ViewPagerIndicator theme. We inherit from the ABS theme -->
     <style name="Theme.VPI" parent="Theme.Styled">
        <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
     </style>    
+    
     <!-- "Implementation" of our ABS custom theme -->
     <style name="Widget.Styled.ActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid.Inverse">
         <item name="titleTextStyle">@style/TitleText</item>
@@ -146,7 +150,6 @@
     <!-- "Implementation" of VPI theme. We just set the text size and color. -->
     <style name="CustomTabPageIndicator" parent="Widget.TabPageIndicator">
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">#FFB33E3E</item>
     </style>
      
     <!-- More customizations for ABS -->

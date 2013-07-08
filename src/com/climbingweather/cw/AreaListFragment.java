@@ -1,13 +1,8 @@
 package com.climbingweather.cw;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -19,18 +14,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class AreaListFragment extends SherlockListFragment {
 
-    /**
-     * Area list
-     */
-    ArrayList<HashMap<String,String>> areaList = new ArrayList<HashMap<String,String>>();
+    private Area[] areas;
     
     /**
      * Progress dialog for loading
@@ -117,35 +109,15 @@ public class AreaListFragment extends SherlockListFragment {
         
         switch (typeId) {
             case TYPE_NEARBY:
-                url = "/api/area/search/ll=" + Double.toString(latitude) + "," + Double.toString(longitude);
+                url = "/api/area/search/ll=" + Double.toString(latitude) + "," + Double.toString(longitude) + "?days=3";
+                Log.i("CW", url);
                 break;
         }
 
-        /*
-        setContentView(R.layout.list);
-        */
-        
-        //ListView lv = getListView();
-        
-        // Inflate header row so we can set some custom text
-        /*
-        LayoutInflater inflater = getLayoutInflater();
-        TextView headerView = (TextView) inflater.inflate(R.layout.header_row, null);
-        headerView.setText("Climbing Areas");
-        lv.addHeaderView(headerView);
-        */
-        // Clear out empty row
-        //emptyView = ((TextView) lv.getEmptyView());
-        //emptyView.setText("");
-        
-        
-        // Show loading dialog
-        dialog = ProgressDialog.show(getActivity(), "", "Loading. Please wait...", true);
-        
         mContext = getActivity();
         
         // async task
-        new GetJsonTask().execute(url);
+        new GetAreasJsonTask(this).execute(url);
         
         return inflater.inflate(R.layout.list, null);
         
@@ -157,19 +129,26 @@ public class AreaListFragment extends SherlockListFragment {
     public void onPause()
     {
         super.onPause();
-        dialog.dismiss();
+        //dialog.dismiss();
     }
     
     public void onStop()
     {
         super.onStop();
-        dialog.dismiss();
+        //dialog.dismiss();
     }
     
     /**
      * Asynchronous get JSON task
      */
-    private class GetJsonTask extends AsyncTask<String, Void, String> {
+    private class GetAreasJsonTask extends AsyncTask<String, Void, String> {
+        
+        private SherlockListFragment listFragment;
+        
+        public GetAreasJsonTask(SherlockListFragment listFragment) {
+            this.listFragment = listFragment;
+            //dialog = new ProgressDialog(listFragment.getActivity());
+        }
         
         /**
          * Execute in background
@@ -182,11 +161,16 @@ public class AreaListFragment extends SherlockListFragment {
 
         }
         
+        protected void onPreExecute() {
+            listFragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE); 
+        }
+        
         /**
          * After execute (in UI thread context)
          */
         protected void onPostExecute(String result)
         {
+            listFragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
             loadAreas(result);
         }
     }
@@ -197,48 +181,14 @@ public class AreaListFragment extends SherlockListFragment {
     public void loadAreas(String result) {
     
         try {
-          
-            // Convert result into JSONArray
-            JSONArray json = new JSONArray(result);
-          
-            // Loop over JSONarray
-            for (int i = 0; i < json.length(); i++) {
-            
-                // Get JSONObject from current array element
-                JSONObject areaObject = json.getJSONObject(i);
-                
-                String areaId = areaObject.getString("id");
-                String name = areaObject.getString("name");
-                
-                // Add state to name, if present
-                if (areaObject.has("state")) {
-                    name += " (" + areaObject.getString("state") +")";
-                }
-                
-                // Add state to hashmap
-                HashMap<String, String> map = new HashMap<String,String>();
-                map.put("areaId", areaId);
-                map.put("name", name);
-                areaList.add(map);
-            }
-          
-        } catch (JSONException e) {
-          
+            Gson gson = new Gson();
+            areas = gson.fromJson(result, Area[].class);
+            AreaAdapter adapter = new AreaAdapter(mContext, R.id.list_item_text_view, areas);
+            setListAdapter(adapter);
+        } catch (JsonParseException e) {
             Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
-          
         }
-    
-        // Create simple adapter using hashmap
-        SimpleAdapter areas = new SimpleAdapter(
-            getActivity(),
-            areaList,
-            R.layout.list_row,
-            new String[] { "name"},
-            new int[] { R.id.name }
-        );
-      
-      setListAdapter(areas);
-    
+        
       ListView lv = getListView();
       lv.setTextFilterEnabled(true);
       
@@ -253,21 +203,16 @@ public class AreaListFragment extends SherlockListFragment {
            */
           public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
               
-              // Get object from item position
-              Object item = parent.getItemAtPosition(position);
-              HashMap<String, String> hashMap = (HashMap<String, String>) item;
-              String str = hashMap.get("areaId"); // id
-              String areaName = hashMap.get("name");
-        
-              Intent i = new Intent(getActivity().getApplicationContext(), AreaFragmentActivity.class);
-              i.putExtra("areaId", str);
-              i.putExtra("name", areaName);
+              Area area = areas[position];
+              Intent i = new Intent(getActivity(), AreaFragmentActivity.class);
+              i.putExtra("areaId", Integer.valueOf(area.getId()).toString());
+              i.putExtra("name", area.getName());
               startActivity(i);
           }
           
       });
       
-      dialog.hide();
+      //dialog.hide();
       
     }
     
@@ -280,6 +225,20 @@ public class AreaListFragment extends SherlockListFragment {
     {
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+    
+    public class AreaAdapter extends ArrayAdapter<Area>
+    {
+        public AreaAdapter(Context context, int textViewResourceId,
+                Area[] objects) {
+            super(context, textViewResourceId, objects);
+            // TODO Auto-generated constructor stub
+        }
+
+        public View getView(int position, View convertView, ViewGroup parent)
+        {
+            return ((Area) getItem(position)).getListRowView(convertView, parent, getContext());
+        }
     }
     
 }

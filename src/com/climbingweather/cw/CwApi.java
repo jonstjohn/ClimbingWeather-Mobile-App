@@ -47,6 +47,7 @@ public class CwApi {
         String absoluteUrl = mBaseUrl + url + divider + "apiKey=" + apiKey + "&tempUnit=" + prefs.getString("tempUnit", "f") +
             "&device=android&version=1.0";
         
+        Log.i("CW", absoluteUrl);
         String cacheFileName = url.replace("/",  "_") + "-" + prefs.getString("tempUnit", "f");
         
         CwCache cache = new CwCache(mContext);

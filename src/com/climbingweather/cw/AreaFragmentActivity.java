@@ -37,6 +37,8 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
         
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
+        getSupportActionBar().setTitle(name);
+        
         setContentView(R.layout.simple_tabs);
       
         FragmentPagerAdapter adapter = new AreaPagerAdapter(getSupportFragmentManager());

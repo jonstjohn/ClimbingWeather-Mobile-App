@@ -21,6 +21,16 @@ public class State
         stateAreas.add(area);
     }
     
+    public void addAreas(Area[] areas)
+    {
+        if (stateAreas == null) {
+            stateAreas = new ArrayList<Area>();
+        }
+        for (int i = 0; i < areas.length; i++) {
+            addArea(areas[i]);
+        }
+    }
+    
     public State(String pName, String pCode)
     {
         name = pName;

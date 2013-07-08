@@ -4,7 +4,8 @@
     android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:id="@+id/list_item">
+    android:id="@+id/list_item"
+    android:weightSum="1.0">
  
     <TextView
         android:layout_width="0dp"
@@ -12,17 +13,19 @@
         android:id="@+id/name"
         android:textSize="20sp"
         android:padding="10dp"
-        android:layout_weight="1"
+        android:layout_weight="0.7"
         android:layout_marginLeft="35dp" />
     
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
+        android:layout_gravity="right|bottom"
+        android:gravity="right|bottom"
         android:id="@+id/areaCount"
-        android:textSize="16sp"
+        android:textSize="14sp"
         android:padding="10dp"
-        android:layout_weight="1"
+        android:textColor="#999999"
+        android:layout_weight="0.3"
         android:layout_marginLeft="35dp" />
  
  

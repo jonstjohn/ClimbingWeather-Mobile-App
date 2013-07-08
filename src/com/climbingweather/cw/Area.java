@@ -16,6 +16,9 @@ public class Area
     // name
     private String name;
     
+    // state
+    private String state;
+    
     // Forecast days
     private ForecastDay[] f;
     
@@ -38,6 +41,11 @@ public class Area
         return name;
     }
     
+    public String getState()
+    {
+        return state;
+    }
+    
     public ForecastDay getDay(int i)
     {
         return f[i];
@@ -54,20 +62,26 @@ public class Area
         TextView nameTextView = (TextView) view.findViewById(R.id.name);
         LinearLayout areaLinearLayout = (LinearLayout) view.findViewById(R.id.area);
         ImageView loadingImageView = (ImageView) view.findViewById(R.id.loading);
-        ImageView day1ImageView = (ImageView) view.findViewById(R.id.d1);
-        ImageView day2ImageView = (ImageView) view.findViewById(R.id.d2);
-        ImageView day3ImageView = (ImageView) view.findViewById(R.id.d3);
+        TextView day1TextView = (TextView) view.findViewById(R.id.d1);
+        TextView day2TextView = (TextView) view.findViewById(R.id.d2);
+        TextView day3TextView = (TextView) view.findViewById(R.id.d3);
     
         nameTextView.setText(getName());
         
         String symbol1 = getDay(0).getSymbol().replace(".png", "");
-        day1ImageView.setImageResource(context.getResources().getIdentifier(symbol1, "drawable", "com.climbingweather.cw"));
+        day1TextView.setCompoundDrawablesWithIntrinsicBounds(0, context.getResources().getIdentifier(symbol1, "drawable", "com.climbingweather.cw"), 0, 0);
+        String high1 = getDay(0).getHigh();
+        day1TextView.setText(high1 == null ? "--" : high1 + (char) 0x00B0);
         
         String symbol2 = getDay(1).getSymbol().replace(".png", "");
-        day2ImageView.setImageResource(context.getResources().getIdentifier(symbol2, "drawable", "com.climbingweather.cw"));
+        day2TextView.setCompoundDrawablesWithIntrinsicBounds(0, context.getResources().getIdentifier(symbol2, "drawable", "com.climbingweather.cw"), 0, 0);
+        String high2 = getDay(1).getHigh();
+        day2TextView.setText(high2 == null ? "--" : high2 + (char) 0x00B0);
         
         String symbol3 = getDay(2).getSymbol().replace(".png", "");
-        day3ImageView.setImageResource(context.getResources().getIdentifier(symbol3, "drawable", "com.climbingweather.cw"));
+        day3TextView.setCompoundDrawablesWithIntrinsicBounds(0, context.getResources().getIdentifier(symbol3, "drawable", "com.climbingweather.cw"), 0, 0);
+        String high3 = getDay(2).getHigh();
+        day3TextView.setText(high3 == null ? "--" : high3 + (char) 0x00B0);
         
         areaLinearLayout.setVisibility(View.VISIBLE);
         loadingImageView.setVisibility(View.INVISIBLE);

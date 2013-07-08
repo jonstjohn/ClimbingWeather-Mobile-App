@@ -1,13 +1,8 @@
 package com.climbingweather.cw;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.ProgressDialog;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -18,17 +13,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 
 public class StateListFragment extends ExpandableListFragment {
 	
@@ -67,12 +60,6 @@ public class StateListFragment extends ExpandableListFragment {
 
     	
     	ExpandableListView lv = getExpandableListView();
-        
-        // Set header row text
-        //LayoutInflater inflater = LayoutInflater.from(getActivity());
-        //TextView headerView = (TextView) inflater.inflate(R.layout.header_row, null);
-        //headerView.setText("US States");
-        //lv.addHeaderView(headerView);
         
         new GetStatesJsonTask(this).execute("/api/state/list");
           
@@ -155,18 +142,24 @@ public class StateListFragment extends ExpandableListFragment {
         
         private LayoutInflater inflater;
         
-        private View stateView;
-        
-        private View loadingView;
+        private Context context;
         
         public StateExpandableListAdapter(Context context)
         {
             inflater = LayoutInflater.from(context);
+            this.context = context;
         }
         
         public void addState(State state)
         {
             states.add(state);
+        }
+        
+        public void addStates(State[] addStates)
+        {
+            for (int i = 0; i < addStates.length; i++) {
+                states.add(addStates[i]);
+            }
         }
         
         public void removeAllStates()
@@ -214,31 +207,6 @@ public class StateListFragment extends ExpandableListFragment {
         {
             State state = states.get(groupPosition);
             
-            /*
-            // State has areas, show
-            if (state.hasAreas()) {
-                // If convert view is not the 
-                if (convertView == null || convertView.getId() != R.layout.list_item_area) {
-                    if (stateView == null) {
-                        stateView = inflater.inflate(R.layout.list_item_area, parent, false);
-                    }
-                    convertView = stateView;
-                }
-                
-                Area area = state.getArea(childPosition);
-                
-                TextView textView = (TextView) convertView.findViewById(R.id.name);
-                textView.setText(area.getName());
-                //((TextView) convertView.findViewById(R.id.name)).setText(area.getName());
-                
-            } else {
-                
-                if (convertView == null || convertView.getId() != R.layout.list_item_loading){
-                    loadingView = inflater.inflate(R.layout.list_item_loading, parent, false);
-                }
-                convertView = loadingView;
-            }
-            */
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.list_item_area, parent,false);
             }
@@ -246,23 +214,13 @@ public class StateListFragment extends ExpandableListFragment {
             TextView nameTextView = (TextView) convertView.findViewById(R.id.name);
             LinearLayout areaLinearLayout = (LinearLayout) convertView.findViewById(R.id.area);
             ImageView loadingImageView = (ImageView) convertView.findViewById(R.id.loading);
-            ImageView day1ImageView = (ImageView) convertView.findViewById(R.id.d1);
-            ImageView day2ImageView = (ImageView) convertView.findViewById(R.id.d2);
-            ImageView day3ImageView = (ImageView) convertView.findViewById(R.id.d3);
             
             if (state.hasAreas()) {
                 
                 Area area = state.getArea(childPosition);
-                nameTextView.setText(area.getName());
-                
-                String symbol1 = area.getDay(0).getSymbol().replace(".png", "");
-                day1ImageView.setImageResource(getResources().getIdentifier(symbol1, "drawable", "com.climbingweather.cw"));
-                
-                String symbol2 = area.getDay(1).getSymbol().replace(".png", "");
-                day2ImageView.setImageResource(getResources().getIdentifier(symbol2, "drawable", "com.climbingweather.cw"));
-                
-                String symbol3 = area.getDay(2).getSymbol().replace(".png", "");
-                day3ImageView.setImageResource(getResources().getIdentifier(symbol3, "drawable", "com.climbingweather.cw"));
+                convertView = area.getListRowView(convertView, parent, this.context);
+                TextView stateTextView = (TextView) convertView.findViewById(R.id.state);
+                stateTextView.setText(states.get(groupPosition).getName());
                 
                 areaLinearLayout.setVisibility(View.VISIBLE);
                 loadingImageView.setVisibility(View.INVISIBLE);
@@ -306,7 +264,7 @@ public class StateListFragment extends ExpandableListFragment {
      
             return convertView;
         }
-
+        
         public boolean isChildSelectable(int groupPosition, int childPosition) {
             return true;
         }
@@ -322,7 +280,7 @@ public class StateListFragment extends ExpandableListFragment {
             String stateCode = states.get(groupPosition).getCode();
             if (!states.get(groupPosition).hasAreas()) {
                 // Load async
-                new GetAreasJsonTask(groupPosition).execute("/api/state/area/" + stateCode + "?days=3");
+                new GetAreasJsonTask(groupPosition, context).execute("/api/state/area/" + stateCode + "?days=3");
             }
         }
         
@@ -336,6 +294,17 @@ public class StateListFragment extends ExpandableListFragment {
         {
             states.get(statePosition).addArea(area);
         }
+        
+        /**
+         * Add areas to state
+         * @param String stateCode
+         * @param String areaId
+         * @param HashMap<String, String> areaData
+         */
+        public void addAreasToState(int statePosition, Area[] areas)
+        {
+            states.get(statePosition).addAreas(areas);
+        }
 
     }
     
@@ -346,17 +315,12 @@ public class StateListFragment extends ExpandableListFragment {
         
         private ExpandableListFragment listFragment;
         
-        private ProgressDialog dialog;
-        
         public GetStatesJsonTask(ExpandableListFragment listFragment) {
             this.listFragment = listFragment;
-            dialog = new ProgressDialog(listFragment.getActivity());
         }
         
         protected void onPreExecute() {
             listFragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE); 
-            this.dialog.setMessage("Progress start");
-            this.dialog.show();
         }
         
         /**
@@ -376,37 +340,24 @@ public class StateListFragment extends ExpandableListFragment {
         {
             Log.i("CW", "Finishing JSON task");
             
-            if (dialog.isShowing()) {
-                dialog.dismiss();
-            }
-            
             listFragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
+
+            // Setup adapter
+            stateAdapter = new StateExpandableListAdapter(mContext);
+            stateAdapter.removeAllStates();
             
             try {
-                
                 Gson gson = new Gson();
-                
-                // Convert result into JSONArray
-                JSONArray json = new JSONArray(result);
-              
-                // Setup adapter
-                stateAdapter = new StateExpandableListAdapter(mContext);
-                stateAdapter.removeAllStates();
-                
-                // Loop over JSONarray
-                for (int i = 0; i < json.length(); i++) {
-                    //JSONObject jsonState = json.getJSONObject(i);
-                    State state = gson.fromJson(json.getJSONObject(i).toString(), State.class);
-                    stateAdapter.addState(state);
-                }
-                
+                State[] states = gson.fromJson(result, State[].class);
+                stateAdapter.addStates(states);
                 setListAdapter(stateAdapter);
               
-            } catch (JSONException e) {
+            } catch (JsonParseException e) {
               
-                Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "An error occurred while retrieving state data", Toast.LENGTH_SHORT).show();
               
             }
+            
         }
     }
     
@@ -417,8 +368,11 @@ public class StateListFragment extends ExpandableListFragment {
         
         private int statePosition;
         
-        public GetAreasJsonTask(int mStatePosition)
+        private Context context;
+        
+        public GetAreasJsonTask(int mStatePosition, Context context)
         {
+            this.context = context;
             statePosition = mStatePosition;
         }
         /**
@@ -431,34 +385,24 @@ public class StateListFragment extends ExpandableListFragment {
 
         }
         
+        protected void onPreExecute() {
+            ((Activity) context).setProgressBarIndeterminateVisibility(Boolean.TRUE); 
+        }
+        
         /**
          * After execute (in UI thread context)
          */
         protected void onPostExecute(String result)
         {
+            ((Activity) context).setProgressBarIndeterminateVisibility(Boolean.FALSE); 
+            
             try {
-                
-                //Log.i("CW", result);
-                
                 Gson gson = new Gson();
-                
-                // Convert result into JSONArray
-                JSONArray json = new JSONArray(result);
-              
-                // Loop over JSONarray
-                for (int i = 0; i < json.length(); i++) {
-                    
-                    Area a = gson.fromJson(json.getJSONObject(i).toString(), Area.class);
-                    Log.i("CW", a.toString());
-                    
-                    stateAdapter.addAreaToState(statePosition, a);
-                }
-                
+                Area[] areas = gson.fromJson(result, Area[].class);
+                stateAdapter.addAreasToState(statePosition, areas);
                 stateAdapter.notifyDataSetChanged();
-                
-                
               
-            } catch (JSONException e) {
+            } catch (JsonParseException e) {
               
                 Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
               

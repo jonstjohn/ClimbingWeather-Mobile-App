@@ -175,4 +175,9 @@ public class ForecastDay {
  
         return view;
     }
+    
+    public String getHigh()
+    {
+        return hi;
+    }
 }

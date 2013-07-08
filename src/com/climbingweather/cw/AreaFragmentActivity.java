@@ -25,7 +25,7 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
     private String areaId;
     
     private String name;
-
+    
     @Override
     public void onCreate(Bundle savedInstanceState)
     {

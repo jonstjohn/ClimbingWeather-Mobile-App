@@ -121,7 +121,7 @@ public class MainActivity extends SherlockFragmentActivity {
         
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new MyLocationListener();
-        /*
+        
         // Get last known location
         Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         
@@ -139,12 +139,9 @@ public class MainActivity extends SherlockFragmentActivity {
                 longitude = locNetwork.getLongitude();
             }
         }
-        */
-        /*
         
         // Add location listener
         addLocationListener();
-        */
         /*
         final ActionBar actionBar = getSupportActionBar();
 
@@ -200,6 +197,11 @@ public class MainActivity extends SherlockFragmentActivity {
                 return new StateListFragment();
             } else if (position == 1) {
                 return new FavoriteListFragment();
+            } else if (position == 2) {
+                AreaListFragment frag =  new AreaListFragment();
+                frag.setType(AreaListFragment.TYPE_NEARBY);
+                frag.setLocation(latitude, longitude);
+                return frag;
             } else {
                 return TestFragment.newInstance(CONTENT[position % CONTENT.length]);
             }

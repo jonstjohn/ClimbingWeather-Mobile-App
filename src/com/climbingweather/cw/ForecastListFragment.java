@@ -77,9 +77,7 @@ public class ForecastListFragment  extends ExpandableListFragment
         headerView.setText(name);
         lv.addHeaderView(headerView);
         
-        if (forecastAdapter == null) {
-            new GetDaysJsonTask().execute("/api/area/daily/" + areaId);
-        }
+        new GetDaysJsonTask().execute("/api/area/daily/" + areaId);
           
         lv.setTextFilterEnabled(true);
         

@@ -129,11 +129,13 @@ public class FavoriteListFragment extends SherlockListFragment
     {
         super.onListItemClick(l, v, position, id);
         
+        /* Removed b/c no longer using header row
         if (position == 0) {
             
             return;
             
         }
+        */
         
         Log.i("CW", Integer.toString(position));
         Log.i("CW", Long.toString(id));

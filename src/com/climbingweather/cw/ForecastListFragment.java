@@ -1,13 +1,8 @@
 package com.climbingweather.cw;
 
-import java.util.ArrayList;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.Arrays;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,17 +16,16 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.climbingweather.cw.StateListFragment.StateExpandableListAdapter;
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 
 public class ForecastListFragment  extends ExpandableListFragment
 {
     // Forecast day objects
-    private ArrayList<ForecastDay> days = new ArrayList<ForecastDay>();
+    private ForecastDay[] days;
+    
+    // Forecast hours
+    private ForecastHour[] hours;
     
     // Adapter
     ForecastExpandableListAdapter forecastAdapter;
@@ -71,33 +65,11 @@ public class ForecastListFragment  extends ExpandableListFragment
         
         ExpandableListView lv = getExpandableListView();
         
-        // Set header row text
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        TextView headerView = (TextView) inflater.inflate(R.layout.header_row, null);
-        headerView.setText(name);
-        lv.addHeaderView(headerView);
-        
         new GetDaysJsonTask().execute("/api/area/daily/" + areaId);
           
         lv.setTextFilterEnabled(true);
         
-        // Set on item click listener
-        //lv.setOnChildClickListener(this);
     }
-    /*
-    @Override
-    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
-            int childPosition, long id) {
-        // use groupPosition and childPosition to locate the current item in the adapter
-        ForecastHour hour = days.get(groupPosition).getHour(childPosition);
-        Intent i = new Intent(getActivity(), AreaFragmentActivity.class);
-        i.putExtra("areaId", Integer.valueOf(area.getId()).toString());
-        i.putExtra("name", area.getName());
-        startActivity(i);
-        return true;
-    }
-    *
-    */
     
     @Override
     public void onResume()
@@ -134,17 +106,12 @@ public class ForecastListFragment  extends ExpandableListFragment
             inflater = LayoutInflater.from(context);
         }
         
-        public void addDay(ForecastDay day)
-        {
-            days.add(day);
-        }
-        
         public Object getChild(int groupPosition, int childPosition) {
-            if (!days.get(groupPosition).hasHours()) {
+            if (!days[groupPosition].hasHours()) {
                 return null;
             }
 
-            return days.get(groupPosition).getHour(childPosition);
+            return days[groupPosition].getHour(childPosition);
         }
 
         public long getChildId(int groupPosition, int childPosition) {
@@ -152,10 +119,10 @@ public class ForecastListFragment  extends ExpandableListFragment
         }
 
         public int getChildrenCount(int groupPosition) {
-            if (!days.get(groupPosition).hasHours()) {
+            if (!days[groupPosition].hasHours()) {
                 return 1;
             } else {
-                return days.get(groupPosition).getHourCount();
+                return days[groupPosition].getHourCount();
             }
         }
 
@@ -164,7 +131,7 @@ public class ForecastListFragment  extends ExpandableListFragment
             AbsListView.LayoutParams lp = new AbsListView.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, 64);
 
-            TextView textView = new TextView(ForecastListFragment.this.getActivity());
+            TextView textView = new TextView(ForecastListFragment.this.getSherlockActivity());
             textView.setLayoutParams(lp);
             // Center the text vertically
             textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
@@ -176,21 +143,8 @@ public class ForecastListFragment  extends ExpandableListFragment
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
                 View convertView, ViewGroup parent)
         {
-            
-            // Get day
-
-            
-            /*
-            if (convertView == null) {
-                convertView = inflater.inflate(R.layout.list_item_child, parent,false);
-            }
-     
-            TextView textView = (TextView) convertView.findViewById(R.id.list_item_text_child);
-            
-            */
-            
-            if (days.get(groupPosition).hasHours()) {
-                ForecastHour hour = days.get(groupPosition).getHour(childPosition);
+            if (days[groupPosition].hasHours()) {
+                ForecastHour hour = days[groupPosition].getHour(childPosition);
                 convertView = hour.getListRowView(convertView, parent, inflater, getActivity());
             } else {
                 convertView = inflater.inflate(R.layout.list_item_child, parent,false);
@@ -204,11 +158,11 @@ public class ForecastListFragment  extends ExpandableListFragment
         }
 
         public Object getGroup(int groupPosition) {
-            return days.get(groupPosition);
+            return days[groupPosition];
         }
 
         public int getGroupCount() {
-            return days.size();
+            return days.length;
         }
 
         public long getGroupId(int groupPosition) {
@@ -219,7 +173,7 @@ public class ForecastListFragment  extends ExpandableListFragment
                 ViewGroup parent) {
             
             // Get day
-            ForecastDay day = days.get(groupPosition);
+            ForecastDay day = days[groupPosition];
             return day.getListRowView(convertView, parent, inflater, getActivity());
             
         }
@@ -236,16 +190,16 @@ public class ForecastListFragment  extends ExpandableListFragment
         public void onGroupExpanded (int groupPosition)
         {
             // Check for state areas
-            if (!days.get(groupPosition).getHoursLoaded()) {
+            if (!days[groupPosition].getHoursLoaded()) {
                 // Load async
-                new GetHoursJsonTask(groupPosition).execute("/api/area/hourly/" + areaId);
+                new GetHoursJsonTask().execute("/api/area/hourly/" + areaId);
             }
         }
         
         // Add hour to date
         public void addHourToDay(int dayPosition, ForecastHour hour)
         {
-            days.get(dayPosition).addHour(hour);
+            days[dayPosition].addHour(hour);
         }
     }
     
@@ -259,9 +213,13 @@ public class ForecastListFragment  extends ExpandableListFragment
          */
         protected String doInBackground(String... args) {
             
-              CwApi api = new CwApi(mContext);
+              CwApi api = new CwApi(mContext, "2.0");
               return api.getJson(args[0]);
 
+        }
+        
+        protected void onPreExecute() {
+            ForecastListFragment.this.getSherlockActivity().setSupportProgressBarIndeterminateVisibility(Boolean.TRUE); 
         }
         
         /**
@@ -269,30 +227,31 @@ public class ForecastListFragment  extends ExpandableListFragment
          */
         protected void onPostExecute(String result)
         {
+            ForecastListFragment.this.getSherlockActivity().setSupportProgressBarIndeterminateVisibility(Boolean.FALSE); 
             Log.i("CW", "Finishing JSON task " + result);
+            if (days != null) {
+                Arrays.fill(days, null);
+            }
+            if (hours != null) {
+                Arrays.fill(hours, null);
+            }
+            processJson(result);
+        }
+        
+        private void processJson(String result)
+        {
             try {
-                
-                // Convert result into JSONArray
-                JSONArray json = new JSONObject(result).getJSONArray("f");
-              
-                // Setup adapter
-                forecastAdapter = new ForecastExpandableListAdapter(mContext);
-                
                 Gson gson = new Gson();
+                CwApiDailyResponse apiResponse = gson.fromJson(result,  CwApiDailyResponse.class);
+
+                days = apiResponse.getResult().getForecastDays();
                 
-                // Loop over JSONarray
-                for (int i = 0; i < json.length(); i++) {
-                    ForecastDay day = gson.fromJson(json.getJSONObject(i).toString(), ForecastDay.class);
-                    forecastAdapter.addDay(day);
-                }
-                
+                forecastAdapter = new ForecastExpandableListAdapter(mContext);
                 setListAdapter(forecastAdapter);
+                
                 lastUpdateMillis = System.currentTimeMillis();
-              
-            } catch (JSONException e) {
-              
-                Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
-              
+            } catch (JsonParseException e) {
+                Toast.makeText(mContext, "An error occurred while retrieving forecast data", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -302,20 +261,18 @@ public class ForecastListFragment  extends ExpandableListFragment
      */
     private class GetHoursJsonTask extends AsyncTask<String, Void, String> {
         
-        private int dayPosition;
-        
-        public GetHoursJsonTask(int mDayPosition)
-        {
-            dayPosition = mDayPosition;
-        }
         /**
          * Execute in background
          */
         protected String doInBackground(String... args) {
             
-              CwApi api = new CwApi(mContext);
+              CwApi api = new CwApi(mContext, "2.0");
               return api.getJson(args[0]);
 
+        }
+        
+        protected void onPreExecute() {
+            ForecastListFragment.this.getSherlockActivity().setSupportProgressBarIndeterminateVisibility(Boolean.TRUE); 
         }
         
         /**
@@ -323,52 +280,51 @@ public class ForecastListFragment  extends ExpandableListFragment
          */
         protected void onPostExecute(String result)
         {
+            ForecastListFragment.this.getSherlockActivity().setSupportProgressBarIndeterminateVisibility(Boolean.FALSE); 
+            
+            if (hours != null) {
+                Arrays.fill(hours, null);
+            }
+            processJson(result);
+        }
+        
+        private void processJson(String result)
+        {
             try {
-                
-                //Log.i("CW", result);
-                
                 Gson gson = new Gson();
-                
-                // Convert result into JSONArray
-                JSONArray json = new JSONObject(result).getJSONArray("f");
+                CwApiHourlyResponse apiResponse = gson.fromJson(result,  CwApiHourlyResponse.class);
+
+                hours = apiResponse.getForecastHours();
                 
                 // Assume start with first day
                 int dayPosition = 0;
-                ForecastDay day = days.get(dayPosition);
-              
-                // Loop over JSONarray
-                for (int i = 0; i < json.length(); i++) {
-                    
-                    ForecastHour hour = gson.fromJson(json.getJSONObject(i).toString(), ForecastHour.class);
-                    Log.i("CW", hour.toString());
-                    
+                ForecastDay day = days[dayPosition];
+                
+                for (int i = 0; i < hours.length; i++) {
                     // Look for day with same dow
-                    while (!day.getDayOfWeek().equals(hour.getDayOfWeek()) && dayPosition < days.size() - 1) {
+                    while (!day.getDayOfWeek().equals(hours[i].getDayOfWeek()) && dayPosition < days.length - 1) {
                         dayPosition++;
-                        day = days.get(dayPosition);
+                        day = days[dayPosition];
                     }
                     
                     // Only add if we have a match
-                    if (day.getDayOfWeek().equals(hour.getDayOfWeek())) {
-                        forecastAdapter.addHourToDay(dayPosition, hour);
+                    if (day.getDayOfWeek().equals(hours[i].getDayOfWeek())) {
+                        forecastAdapter.addHourToDay(dayPosition, hours[i]);
                     }
-                    
                 }
                 
                 // Mark all days as loaded
-                for (int i = 0; i < days.size(); i++) {
-                    days.get(i).markHoursLoaded();
+                for (int i = 0; i < days.length; i++) {
+                    days[i].markHoursLoaded();
                 }
                 
                 forecastAdapter.notifyDataSetChanged();
                 
-                
-              
-            } catch (JSONException e) {
-              
-                Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
-              
+                //lastUpdateMillis = System.currentTimeMillis();
+            } catch (JsonParseException e) {
+                Toast.makeText(mContext, "An error occurred while retrieving forecast data", Toast.LENGTH_SHORT).show();
             }
+            
         }
         
     }

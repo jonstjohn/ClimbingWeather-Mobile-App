@@ -46,9 +46,6 @@ public class StateListFragment extends ExpandableListFragment {
         
         mContext = getActivity();
         
-        // setContentView(R.layout.list);
-        //inflater.inflate(R.layout.list, null);
-        
         return inflater.inflate(R.layout.list_expandable, null);
         
     }

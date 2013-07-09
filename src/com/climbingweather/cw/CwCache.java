@@ -40,6 +40,11 @@ public class CwCache {
         return file.exists() && file.lastModified() / 1000L > (System.currentTimeMillis() / 1000L - cacheSeconds);
     }
     
+    public boolean isEnabled()
+    {
+        return false;
+    }
+    
     private static String readFileAsString(String filePath) throws java.io.IOException
     {
         BufferedReader reader = new BufferedReader(new FileReader(filePath));

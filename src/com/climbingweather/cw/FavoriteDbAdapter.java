@@ -1,5 +1,7 @@
 package com.climbingweather.cw;
 
+import java.util.ArrayList;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -91,6 +93,19 @@ public class FavoriteDbAdapter {
         Cursor cursor = mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_AREAID,
                 KEY_NAME}, null, null, null, null, null);
         return cursor;
+    }
+    
+    public ArrayList<String> fetchAllFavoriteAreaIds()
+    {
+        ArrayList<String> ids = new ArrayList<String>();
+        Cursor cur = fetchAllFavorites();
+        cur.moveToFirst();
+        while (cur.isAfterLast() == false) 
+        {
+            ids.add(cur.getString(1));
+            cur.moveToNext();
+        }
+        return ids;
     }
     
     /**

@@ -57,16 +57,23 @@ public class StateListFragment extends ExpandableListFragment {
     	
         Log.i("CW", "StateListFragment onActivityCreated()");
     	super.onActivityCreated(savedInstanceState);
+    }
+    
+    @Override
+    public void setMenuVisibility(final boolean visible) {
+        super.setMenuVisibility(visible);
+        if (visible) {
 
-    	
-    	ExpandableListView lv = getExpandableListView();
-        
-        new GetStatesJsonTask(this).execute("/api/state/list");
-          
-        lv.setTextFilterEnabled(true);
-        
-        // Set on item click listener
-        lv.setOnChildClickListener(this);
+            ExpandableListView lv = getExpandableListView();
+            
+            new GetStatesJsonTask(this).execute("/api/state/list");
+              
+            lv.setTextFilterEnabled(true);
+            
+            // Set on item click listener
+            lv.setOnChildClickListener(this);
+
+        }
     }
     
     @Override

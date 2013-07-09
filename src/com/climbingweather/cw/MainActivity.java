@@ -117,6 +117,7 @@ public class MainActivity extends SherlockFragmentActivity {
         searchButton.setOnClickListener(searchListener);
         */
         
+        /*
         // Start location manager
         
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -142,6 +143,8 @@ public class MainActivity extends SherlockFragmentActivity {
         
         // Add location listener
         addLocationListener();
+        */
+        
         /*
         final ActionBar actionBar = getSupportActionBar();
 
@@ -196,7 +199,10 @@ public class MainActivity extends SherlockFragmentActivity {
             if (position == 3) {
                 return new StateListFragment();
             } else if (position == 1) {
-                return new FavoriteListFragment();
+                //return new FavoriteListFragment();
+                AreaListFragment frag =  new AreaListFragment();
+                frag.setType(AreaListFragment.TYPE_FAVORITE);
+                return frag;
             } else if (position == 2) {
                 AreaListFragment frag =  new AreaListFragment();
                 frag.setType(AreaListFragment.TYPE_NEARBY);
@@ -224,7 +230,7 @@ public class MainActivity extends SherlockFragmentActivity {
     public void onDestroy()
     {
         super.onDestroy();
-        removeLocationListener();
+        //removeLocationListener();
     }
     
     /**
@@ -233,7 +239,7 @@ public class MainActivity extends SherlockFragmentActivity {
     public void onStart()
     {
         super.onStart();
-        addLocationListener();
+        //addLocationListener();
     }
     
     /**
@@ -242,7 +248,7 @@ public class MainActivity extends SherlockFragmentActivity {
     public void onStop()
     {
         super.onStop();
-        removeLocationListener();
+        //removeLocationListener();
     }
     
     /**
@@ -251,7 +257,7 @@ public class MainActivity extends SherlockFragmentActivity {
     public void onRestart()
     {
         super.onRestart();
-        addLocationListener();
+        //addLocationListener();
     }
     
     /**
@@ -260,7 +266,7 @@ public class MainActivity extends SherlockFragmentActivity {
     public void onPause()
     {
         super.onPause();
-        removeLocationListener();
+        //removeLocationListener();
     }
     
     /**
@@ -269,7 +275,7 @@ public class MainActivity extends SherlockFragmentActivity {
     public void onResume()
     {
         super.onResume();
-        addLocationListener();
+        //addLocationListener();
     }
     
     /**

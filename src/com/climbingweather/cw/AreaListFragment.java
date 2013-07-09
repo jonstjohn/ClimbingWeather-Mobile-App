@@ -1,5 +1,7 @@
 package com.climbingweather.cw;
 
+import java.util.ArrayList;
+
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -7,6 +9,9 @@ import com.google.gson.JsonParseException;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,6 +27,19 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class AreaListFragment extends SherlockListFragment {
 
+    /**
+     * Location manager for location updates
+     */
+    private LocationManager lm;
+    
+    /**
+     * Location listener to receive location updates
+     */
+    private LocationListener locationListener;
+    
+    /**
+     * Areas
+     */
     private Area[] areas;
     
     /**
@@ -103,24 +121,84 @@ public class AreaListFragment extends SherlockListFragment {
         Log.i("CW", "AreaListFragment onCreateView()");
         super.onCreate(savedInstanceState);
         
+        return inflater.inflate(R.layout.list, null);
+        
+    }
+    
+    public void onStart()
+    {
+        Log.i("CW", "AreaListFragment onStart()");
+        super.onStart();
+    }
+    
+    @Override
+    public void setMenuVisibility(final boolean visible) {
+        super.setMenuVisibility(visible);
+        if (visible) {
+            loadAreas();
+        }
+    }
+    
+    private void loadAreas()
+    {
         mContext = getActivity();
         
         String url = "";
         
         switch (typeId) {
             case TYPE_NEARBY:
+                startLocation();
                 url = "/api/area/search/ll=" + Double.toString(latitude) + "," + Double.toString(longitude) + "?days=3";
+                new GetAreasJsonTask(this).execute(url);
                 Log.i("CW", url);
+                break;
+            case TYPE_FAVORITE:
+                FavoriteDbAdapter favDb = new FavoriteDbAdapter(mContext);
+                favDb.open();
+                ArrayList<String> ids = favDb.fetchAllFavoriteAreaIds();
+                favDb.close();
+                if (ids.size() > 0) {
+                    String idStr = "";
+                    for (int i = 0; i < ids.size() - 1; i++) {
+                        idStr += ids.get(i) + ",";
+                    }
+                    idStr += ids.get(ids.size() - 1);
+                    url = "/api/area/list/ids-" + idStr + "?days=3";
+                    new GetAreasJsonTask(this).execute(url);
+                }
                 break;
         }
 
-        mContext = getActivity();
+    }
+    
+    private void startLocation()
+    {
+        Toast.makeText(getActivity(), "Acquiring location", Toast.LENGTH_SHORT).show();
         
-        // async task
-        new GetAreasJsonTask(this).execute(url);
+        // Start location manager
+        lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new AreaLocationListener();
         
-        return inflater.inflate(R.layout.list, null);
+        // Get last known location
+        Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         
+        // If GPS location is found, use that
+        if (loc != null) {
+            latitude = loc.getLatitude();
+            longitude = loc.getLongitude();
+            
+        // If no GPS location is found, try network provider
+        } else {
+            Location locNetwork = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            
+            if (locNetwork != null) {
+                latitude = locNetwork.getLatitude();
+                longitude = locNetwork.getLongitude();
+            }
+        }
+        
+        // Add location listener
+        addLocationListener();
     }
     
     /**
@@ -134,7 +212,11 @@ public class AreaListFragment extends SherlockListFragment {
     
     public void onStop()
     {
+        Log.i("CW", "AreaListFragment onStop()");
         super.onStop();
+        if (typeId == TYPE_NEARBY) {
+            removeLocationListener();
+        }
         //dialog.dismiss();
     }
     
@@ -171,14 +253,14 @@ public class AreaListFragment extends SherlockListFragment {
         protected void onPostExecute(String result)
         {
             listFragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
-            loadAreas(result);
+            processJson(result);
         }
     }
     
     /**
      * Load areas from JSON string result
      */
-    public void loadAreas(String result) {
+    public void processJson(String result) {
     
         try {
             Gson gson = new Gson();
@@ -238,6 +320,58 @@ public class AreaListFragment extends SherlockListFragment {
         public View getView(int position, View convertView, ViewGroup parent)
         {
             return ((Area) getItem(position)).getListRowView(convertView, parent, getContext());
+        }
+    }
+    
+    /**
+     * Location listener
+     */
+    private class AreaLocationListener implements LocationListener 
+    {
+        /**
+         * On location change, update lat/long
+         */
+        public void onLocationChanged(Location loc) {
+            if (loc != null) {
+                latitude = loc.getLatitude();
+                longitude = loc.getLongitude();
+                loadAreas();
+            }
+        }
+
+        public void onProviderDisabled(String provider) {
+            // TODO Auto-generated method stub
+        }
+
+        public void onProviderEnabled(String provider) {
+            // TODO Auto-generated method stub
+        }
+
+        public void onStatusChanged(String provider, int status, 
+            Bundle extras) {
+            // TODO Auto-generated method stub
+        }
+    }
+    
+    /**
+     * Add location listener
+     */
+    private void addLocationListener()
+    {
+        lm.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                600000,
+                2000,
+                locationListener);
+    }
+
+    /**
+     * Remove location listener
+     */
+    private void removeLocationListener()
+    {
+        if (lm != null && locationListener != null) {
+            lm.removeUpdates(locationListener);
         }
     }
     

@@ -208,6 +208,8 @@ public class MainActivity extends SherlockFragmentActivity {
                 frag.setType(AreaListFragment.TYPE_NEARBY);
                 frag.setLocation(latitude, longitude);
                 return frag;
+            } else if (position == 4) {
+                return new AreaMapFragment();
             } else {
                 return TestFragment.newInstance(CONTENT[position % CONTENT.length]);
             }

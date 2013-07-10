@@ -66,9 +66,8 @@ public class CwApi {
         
         CwCache cache = new CwCache(mContext);
         
-        // Cache for 60 seconds
-        if (cache.isFresh(cacheFileName)) {
-        //if (file.exists() && file.lastModified() / 1000L > (System.currentTimeMillis() / 1000L - cacheSeconds)) {
+        // Check to see if cache is enabled and content is fresh
+        if (cache.isEnabled() && cache.isFresh(cacheFileName)) {
             
             Log.i("CW", "Using cached file " + cacheFileName);
             try {

@@ -140,7 +140,7 @@ public class AreaMapActivity extends MapActivity {
             
 			// create a map view
             setContentView(R.layout.area_map); // bind the layout to the activity
-			mapView = (MapView) findViewById(R.id.mapview);
+			mapView = (MapView) findViewById(R.id.map); // changed from mapview
 			mapView.setBuiltInZoomControls(true);
 			//mapView.setStreetView(true);
 			mapController = mapView.getController();

@@ -23,6 +23,9 @@ public class CwApi {
      */
     private String mBaseUrl = "http://api.climbingweather.com";
     
+    // Version
+    private String version;
+    
     /**
      * Constructor
      * @param context
@@ -30,6 +33,17 @@ public class CwApi {
     public CwApi(Context context)
     {
         mContext = context;
+        version = "1.0";
+    }
+    
+    /**
+     * Constructor
+     * @param context
+     */
+    public CwApi(Context context, String version)
+    {
+        mContext = context;
+        this.version = version;
     }
     
     /**
@@ -45,7 +59,7 @@ public class CwApi {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         String absoluteUrl = mBaseUrl + url + divider + "apiKey=" + apiKey + "&tempUnit=" + prefs.getString("tempUnit", "f") +
-            "&device=android&version=1.0";
+            "&device=android&version=" + version;
         
         Log.i("CW", absoluteUrl);
         String cacheFileName = url.replace("/",  "_") + "-" + prefs.getString("tempUnit", "f");

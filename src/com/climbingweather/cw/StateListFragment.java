@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +28,8 @@ public class StateListFragment extends ExpandableListFragment {
 	
     // State objects
     private ArrayList<State> states = new ArrayList<State>();
+    
+    private long lastUpdateMillis = 0L;
     
     /**
      * Adapter
@@ -59,17 +62,21 @@ public class StateListFragment extends ExpandableListFragment {
     @Override
     public void setMenuVisibility(final boolean visible) {
         super.setMenuVisibility(visible);
-        if (visible) {
-
-            ExpandableListView lv = getExpandableListView();
+        if (visible && !isFresh()) {
+            Log.i("CW", "Visible and stale");
+            try {
+                ExpandableListView lv = getExpandableListView();
+                new GetStatesJsonTask(this).execute("/api/state/list");
+                
+                lv.setTextFilterEnabled(true);
+                
+                // Set on item click listener
+                lv.setOnChildClickListener(this);
+            // Could not get expandable list view
+            } catch (IllegalStateException e) {
+                return;
+            }
             
-            new GetStatesJsonTask(this).execute("/api/state/list");
-              
-            lv.setTextFilterEnabled(true);
-            
-            // Set on item click listener
-            lv.setOnChildClickListener(this);
-
         }
     }
     
@@ -344,6 +351,7 @@ public class StateListFragment extends ExpandableListFragment {
         {
             Log.i("CW", "Finishing JSON task");
             
+            lastUpdateMillis = System.currentTimeMillis();
             listFragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
 
             // Setup adapter
@@ -412,6 +420,12 @@ public class StateListFragment extends ExpandableListFragment {
               
             }
         }
+    }
+    
+    // Check to see if data is fresh
+    private boolean isFresh()
+    {
+        return lastUpdateMillis > System.currentTimeMillis() - CwCache.cacheMillis; 
     }
 
 }

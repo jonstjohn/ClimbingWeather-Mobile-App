@@ -136,6 +136,10 @@ public class AreaListFragment extends SherlockListFragment {
         super.setMenuVisibility(visible);
         if (visible) {
             loadAreas();
+        } else {
+            if (typeId == TYPE_NEARBY) {
+                removeLocationListener();
+            }
         }
     }
     
@@ -214,10 +218,6 @@ public class AreaListFragment extends SherlockListFragment {
     {
         Log.i("CW", "AreaListFragment onStop()");
         super.onStop();
-        if (typeId == TYPE_NEARBY) {
-            removeLocationListener();
-        }
-        //dialog.dismiss();
     }
     
     /**

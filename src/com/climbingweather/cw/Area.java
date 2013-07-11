@@ -19,14 +19,31 @@ public class Area
     // state
     private String state;
     
+    // lat
+    private String lat;
+    
+    // lon
+    private String lon;
+    
+    // weather symbol
+    private String wsym;
+    
+    // map icon
+    private String icon;
+    
+    // url
+    private String url;
+    
     // Forecast days
     private ForecastDay[] f;
     
     public String toString()
     {
         String s = id + " " + name + " ";
-        for (int i = 0; i < f.length; i++) {
-            s = s + " " + f[i].toString();
+        if (f != null) {
+            for (int i = 0; i < f.length; i++) {
+                s = s + " " + f[i].toString();
+            }
         }
         return s;
     }

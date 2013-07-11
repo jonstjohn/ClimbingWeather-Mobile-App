@@ -174,7 +174,7 @@ public class MainActivity extends SherlockFragmentActivity {
         
         FragmentPagerAdapter adapter = new CwPagerAdapter(getSupportFragmentManager());
 
-        ViewPager pager = (ViewPager)findViewById(R.id.pager);
+        CwViewPager pager = (CwViewPager)findViewById(R.id.pager);
         pager.setAdapter(adapter);
 
         TabPageIndicator indicator = (TabPageIndicator)findViewById(R.id.indicator);

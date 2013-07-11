@@ -57,11 +57,13 @@ public class HttpToJson {
                 sb.append(line + "\n");
             }
         } catch (IOException e) {
+            Logger.log(e.toString());
             return "";
         } finally {
             try {
                 is.close();
             } catch (IOException e) {
+                Logger.log(e.toString());
             	return "";
             }
         }

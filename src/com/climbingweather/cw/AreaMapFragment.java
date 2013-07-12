@@ -1,6 +1,8 @@
 package com.climbingweather.cw;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,6 +10,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,10 +26,13 @@ import com.climbingweather.cw.AreaListFragment.AreaAdapter;
 import com.climbingweather.cw.ForecastListFragment.ForecastExpandableListAdapter;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -40,6 +46,12 @@ public class AreaMapFragment extends SherlockFragment
     private Area[] areas;
     
     private Activity activity;
+    
+    private ArrayList areaIdsOnMap = new ArrayList();
+    
+    private HashMap<String, Area> markerAreas = new HashMap<String, Area>();
+    
+    private GetAreasJsonTask areasJsonTask;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,14 +78,21 @@ public class AreaMapFragment extends SherlockFragment
         gmap.setOnCameraChangeListener(new OnCameraChangeListener() {
             public void onCameraChange(CameraPosition position)
             {
-                LatLngBounds bounds = gmap.getProjection().getVisibleRegion().latLngBounds;
-                Logger.log(Double.toString(bounds.southwest.latitude)); // -2.249943
-                Logger.log(Double.toString(bounds.southwest.longitude)); // -126.741093
-                Logger.log(Double.toString(bounds.northeast.latitude)); // 63.0507365
-                Logger.log(Double.toString(bounds.northeast.longitude)); // -63.4598489
+                loadAreas();
             }
         });
         
+        gmap.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
+            public void onInfoWindowClick(Marker marker)
+            {
+                Area area = markerAreas.get(marker.getId());
+                Intent i = new Intent(getActivity(), AreaFragmentActivity.class);
+                i.putExtra("areaId", Integer.valueOf(area.getId()).toString());
+                i.putExtra("name", area.getName());
+                startActivity(i);
+            }
+            
+        });
         return view;
         
     }
@@ -92,10 +111,12 @@ public class AreaMapFragment extends SherlockFragment
         
     }
     
-    public void onDestroy()
-    {
-        Logger.log("AreaMap destroy()");
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView(); 
+        Fragment fragment = (getFragmentManager().findFragmentById(R.id.map));  
+        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+        ft.remove(fragment);
+        ft.commit();
     }
 
     @Override
@@ -109,26 +130,45 @@ public class AreaMapFragment extends SherlockFragment
     
     private void loadAreas()
     {
-        String url = "";
-        
-        url = "/api/area/map?bounds=17.642747,-132.1875,57.515105,-47.8125&zoom=4&date=2013-07-11";
-        new GetAreasJsonTask().execute(url);
+        if (gmap != null) {
+            LatLngBounds bounds = gmap.getProjection().getVisibleRegion().latLngBounds;
+            String boundsStr = Double.toString(bounds.southwest.latitude) + ","
+                    + Double.toString(bounds.southwest.longitude) + ","
+                    + Double.toString(bounds.northeast.latitude) + ","
+                    + Double.toString(bounds.northeast.longitude);
+            
+            areasJsonTask = new GetAreasJsonTask(boundsStr, (int) gmap.getCameraPosition().zoom);
+            areasJsonTask.execute();
+        }
 
     }
     
     /**
      * Asynchronous get JSON task
      */
-    private class GetAreasJsonTask extends AsyncTask<String, Void, String> {
+    private class GetAreasJsonTask extends AsyncTask<String, Void, String>
+    {
+        private String bounds;
+        
+        private int zoom;
+        
+        public GetAreasJsonTask(String bounds, int zoom)
+        {
+            this.bounds = bounds;
+            this.zoom = zoom;
+        }
         
         /**
          * Execute in background
          */
         protected String doInBackground(String... args) {
               
-              Log.i("CW", args[0]);
               CwApi api = new CwApi(AreaMapFragment.this.getActivity(), "2.0");
-              return api.getJson(args[0]);
+              CharSequence date = android.text.format.DateFormat.format("yyyy-MM-dd", new java.util.Date());
+              Logger.log(date.toString());
+              String url = "/api/area/map?bounds=" + bounds + "&zoom=" + Integer.toString(zoom) + "&date=" + date.toString();
+              Logger.log(url);
+              return api.getJson(url);
 
         }
         
@@ -158,9 +198,15 @@ public class AreaMapFragment extends SherlockFragment
                 
                 for (int i = 0; i < areas.length; i++) {
                     Logger.log(areas[i].toString());
-                    gmap.addMarker(new MarkerOptions()
-                    .position(new LatLng(areas[i].getLatitude(), areas[i].getLongitude()))
-                    .title(areas[i].getName()));
+                    
+                    if (!areaIdsOnMap.contains(areas[i].getId())) {
+                        Marker marker = gmap.addMarker(new MarkerOptions()
+                            .position(new LatLng(areas[i].getLatitude(), areas[i].getLongitude()))
+                            .title(areas[i].getName())
+                        );
+                        areaIdsOnMap.add(areas[i].getId());
+                        markerAreas.put(marker.getId(), areas[i]);
+                    }
                 }
                 
                 lastUpdateMillis = System.currentTimeMillis();

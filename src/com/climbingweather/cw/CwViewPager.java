@@ -18,9 +18,16 @@ public class CwViewPager extends ViewPager {
 
     @Override
     protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
+        
         if(v instanceof MapView){
             return true;
         }
+        
+        // This one actually works with google maps v2
+        if (v.getClass().getPackage().getName().startsWith("maps.")) {
+            return true;
+        }
+        
         return super.canScroll(v, checkV, dx, x, y);
     }
 }

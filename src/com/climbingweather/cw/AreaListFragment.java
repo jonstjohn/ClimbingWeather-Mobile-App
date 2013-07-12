@@ -132,8 +132,8 @@ public class AreaListFragment extends SherlockListFragment {
     }
     
     @Override
-    public void setMenuVisibility(final boolean visible) {
-        super.setMenuVisibility(visible);
+    public void setUserVisibleHint(final boolean visible) {
+        super.setUserVisibleHint(visible);
         if (visible) {
             loadAreas();
         } else {

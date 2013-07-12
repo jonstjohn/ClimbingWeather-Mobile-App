@@ -25,7 +25,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 
@@ -59,8 +61,8 @@ public class AreaMapFragment extends SherlockFragment
         gmap = ((SupportMapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         Logger.log(gmap.toString());
         
-        //loadAreas();
-        //gmap.setMyLocationEnabled(true);
+        gmap.setMyLocationEnabled(true);
+        
         gmap.setOnCameraChangeListener(new OnCameraChangeListener() {
             public void onCameraChange(CameraPosition position)
             {
@@ -156,6 +158,9 @@ public class AreaMapFragment extends SherlockFragment
                 
                 for (int i = 0; i < areas.length; i++) {
                     Logger.log(areas[i].toString());
+                    gmap.addMarker(new MarkerOptions()
+                    .position(new LatLng(areas[i].getLatitude(), areas[i].getLongitude()))
+                    .title(areas[i].getName()));
                 }
                 
                 lastUpdateMillis = System.currentTimeMillis();

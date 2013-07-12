@@ -60,8 +60,8 @@ public class StateListFragment extends ExpandableListFragment {
     }
     
     @Override
-    public void setMenuVisibility(final boolean visible) {
-        super.setMenuVisibility(visible);
+    public void setUserVisibleHint(final boolean visible) {
+        super.setUserVisibleHint(visible);
         if (visible && !isFresh()) {
             Log.i("CW", "Visible and stale");
             try {

@@ -106,4 +106,14 @@ public class Area
         return view;
         
     }
+    
+    public Double getLatitude()
+    {
+        return lat == null ? 0.0 : Double.valueOf(lat);
+    }
+    
+    public Double getLongitude()
+    {
+        return lon == null ? 0.0 : Double.valueOf(lon);
+    }
 }

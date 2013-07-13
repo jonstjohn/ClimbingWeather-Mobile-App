@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:orientation="vertical"
+    android:padding="2dp">
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/days"
+            android:gravity="center_vertical"
+            android:layout_gravity="right"
+            android:layout_weight="0.30">
+            
+            <TextView
+                android:drawableTop="@drawable/mist"
+                android:contentDescription="@string/loading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:gravity="center"
+                android:id="@+id/d1"
+                android:paddingLeft="2dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:textColor="#999999"
+                android:textSize="12sp"/>
+                
+
+                                
+            <TextView
+                android:drawableTop="@drawable/mist"
+                android:contentDescription="@string/loading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:gravity="center"
+                android:id="@+id/d2"
+                android:paddingLeft="2dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:textColor="#999999"
+                android:text="78"
+                android:textSize="12sp" />
+            
+            <TextView
+                android:drawableTop="@drawable/mist"
+                android:contentDescription="@string/loading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:gravity="center"
+                android:id="@+id/d3"
+                android:paddingLeft="2dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:textColor="#999999"
+                android:textSize="12sp" />
+            
+    </LinearLayout>
+    <TextView
+    android:id="@+id/name" android:layout_width="fill_parent" android:layout_height="wrap_content" android:gravity="center"/>
+</LinearLayout>

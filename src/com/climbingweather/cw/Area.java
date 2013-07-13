@@ -107,6 +107,36 @@ public class Area
         
     }
     
+    public View getMapInfoWindow(Context context)
+    {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.area_map_info, null);
+
+        TextView nameTextView = (TextView) view.findViewById(R.id.name);
+        TextView day1TextView = (TextView) view.findViewById(R.id.d1);
+        TextView day2TextView = (TextView) view.findViewById(R.id.d2);
+        TextView day3TextView = (TextView) view.findViewById(R.id.d3);
+    
+        nameTextView.setText(getName());
+        
+        String symbol1 = getDay(0).getSymbol().replace(".png", "");
+        day1TextView.setCompoundDrawablesWithIntrinsicBounds(0, context.getResources().getIdentifier(symbol1, "drawable", "com.climbingweather.cw"), 0, 0);
+        String high1 = getDay(0).getHigh();
+        day1TextView.setText(high1 == null ? "--" : high1 + (char) 0x00B0);
+        
+        String symbol2 = getDay(1).getSymbol().replace(".png", "");
+        day2TextView.setCompoundDrawablesWithIntrinsicBounds(0, context.getResources().getIdentifier(symbol2, "drawable", "com.climbingweather.cw"), 0, 0);
+        String high2 = getDay(1).getHigh();
+        day2TextView.setText(high2 == null ? "--" : high2 + (char) 0x00B0);
+        
+        String symbol3 = getDay(2).getSymbol().replace(".png", "");
+        day3TextView.setCompoundDrawablesWithIntrinsicBounds(0, context.getResources().getIdentifier(symbol3, "drawable", "com.climbingweather.cw"), 0, 0);
+        String high3 = getDay(2).getHigh();
+        day3TextView.setText(high3 == null ? "--" : high3 + (char) 0x00B0);
+        
+        return view;
+    }
+    
     public Double getLatitude()
     {
         return lat == null ? 0.0 : Double.valueOf(lat);
@@ -115,5 +145,15 @@ public class Area
     public Double getLongitude()
     {
         return lon == null ? 0.0 : Double.valueOf(lon);
+    }
+    
+    public String getMapIcon()
+    {
+        return icon;
+    }
+    
+    public String getWeatherSymbol()
+    {
+        return wsym;
     }
 }

@@ -2,4 +2,5 @@
 <resources>
 	<color name="opaque_red">#f00</color>
     <color name="silver">#80eeeeee</color>
+    <color name="white">#ffffffff</color>
 </resources>

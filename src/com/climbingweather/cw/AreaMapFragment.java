@@ -1,6 +1,7 @@
 package com.climbingweather.cw;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -25,10 +27,12 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.climbingweather.cw.AreaListFragment.AreaAdapter;
 import com.climbingweather.cw.ForecastListFragment.ForecastExpandableListAdapter;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -47,7 +51,7 @@ public class AreaMapFragment extends SherlockFragment
     
     private Activity activity;
     
-    private ArrayList areaIdsOnMap = new ArrayList();
+    private ArrayList<Integer> areaIdsOnMap = new ArrayList<Integer>();
     
     private HashMap<String, Area> markerAreas = new HashMap<String, Area>();
     
@@ -63,7 +67,7 @@ public class AreaMapFragment extends SherlockFragment
      * On create
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         
         Log.i("CW", "AreaMapFragment onCreateView()");
         super.onCreate(savedInstanceState);
@@ -91,6 +95,21 @@ public class AreaMapFragment extends SherlockFragment
                 i.putExtra("name", area.getName());
                 startActivity(i);
             }
+            
+        });
+        
+        gmap.setInfoWindowAdapter(new InfoWindowAdapter() {
+            public View getInfoContents(Marker marker)
+            {
+                return markerAreas.get(marker.getId()).getMapInfoWindow(AreaMapFragment.this.getActivity());
+            }
+            
+            public View getInfoWindow(Marker marker)
+            {
+                return null;
+            }
+            
+            
             
         });
         return view;
@@ -164,9 +183,22 @@ public class AreaMapFragment extends SherlockFragment
         protected String doInBackground(String... args) {
               
               CwApi api = new CwApi(AreaMapFragment.this.getActivity(), "2.0");
-              CharSequence date = android.text.format.DateFormat.format("yyyy-MM-dd", new java.util.Date());
+              Date today = new java.util.Date();
+              String todayStr = android.text.format.DateFormat.format("yyyy-MM-dd", today).toString();
+              
+              Calendar cal = Calendar.getInstance();  
+              cal.setTime(today);  
+              cal.add(Calendar.DATE, 1);
+              String tomorrowStr = android.text.format.DateFormat.format("yyyy-MM-dd", cal.getTime()).toString();
+              
+              cal.add(Calendar.DATE, 1);
+              String nextDayStr = android.text.format.DateFormat.format("yyyy-MM-dd", cal.getTime()).toString();
+              
+              String dateStr = todayStr + "," + tomorrowStr + "," + nextDayStr;
+              
+              CharSequence date = android.text.format.DateFormat.format("yyyy-MM-dd", today);
               Logger.log(date.toString());
-              String url = "/api/area/map?bounds=" + bounds + "&zoom=" + Integer.toString(zoom) + "&date=" + date.toString();
+              String url = "/api/area/map?bounds=" + bounds + "&zoom=" + Integer.toString(zoom) + "&date=" + dateStr;
               Logger.log(url);
               return api.getJson(url);
 
@@ -203,6 +235,10 @@ public class AreaMapFragment extends SherlockFragment
                         Marker marker = gmap.addMarker(new MarkerOptions()
                             .position(new LatLng(areas[i].getLatitude(), areas[i].getLongitude()))
                             .title(areas[i].getName())
+                            .icon(BitmapDescriptorFactory.fromResource(
+                                    AreaMapFragment.this.getActivity().getResources()
+                                    .getIdentifier(areas[i].getMapIcon(), "drawable", "com.climbingweather.cw")
+                             ))
                         );
                         areaIdsOnMap.add(areas[i].getId());
                         markerAreas.put(marker.getId(), areas[i]);

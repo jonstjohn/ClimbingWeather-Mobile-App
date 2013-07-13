@@ -280,70 +280,7 @@ public class MainActivity extends SherlockFragmentActivity {
         //addLocationListener();
     }
     
-    /**
-     * On click listener for favorites button
-     */
-    private OnClickListener favoriteListener = new OnClickListener() {
-        
-        public void onClick(View v) {
-            
-            Intent i = new Intent(getApplicationContext(), FavoriteListActivity.class);
-            startActivity(i);
-        }
-        
-    };
-    
-    /**
-     * On click listener for favorites button
-     */
-    private OnClickListener searchListener = new OnClickListener() {
-        
-        public void onClick(View v) {
-            
-            doSearch();
-
-        }
-        
-    };
-    
-    /**
-     * On click listener for states button
-     */
-    private OnClickListener stateListener = new OnClickListener() {
-        
-        public void onClick(View v) {
-            launchStates();
-        }
-    };
-    
-    /**
-     * On click listener for closest areas
-     */
-    private OnClickListener closestListener = new OnClickListener() {
-    
-        /**
-         * On click
-         */
-        public void onClick(View v) {
-
-            // If location cannot be determined, do something
-            if (latitude == 0.0) {
-                
-                Toast.makeText(getBaseContext(), "Unable to determine location", Toast.LENGTH_SHORT).show();
-
-            // Location has been determined, start area list activiy with lat/long info
-            } else {
-            
-                Intent i = new Intent(getApplicationContext(), AreaListActivity.class);
-                i.putExtra("latitude", Double.toString(latitude));
-                i.putExtra("longitude", Double.toString(longitude));
-                startActivity(i);
-                
-            }
-            
-        }
-    };
-    
+    /*
     private boolean doSearch() {
 
         EditText searchEdit = (EditText) findViewById(R.id.search_edit);
@@ -362,6 +299,7 @@ public class MainActivity extends SherlockFragmentActivity {
         return true;
         
     }
+    */
     
     /**
      * Create options menu
@@ -396,88 +334,5 @@ public class MainActivity extends SherlockFragmentActivity {
 
     }
     
-    /**
-     * Launches the Forecast activity to display a forecast
-     */
-    protected void launchForecast(String id) {
-        Intent i = new Intent(getApplicationContext(), DailyActivity.class);
-        i.putExtra("areaId", id);
-        startActivity(i);
-    }
-    
-    /**
-     * Launches areas activity
-     */
-    protected void launchAreas() {
-        Intent i = new Intent(this, AreaListActivity.class);
-        startActivity(i);
-    }
-    
-    /**
-     * Launches states activity
-     */
-    protected void launchStates() {
-        Intent i = new Intent(this, StateListActivity.class);
-        startActivity(i);
-    }
-    
-    /**
-     * Launches states activity
-     */
-    protected void launchTest() {
-        Intent i = new Intent(this, DailyActivity.class);
-        i.putExtra("areaId", "3");
-        startActivity(i);
-    }
-    
-    /**
-     * Location listener
-     */
-    private class MyLocationListener implements LocationListener 
-    {
-        /**
-         * On location change, update lat/long
-         */
-        public void onLocationChanged(Location loc) {
-            if (loc != null) {
-                latitude = loc.getLatitude();
-                longitude = loc.getLongitude();
-            }
-        }
-
-        public void onProviderDisabled(String provider) {
-            // TODO Auto-generated method stub
-        }
-
-        public void onProviderEnabled(String provider) {
-            // TODO Auto-generated method stub
-        }
-
-        public void onStatusChanged(String provider, int status, 
-            Bundle extras) {
-            // TODO Auto-generated method stub
-        }
-    }
-    
-    /**
-     * Add location listener
-     */
-    private void addLocationListener()
-    {
-        lm.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                600000,
-                2000,
-                locationListener);
-    }
-
-    /**
-     * Remove location listener
-     */
-    private void removeLocationListener()
-    {
-        lm.removeUpdates(locationListener);
-    }
-
 }
 

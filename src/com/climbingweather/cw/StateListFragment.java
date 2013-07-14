@@ -67,20 +67,22 @@ public class StateListFragment extends ExpandableListFragment {
     public void setUserVisibleHint(final boolean visible) {
         super.setUserVisibleHint(visible);
         Logger.log("StateListFragment userVisibleHint " + Boolean.toString(visible));
-        if (visible && view != null && !isFresh()) {
+        if (visible && !isFresh()) {
             Log.i("CW", "Visible and stale");
-            try {
-                ExpandableListView lv = getExpandableListView();
-                new GetStatesJsonTask(this).execute("/api/state/list");
-                
-                // Set on item click listener
-                lv.setOnChildClickListener(this);
-            // Could not get expandable list view
-            } catch (IllegalStateException e) {
-                Logger.log("*** Exception: " + e.toString());
-                return;
-            }
+            loadStates();
+        }
+    }
+    
+    public void loadStates()
+    {
+        Logger.log("loadStates()");
+        if (view != null) {
+            Logger.log("View is not null");
+            //ExpandableListView lv = getExpandableListView();
+            new GetStatesJsonTask(this).execute("/api/state/list");
             
+            // Set on item click listener
+            //lv.setOnChildClickListener(this);
         }
     }
     
@@ -103,6 +105,7 @@ public class StateListFragment extends ExpandableListFragment {
     {
         Log.i("CW", "StateListFragment onDestroy()");
         super.onDestroy();
+        view = null;
     }
     
     /**
@@ -111,13 +114,9 @@ public class StateListFragment extends ExpandableListFragment {
     public void onStart()
     {
         Log.i("CW", "StateListFragment onStart()");
+        loadStates();
         super.onStart();
         
-        ExpandableListView lv = getExpandableListView();
-        new GetStatesJsonTask(this).execute("/api/state/list");
-        
-        // Set on item click listener
-        lv.setOnChildClickListener(this);
     }
     
     /**
@@ -155,6 +154,7 @@ public class StateListFragment extends ExpandableListFragment {
     	Log.i("CW", "StateListFragment onDestroyView()");
     	setListAdapter(null);
     	lastUpdateMillis = 0L;
+    	view = null;
     }
     
     /**

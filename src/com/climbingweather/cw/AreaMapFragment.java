@@ -72,7 +72,7 @@ public class AreaMapFragment extends SherlockFragment
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         
-        Log.i("CW", "AreaMapFragment onCreateView()");
+        Logger.log("AreaMapFragment onCreateView()");
         super.onCreate(savedInstanceState);
         
         view = inflater.inflate(R.layout.area_map, null);
@@ -83,9 +83,16 @@ public class AreaMapFragment extends SherlockFragment
         
     }
     
-    // Setup google map
+    public void onStart()
+    {
+        Logger.log("AreaMapFragment onStart()");
+        super.onStart();
+        //loadAreas();
+    }
+    // Setup google map 
     public void setupGmap()
     {
+        Logger.log("AreaMapFragment setupGmap()");
         gmap = ((SupportMapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         Logger.log(gmap.toString());
         
@@ -128,20 +135,24 @@ public class AreaMapFragment extends SherlockFragment
     
     public void onAttach(Activity activity)
     {
-        Logger.log("Attached");
+        Logger.log("AreaMapFragment onAttach()");
         this.activity = activity;
         super.onAttach(activity);
     }
     
-    public void onDetach()
+    public void onStop()
     {
-        Logger.log("Detached");
-        super.onDetach();
-        
+        super.onStop();
+        Logger.log("AreaMapFragment onStop()");
+        areas = null;
+        markerAreas.clear();
+        areaIdsOnMap.clear();
     }
     
     public void onDestroyView() {
-        super.onDestroyView(); 
+        super.onDestroyView();
+        Logger.log("AreaMapFragment onDestroyView()");
+        view = null;
         Fragment fragment = (getFragmentManager().findFragmentById(R.id.map));  
         FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
         ft.remove(fragment);
@@ -151,7 +162,7 @@ public class AreaMapFragment extends SherlockFragment
     @Override
     public void setUserVisibleHint(final boolean visible) {
         super.setUserVisibleHint(visible);
-        
+        Logger.log("AreaMapFragment setUserVisibleHint() " + Boolean.toString(visible));
         // Load areas if visible and view was already created
         if (visible && view != null) {
             loadAreas();
@@ -160,6 +171,7 @@ public class AreaMapFragment extends SherlockFragment
     
     private void loadAreas()
     {
+        Logger.log("AreaMapFragment loadAreas()");
         if (gmap != null) {
             LatLngBounds bounds = gmap.getProjection().getVisibleRegion().latLngBounds;
             String boundsStr = Double.toString(bounds.southwest.latitude) + ","
@@ -216,7 +228,6 @@ public class AreaMapFragment extends SherlockFragment
         }
         
         protected void onPreExecute() {
-            Logger.log(activity == null ? "Activity is null" : "Activity exists!");
             activity.setProgressBarIndeterminateVisibility(Boolean.TRUE); 
         }
         
@@ -231,12 +242,13 @@ public class AreaMapFragment extends SherlockFragment
         
         private void processJson(String result)
         {
-            Logger.log(result.substring(result.length() - 10));
+            Logger.log("AreaMapFragment processJson()");
             try {
                 Gson gson = new Gson();
                 CwApiAreaMapResponse apiResponse = gson.fromJson(result,  CwApiAreaMapResponse.class);
 
                 areas = apiResponse.getAreas();
+                Logger.log("Found " + Integer.toString(areas.length) + " areas in AreaMapFragment processJson()"); 
                 
                 for (int i = 0; i < areas.length; i++) {
                     

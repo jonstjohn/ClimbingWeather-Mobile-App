@@ -139,9 +139,10 @@ public class AreaListFragment extends SherlockListFragment {
     }
     
     @Override
-    public void onDestroy()
+    public void onDestroyView()
     {
-        super.onDestroy();
+        super.onDestroyView();
+        removeLocationListener();
         if (async != null) {
             async.cancel(true);
         }
@@ -229,6 +230,7 @@ public class AreaListFragment extends SherlockListFragment {
     public void onPause()
     {
         super.onPause();
+        removeLocationListener();
         //dialog.dismiss();
     }
     

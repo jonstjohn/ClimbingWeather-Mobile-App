@@ -219,6 +219,7 @@ public class ForecastListFragment  extends ExpandableListFragment
         }
         
         protected void onPreExecute() {
+            Logger.log(ForecastListFragment.this.getSherlockActivity().toString());
             ForecastListFragment.this.getSherlockActivity().setSupportProgressBarIndeterminateVisibility(Boolean.TRUE); 
         }
         

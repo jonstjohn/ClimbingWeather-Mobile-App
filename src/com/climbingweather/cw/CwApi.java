@@ -85,13 +85,15 @@ public class CwApi {
             
             cache.write(cacheFileName, json);
             
-                Log.i("CW", "File contents:");
+                /*
+                //Log.i("CW", "File contents:");
                 try {
                     Log.i("CW", cache.read(cacheFileName));
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
+                */
             
             return json;
             

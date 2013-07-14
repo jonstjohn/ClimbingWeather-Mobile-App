@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.Window;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
@@ -30,6 +31,8 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         
         Bundle extras = getIntent().getExtras();
         areaId = extras.getString("areaId");

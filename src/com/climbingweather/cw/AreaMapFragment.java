@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -57,6 +58,8 @@ public class AreaMapFragment extends SherlockFragment
     
     private GetAreasJsonTask areasJsonTask;
     
+    private View view;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         
@@ -72,8 +75,17 @@ public class AreaMapFragment extends SherlockFragment
         Log.i("CW", "AreaMapFragment onCreateView()");
         super.onCreate(savedInstanceState);
         
-        View view = inflater.inflate(R.layout.area_map, null);
+        view = inflater.inflate(R.layout.area_map, null);
         
+        setupGmap();
+        
+        return view;
+        
+    }
+    
+    // Setup google map
+    public void setupGmap()
+    {
         gmap = ((SupportMapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         Logger.log(gmap.toString());
         
@@ -112,8 +124,6 @@ public class AreaMapFragment extends SherlockFragment
             
             
         });
-        return view;
-        
     }
     
     public void onAttach(Activity activity)
@@ -141,8 +151,9 @@ public class AreaMapFragment extends SherlockFragment
     @Override
     public void setUserVisibleHint(final boolean visible) {
         super.setUserVisibleHint(visible);
-        if (visible) {
-            Logger.log("loadAreas()");
+        
+        // Load areas if visible and view was already created
+        if (visible && view != null) {
             loadAreas();
         }
     }
@@ -220,7 +231,6 @@ public class AreaMapFragment extends SherlockFragment
         
         private void processJson(String result)
         {
-            Logger.log(result);
             Logger.log(result.substring(result.length() - 10));
             try {
                 Gson gson = new Gson();
@@ -229,7 +239,6 @@ public class AreaMapFragment extends SherlockFragment
                 areas = apiResponse.getAreas();
                 
                 for (int i = 0; i < areas.length; i++) {
-                    Logger.log(areas[i].toString());
                     
                     if (!areaIdsOnMap.contains(areas[i].getId())) {
                         Marker marker = gmap.addMarker(new MarkerOptions()

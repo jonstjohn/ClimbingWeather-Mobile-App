@@ -78,6 +78,10 @@ public class AreaListFragment extends SherlockListFragment {
     private double longitude;
     
     private String search;
+    
+    private View view;
+    
+    private GetAreasJsonTask async;
 
     /**
      * On create
@@ -121,7 +125,8 @@ public class AreaListFragment extends SherlockListFragment {
         Log.i("CW", "AreaListFragment onCreateView()");
         super.onCreate(savedInstanceState);
         
-        return inflater.inflate(R.layout.list, null);
+        view = inflater.inflate(R.layout.list, null);
+        return view;
         
     }
     
@@ -129,12 +134,26 @@ public class AreaListFragment extends SherlockListFragment {
     {
         Log.i("CW", "AreaListFragment onStart()");
         super.onStart();
+        startLocation();
+        loadAreas();
+    }
+    
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        if (async != null) {
+            async.cancel(true);
+        }
     }
     
     @Override
     public void setUserVisibleHint(final boolean visible) {
         super.setUserVisibleHint(visible);
-        if (visible) {
+        if (visible && view != null) {
+            if (typeId == TYPE_NEARBY) {
+                startLocation();
+            }
             loadAreas();
         } else {
             if (typeId == TYPE_NEARBY) {
@@ -151,9 +170,9 @@ public class AreaListFragment extends SherlockListFragment {
         
         switch (typeId) {
             case TYPE_NEARBY:
-                startLocation();
                 url = "/api/area/search/ll=" + Double.toString(latitude) + "," + Double.toString(longitude) + "?days=3";
-                new GetAreasJsonTask(this).execute(url);
+                async = new GetAreasJsonTask(this);
+                async.execute(url);
                 Log.i("CW", url);
                 break;
             case TYPE_FAVORITE:
@@ -168,7 +187,8 @@ public class AreaListFragment extends SherlockListFragment {
                     }
                     idStr += ids.get(ids.size() - 1);
                     url = "/api/area/list/ids-" + idStr + "?days=3";
-                    new GetAreasJsonTask(this).execute(url);
+                    async = new GetAreasJsonTask(this);
+                    async.execute(url);
                 }
                 break;
         }
@@ -177,8 +197,6 @@ public class AreaListFragment extends SherlockListFragment {
     
     private void startLocation()
     {
-        Toast.makeText(getActivity(), "Acquiring location", Toast.LENGTH_SHORT).show();
-        
         // Start location manager
         lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         locationListener = new AreaLocationListener();
@@ -225,9 +243,9 @@ public class AreaListFragment extends SherlockListFragment {
      */
     private class GetAreasJsonTask extends AsyncTask<String, Void, String> {
         
-        private SherlockListFragment listFragment;
+        private AreaListFragment listFragment;
         
-        public GetAreasJsonTask(SherlockListFragment listFragment) {
+        public GetAreasJsonTask(AreaListFragment listFragment) {
             this.listFragment = listFragment;
             //dialog = new ProgressDialog(listFragment.getActivity());
         }
@@ -271,30 +289,33 @@ public class AreaListFragment extends SherlockListFragment {
             Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
         }
         
-      ListView lv = getListView();
-      lv.setTextFilterEnabled(true);
-      
-      // Populate empty row in case we didn't find any areas
-      //emptyView.setText(noneText);
-      
-      // Set on item click listener for states
-      lv.setOnItemClickListener(new OnItemClickListener() {
-          
-          /**
-           * On item click action, open area activity
-           */
-          public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-              
-              Area area = areas[position];
-              Intent i = new Intent(getActivity(), AreaFragmentActivity.class);
-              i.putExtra("areaId", Integer.valueOf(area.getId()).toString());
-              i.putExtra("name", area.getName());
-              startActivity(i);
-          }
-          
-      });
-      
-      //dialog.hide();
+        try {
+            ListView lv = getListView();
+            lv.setTextFilterEnabled(true);
+            
+            // Populate empty row in case we didn't find any areas
+            //emptyView.setText(noneText);
+            
+            // Set on item click listener for states
+            lv.setOnItemClickListener(new OnItemClickListener() {
+                
+                /**
+                 * On item click action, open area activity
+                 */
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    
+                    Area area = areas[position];
+                    Intent i = new Intent(getActivity(), AreaFragmentActivity.class);
+                    i.putExtra("areaId", Integer.valueOf(area.getId()).toString());
+                    i.putExtra("name", area.getName());
+                    startActivity(i);
+                }
+                
+            });
+        } catch (IllegalStateException e) {
+            Logger.log("Unable to getListView() in AreaListFragment processJson(), likely view destroyed during async");
+            return;
+        }
       
     }
     

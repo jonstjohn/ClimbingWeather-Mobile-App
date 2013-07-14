@@ -5,5 +5,5 @@
     	android:background="#ffffff">
 
     <ListView android:id="@+id/android:list" style="@style/BasicList"/>
-  	<TextView android:id="@+id/android:empty" android:text="None" style="@style/BasicRow"/>
+  	<TextView android:id="@+id/android:empty" android:text="" style="@style/BasicRow"/>
 </LinearLayout>

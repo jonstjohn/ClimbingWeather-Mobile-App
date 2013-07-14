@@ -31,6 +31,8 @@ public class StateListFragment extends ExpandableListFragment {
     
     private long lastUpdateMillis = 0L;
     
+    private View view;
+    
     /**
      * Adapter
      */
@@ -49,7 +51,9 @@ public class StateListFragment extends ExpandableListFragment {
         
         mContext = getActivity();
         
-        return inflater.inflate(R.layout.list_expandable, null);
+        view = inflater.inflate(R.layout.list_expandable, null);
+        
+        return view;
         
     }
     
@@ -62,18 +66,18 @@ public class StateListFragment extends ExpandableListFragment {
     @Override
     public void setUserVisibleHint(final boolean visible) {
         super.setUserVisibleHint(visible);
-        if (visible && !isFresh()) {
+        Logger.log("StateListFragment userVisibleHint " + Boolean.toString(visible));
+        if (visible && view != null && !isFresh()) {
             Log.i("CW", "Visible and stale");
             try {
                 ExpandableListView lv = getExpandableListView();
                 new GetStatesJsonTask(this).execute("/api/state/list");
                 
-                lv.setTextFilterEnabled(true);
-                
                 // Set on item click listener
                 lv.setOnChildClickListener(this);
             // Could not get expandable list view
             } catch (IllegalStateException e) {
+                Logger.log("*** Exception: " + e.toString());
                 return;
             }
             
@@ -108,6 +112,12 @@ public class StateListFragment extends ExpandableListFragment {
     {
         Log.i("CW", "StateListFragment onStart()");
         super.onStart();
+        
+        ExpandableListView lv = getExpandableListView();
+        new GetStatesJsonTask(this).execute("/api/state/list");
+        
+        // Set on item click listener
+        lv.setOnChildClickListener(this);
     }
     
     /**
@@ -144,6 +154,7 @@ public class StateListFragment extends ExpandableListFragment {
     	super.onDestroyView();
     	Log.i("CW", "StateListFragment onDestroyView()");
     	setListAdapter(null);
+    	lastUpdateMillis = 0L;
     }
     
     /**
@@ -349,7 +360,7 @@ public class StateListFragment extends ExpandableListFragment {
          */
         protected void onPostExecute(String result)
         {
-            Log.i("CW", "Finishing JSON task");
+            Log.i("CW", "Finishing StateListFragment JSON task");
             
             lastUpdateMillis = System.currentTimeMillis();
             listFragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
@@ -363,6 +374,7 @@ public class StateListFragment extends ExpandableListFragment {
                 State[] states = gson.fromJson(result, State[].class);
                 stateAdapter.addStates(states);
                 setListAdapter(stateAdapter);
+                stateAdapter.notifyDataSetChanged();
               
             } catch (JsonParseException e) {
               

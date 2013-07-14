@@ -45,14 +45,14 @@ public class FavoriteListFragment extends SherlockListFragment
         super.onActivityCreated(savedInstanceState);
         
         LayoutInflater inflater = LayoutInflater.from(getActivity());
-        
-        //if (headerView == null) {
-            //headerView = (TextView) inflater.inflate(R.layout.header_row, null);
-            //headerView.setText("Favorite Areas");
-            //getListView().addHeaderView(headerView);
-        //}
-        
-        fillData();
+    }
+    
+    @Override
+    public void setUserVisibleHint(final boolean visible) {
+        super.setUserVisibleHint(visible);
+        if (visible) {
+            fillData();
+        }
     }
     
     /**

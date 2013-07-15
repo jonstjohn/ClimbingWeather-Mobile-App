@@ -6,32 +6,21 @@ import java.util.Date;
 import java.util.HashMap;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.climbingweather.cw.AreaListFragment.AreaAdapter;
-import com.climbingweather.cw.ForecastListFragment.ForecastExpandableListAdapter;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -45,8 +34,6 @@ import com.google.gson.JsonParseException;
 public class AreaMapFragment extends SherlockFragment
 {
     private GoogleMap gmap;
-    
-    private Long lastUpdateMillis = 0L;
     
     private Area[] areas;
     
@@ -144,13 +131,13 @@ public class AreaMapFragment extends SherlockFragment
     {
         super.onStop();
         Logger.log("AreaMapFragment onStop()");
-        areas = null;
-        markerAreas.clear();
-        areaIdsOnMap.clear();
     }
     
     public void onDestroyView() {
         super.onDestroyView();
+        areas = null;
+        markerAreas.clear();
+        areaIdsOnMap.clear();
         Logger.log("AreaMapFragment onDestroyView()");
         view = null;
         Fragment fragment = (getFragmentManager().findFragmentById(R.id.map));  
@@ -266,7 +253,6 @@ public class AreaMapFragment extends SherlockFragment
                     }
                 }
                 
-                lastUpdateMillis = System.currentTimeMillis();
             } catch (JsonParseException e) {
                 Toast.makeText(
                         AreaMapFragment.this.getActivity(), "An error occurred while retrieving map areas", Toast.LENGTH_SHORT

@@ -77,6 +77,8 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
                 return new ForecastListFragment();
             } else if (position == 11) {
                 return new FavoriteListFragment();
+            } else if (position == 2) {
+                return new AreaAverageFragment();
             } else if (position == 3) {
                 return new AreaMapFragment();
             } else {

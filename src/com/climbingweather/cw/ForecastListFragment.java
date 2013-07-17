@@ -44,7 +44,7 @@ public class ForecastListFragment  extends ExpandableListFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         
-        super.onCreate(savedInstanceState);
+        super.onCreateView(inflater, container, savedInstanceState);
         
         mContext = getActivity();
         

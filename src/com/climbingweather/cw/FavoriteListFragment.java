@@ -34,7 +34,7 @@ public class FavoriteListFragment extends SherlockListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         Log.i("CW", "Favorite onCreateView()");
-        super.onCreate(savedInstanceState);
+        super.onCreateView(inflater, container, savedInstanceState);
         return inflater.inflate(R.layout.list, null);
         
     }

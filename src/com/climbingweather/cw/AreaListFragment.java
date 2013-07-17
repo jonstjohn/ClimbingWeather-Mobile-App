@@ -123,7 +123,7 @@ public class AreaListFragment extends SherlockListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         
         Log.i("CW", "AreaListFragment onCreateView()");
-        super.onCreate(savedInstanceState);
+        super.onCreateView(inflater, container, savedInstanceState);
         
         view = inflater.inflate(R.layout.list, null);
         return view;

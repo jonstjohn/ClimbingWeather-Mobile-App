@@ -46,7 +46,7 @@ public class StateListFragment extends ExpandableListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         
         Log.i("CW", "StateListFragment onCreateView()");
-        super.onCreate(savedInstanceState);
+        super.onCreateView(inflater, container, savedInstanceState);
         
         mContext = getActivity();
         

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,8 +46,6 @@ public class AreaMapFragment extends SherlockFragment
     
     private GetAreasJsonTask areasJsonTask;
     
-    private View view;
-    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         
@@ -57,12 +56,13 @@ public class AreaMapFragment extends SherlockFragment
      * On create
      */
     @Override
-    public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
+        super.onCreateView(inflater, container, savedInstanceState);
         
         Logger.log("AreaMapFragment onCreateView()");
-        super.onCreate(savedInstanceState);
         
-        view = inflater.inflate(R.layout.area_map, null);
+        View view = inflater.inflate(R.layout.area_map, container, false);
         
         setupGmap();
         
@@ -139,11 +139,16 @@ public class AreaMapFragment extends SherlockFragment
         markerAreas.clear();
         areaIdsOnMap.clear();
         Logger.log("AreaMapFragment onDestroyView()");
-        view = null;
-        Fragment fragment = (getFragmentManager().findFragmentById(R.id.map));  
-        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-        ft.remove(fragment);
-        ft.commit();
+        
+        try {
+            Fragment fragment = (getFragmentManager().findFragmentById(R.id.map));  
+            FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+            ft.remove(fragment);
+            ft.commitAllowingStateLoss();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -151,7 +156,7 @@ public class AreaMapFragment extends SherlockFragment
         super.setUserVisibleHint(visible);
         Logger.log("AreaMapFragment setUserVisibleHint() " + Boolean.toString(visible));
         // Load areas if visible and view was already created
-        if (visible && view != null) {
+        if (visible) {
             loadAreas();
         }
     }

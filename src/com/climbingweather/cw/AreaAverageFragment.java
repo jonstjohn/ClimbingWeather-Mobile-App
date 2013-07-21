@@ -8,15 +8,25 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.climbingweather.cw.AreaListFragment.AreaAdapter;
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 
 import android.R.color;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
 
 public class AreaAverageFragment extends SherlockFragment
 {
@@ -37,6 +47,8 @@ public class AreaAverageFragment extends SherlockFragment
     private XYSeries mTempHighSeries;
 
     private XYSeriesRenderer mTempHighRenderer;
+
+    public Context mContext;
     
     /**
      * On create
@@ -148,5 +160,56 @@ public class AreaAverageFragment extends SherlockFragment
         mTempMeanSeries.add(3, 43.6);
         mTempMeanSeries.add(4, 51.1);
         mTempMeanSeries.add(5, 61.6);
+    }
+    
+    /**
+     * Asynchronous get JSON task
+     */
+    private class GetAveragesJsonTask extends AsyncTask<String, Void, String> {
+        
+        private AreaAverageFragment fragment;
+        
+        public GetAveragesJsonTask(AreaAverageFragment fragment) {
+            this.fragment = fragment;
+        }
+        
+        /**
+         * Execute in background
+         */
+        protected String doInBackground(String... args) {
+              
+              Log.i("CW", args[0]);
+              CwApi api = new CwApi(mContext);
+              return api.getJson(args[0]);
+
+        }
+        
+        protected void onPreExecute() {
+            fragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE); 
+        }
+        
+        /**
+         * After execute (in UI thread context)
+         */
+        protected void onPostExecute(String result)
+        {
+            fragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
+            processJson(result);
+        }
+    }
+    
+    /**
+     * Load areas from JSON string result
+     */
+    public void processJson(String result) {
+    
+        try {
+            Gson gson = new Gson();
+            CwApiAverageResponse response = gson.fromJson(result, CwApiAverageResponse.class);
+            AreaAverage average = response.getAreaAverage();
+        } catch (JsonParseException e) {
+            Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
+        }
+        
     }
 }

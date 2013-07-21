@@ -11,4 +11,13 @@ public class CwApiAverageResponse {
     {
         return results;
     }
+    
+    public String toString()
+    {
+        if (results == null) {
+            return status;
+        } else {
+            return status + " " + results.toString();
+        }
+    }
 }

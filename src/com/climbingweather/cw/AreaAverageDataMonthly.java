@@ -27,4 +27,9 @@ public class AreaAverageDataMonthly
     private double dec;
     
     private double annual;
+    
+    public Double[] getMonthlyData()
+    {
+        return  new Double[] {jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec};
+    }
 }

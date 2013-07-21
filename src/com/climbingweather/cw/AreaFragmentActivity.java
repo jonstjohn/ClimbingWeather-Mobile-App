@@ -211,5 +211,9 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
 
     }
     
+    public String getAreaId()
+    {
+        return areaId;
+    }
     
 }

@@ -21,4 +21,9 @@ public class AreaAverage
     {
         return data;
     }
+    
+    public String toString()
+    {
+        return name + " " + Integer.toString(elevation) + " ";
+    }
 }

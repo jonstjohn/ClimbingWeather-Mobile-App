@@ -48,8 +48,6 @@ public class AreaAverageFragment extends SherlockFragment
 
     private XYSeriesRenderer mTempHighRenderer;
 
-    public Context mContext;
-    
     /**
      * On create
      */
@@ -67,11 +65,15 @@ public class AreaAverageFragment extends SherlockFragment
         super.onResume();
         LinearLayout layout = (LinearLayout) getView().findViewById(R.id.chart);
         if (mChart == null) {
-            initChart();
-            addSampleData();
+            //initChart();
+            //addSampleData();
             //mChart = ChartFactory.getCubeLineChartView(getActivity(), mDataset, mRenderer, 0.3f);
             mChart = ChartFactory.getCubeLineChartView(getActivity(), mDataset, mRenderer, 0.3f);
             layout.addView(mChart);
+            
+            String url = "/api/area/averages/" + ((AreaFragmentActivity) getActivity()).getAreaId();
+            GetAveragesJsonTask async = new GetAveragesJsonTask(this);
+            async.execute(url);
         } else {
             mChart.repaint();
         }
@@ -80,14 +82,17 @@ public class AreaAverageFragment extends SherlockFragment
     private void initChart()
     {
         // Temperature High
+        /*
         mTempHighSeries = new XYSeries("High");
         mTempHighSeries.add(1, 38.7);
         mTempHighSeries.add(2, 45.1);
         mTempHighSeries.add(3, 53.5);
         mTempHighSeries.add(4, 61.6);
         mTempHighSeries.add(5, 71.5);
+        */
         
         mDataset.addSeries(mTempHighSeries);
+        
         mTempHighRenderer = new XYSeriesRenderer();
         mTempHighRenderer.setDisplayChartValues(true);
         mTempHighRenderer.setChartValuesSpacing((float) 0.5);
@@ -97,7 +102,7 @@ public class AreaAverageFragment extends SherlockFragment
         mRenderer.addSeriesRenderer(mTempHighRenderer);
         
         // Temperature mean
-        mTempMeanSeries = new XYSeries("Mean");
+        //mTempMeanSeries = new XYSeries("Mean");
         
         mDataset.addSeries(mTempMeanSeries);
         mTempMeanRenderer = new XYSeriesRenderer();
@@ -109,12 +114,14 @@ public class AreaAverageFragment extends SherlockFragment
         mRenderer.addSeriesRenderer(mTempMeanRenderer);
         
         // Temperature low
+        /*
         mTempLowSeries = new XYSeries("Low");
         mTempLowSeries.add(1, 22.1);
         mTempLowSeries.add(2, 26.5);
         mTempLowSeries.add(3, 33.7);
         mTempLowSeries.add(4, 40.5);
         mTempLowSeries.add(5, 48.2);
+        */
         
         mDataset.addSeries(mTempLowSeries);
         mTempLowRenderer = new XYSeriesRenderer();
@@ -179,7 +186,7 @@ public class AreaAverageFragment extends SherlockFragment
         protected String doInBackground(String... args) {
               
               Log.i("CW", args[0]);
-              CwApi api = new CwApi(mContext);
+              CwApi api = new CwApi(getActivity(), "2.0");
               return api.getJson(args[0]);
 
         }
@@ -204,11 +211,46 @@ public class AreaAverageFragment extends SherlockFragment
     public void processJson(String result) {
     
         try {
+            Logger.log("CWI API Result:");
+            Logger.log(result);
             Gson gson = new Gson();
             CwApiAverageResponse response = gson.fromJson(result, CwApiAverageResponse.class);
+            Logger.log("Response string:");
+            Logger.log(response.toString());
+
             AreaAverage average = response.getAreaAverage();
+            AreaAverageData data = average.getAreaAverageData();
+            Logger.log(data.getHigh().getMonthlyData().toString());
+            
+            mTempHighSeries = new XYSeries("High");
+            Double[] highs = data.getHigh().getMonthlyData();
+            Logger.log("Highs:");
+            for (int i = 0; i < highs.length; i++) {
+                Logger.log(Double.toString(highs[i]));
+                mTempHighSeries.add(i + 1, highs[i]);
+            }
+            
+            mTempLowSeries = new XYSeries("Low");
+            Logger.log("Lows:");
+            Double[] lows = data.getLow().getMonthlyData();
+            for (int i = 0; i < lows.length; i++) {
+                Logger.log(Double.toString(lows[i]));
+                mTempLowSeries.add(i + 1, lows[i]);
+            }
+            
+            mTempMeanSeries = new XYSeries("Mean");
+            Logger.log("Means:");
+            Double[] means = data.getMean().getMonthlyData();
+            for (int i = 0; i < means.length; i++) {
+                Logger.log(Double.toString(means[i]));
+                mTempMeanSeries.add(i + 1, means[i]);
+            }
+            
+            initChart();
+            mChart.repaint();
+            
         } catch (JsonParseException e) {
-            Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
         }
         
     }

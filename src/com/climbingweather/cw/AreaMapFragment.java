@@ -50,6 +50,7 @@ public class AreaMapFragment extends SherlockFragment
     public void onCreate(Bundle savedInstanceState) {
         
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
     
     /**
@@ -74,7 +75,7 @@ public class AreaMapFragment extends SherlockFragment
     {
         Logger.log("AreaMapFragment onStart()");
         super.onStart();
-        ((MainActivity) getActivity()).mGaTracker.sendView("/map");
+        ((CwApplication) this.getActivity().getApplication()).getGaTracker().sendView("/map");
         //loadAreas();
     }
     // Setup google map 
@@ -140,16 +141,6 @@ public class AreaMapFragment extends SherlockFragment
         markerAreas.clear();
         areaIdsOnMap.clear();
         Logger.log("AreaMapFragment onDestroyView()");
-        
-        try {
-            Fragment fragment = (getFragmentManager().findFragmentById(R.id.map));  
-            FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-            ft.remove(fragment);
-            ft.commitAllowingStateLoss();
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

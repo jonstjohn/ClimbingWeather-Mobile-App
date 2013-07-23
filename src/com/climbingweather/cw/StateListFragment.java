@@ -39,6 +39,13 @@ public class StateListFragment extends ExpandableListFragment {
     
     private Context mContext;
     
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        
+      super.onCreate(savedInstanceState);
+      setRetainInstance(true);
+    }
+    
     /**
      * On create
      */
@@ -115,7 +122,7 @@ public class StateListFragment extends ExpandableListFragment {
         Log.i("CW", "StateListFragment onStart()");
         loadStates();
         super.onStart();
-        ((MainActivity) getActivity()).mGaTracker.sendView("/byState");
+        ((CwApplication) this.getActivity().getApplication()).getGaTracker().sendView("/byState");
         
     }
     
@@ -363,7 +370,7 @@ public class StateListFragment extends ExpandableListFragment {
             Log.i("CW", "Finishing StateListFragment JSON task");
             
             lastUpdateMillis = System.currentTimeMillis();
-            listFragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
+            StateListFragment.this.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
 
             // Setup adapter
             stateAdapter = new StateExpandableListAdapter(mContext);

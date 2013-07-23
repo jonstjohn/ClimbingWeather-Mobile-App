@@ -1,5 +1,7 @@
 package com.climbingweather.cw;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -18,9 +20,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
+import android.view.KeyEvent;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -91,6 +96,7 @@ public class AreaListFragment extends SherlockListFragment {
     public void onCreate(Bundle savedInstanceState) {
         
       super.onCreate(savedInstanceState);
+      setRetainInstance(true);
       
       /*
       // Grab passed in info
@@ -126,8 +132,56 @@ public class AreaListFragment extends SherlockListFragment {
         Log.i("CW", "AreaListFragment onCreateView()");
         super.onCreateView(inflater, container, savedInstanceState);
         
-        view = inflater.inflate(R.layout.list, null);
+        if (typeId == TYPE_SEARCH) {
+            view = inflater.inflate(R.layout.list_search, null);
+            // Search text
+            final EditText searchEdit = (EditText) view.findViewById(R.id.search);
+
+            // Capture key actions
+            searchEdit.setOnKeyListener(new OnKeyListener() {
+                
+                // Capture key actions
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    
+                    Logger.log("TEST");
+                    // If enter is pressed, do search
+                    if ((event.getAction() == KeyEvent.ACTION_DOWN) 
+                        && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+
+                        doSearch();
+                        return true;
+                        
+                    }
+                    
+                    return false;
+                }
+            });
+        } else {
+            view = inflater.inflate(R.layout.list, null);
+        }
         return view;
+        
+    }
+    
+    private boolean doSearch() {
+
+        EditText searchEdit = (EditText) getActivity().findViewById(R.id.search_edit);
+        String srch = searchEdit.getText().toString();
+        Logger.log(srch);
+        /*
+        try {
+            srch = URLEncoder.encode(srch, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        // Clean-up search string - URL encode
+        Intent i = new Intent(getActivity().getApplicationContext(), AreaListActivity.class);
+        i.putExtra("srch", srch);
+        startActivity(i);
+        */
+        return true;
         
     }
     
@@ -137,7 +191,7 @@ public class AreaListFragment extends SherlockListFragment {
         super.onStart();
         startLocation();
         loadAreas();
-        ((MainActivity) getActivity()).mGaTracker.sendView(getScreenName());
+         ((CwApplication) this.getActivity().getApplication()).getGaTracker().sendView(getScreenName());
     }
     
     // Get screen name for GA
@@ -155,6 +209,9 @@ public class AreaListFragment extends SherlockListFragment {
         case TYPE_FAVORITE:
             name = "/favorite";
             break;
+        default:
+            name ="/areaList";
+            break;
         }
         return name;
     }
@@ -163,12 +220,16 @@ public class AreaListFragment extends SherlockListFragment {
     public void onDestroyView()
     {
         super.onDestroyView();
+        Log.i("CW", "AreaListFragment onDestroyView()");
+        /*
         removeLocationListener();
         if (async != null) {
             async.cancel(true);
         }
+        */
     }
     
+    /*
     @Override
     public void setUserVisibleHint(final boolean visible) {
         super.setUserVisibleHint(visible);
@@ -182,6 +243,17 @@ public class AreaListFragment extends SherlockListFragment {
                 removeLocationListener();
             }
         }
+    }
+    */
+    
+    public void onResume()
+    {
+        super.onResume();
+        Log.i("CW", "AreaListFragment onResume()");
+        if (typeId == TYPE_NEARBY) {
+            startLocation();
+        }
+        loadAreas();
     }
     
     private void loadAreas()
@@ -213,6 +285,18 @@ public class AreaListFragment extends SherlockListFragment {
                     async.execute(url);
                 }
                 break;
+            case TYPE_SEARCH:
+                url = "/api/area/search/" + search + "?days=3";
+                async = new GetAreasJsonTask(this);
+                async.execute(url);
+                Log.i("CW", url);
+                break;
+                /*
+        } else if (extras.containsKey("srch")) { // keyword search
+            
+            url = "/api/area/search/" + extras.getString("srch");
+            noneText = "No areas found for the search";
+            */
         }
 
     }
@@ -250,9 +334,11 @@ public class AreaListFragment extends SherlockListFragment {
      */
     public void onPause()
     {
+        Log.i("CW", "AreaListFragment onPause()");
         super.onPause();
-        removeLocationListener();
-        //dialog.dismiss();
+        if (typeId == TYPE_NEARBY) {
+            removeLocationListener();
+        }
     }
     
     public void onStop()
@@ -351,6 +437,11 @@ public class AreaListFragment extends SherlockListFragment {
     {
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+    
+    public void setSearch(String search)
+    {
+        this.search = search;
     }
     
     public class AreaAdapter extends ArrayAdapter<Area>

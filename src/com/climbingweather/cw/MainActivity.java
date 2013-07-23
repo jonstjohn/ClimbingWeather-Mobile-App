@@ -1,25 +1,12 @@
 package com.climbingweather.cw;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
 import android.view.Window;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuInflater;
@@ -27,11 +14,6 @@ import com.actionbarsherlock.view.MenuInflater;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.analytics.tracking.android.EasyTracker;
@@ -44,16 +26,6 @@ public class MainActivity extends SherlockFragmentActivity {
     private static final String[] CONTENT = new String[] { "Home", "Favorites", "Nearby", "By State", "Map" };
     
     /**
-     * Location manager for location updates
-     */
-    private LocationManager lm;
-    
-    /**
-     * Location listener to receive location updates
-     */
-    private LocationListener locationListener;
-    
-    /**
      * User latitude
      */
     private double latitude;
@@ -62,9 +34,6 @@ public class MainActivity extends SherlockFragmentActivity {
      * User longitude
      */
     private double longitude;
-    
-    public Tracker mGaTracker;
-    private GoogleAnalytics mGaInstance;
     
     /** 
      * Called when the activity is first created. 
@@ -186,8 +155,6 @@ public class MainActivity extends SherlockFragmentActivity {
         TabPageIndicator indicator = (TabPageIndicator)findViewById(R.id.indicator);
         indicator.setViewPager(pager);
         
-        mGaInstance = GoogleAnalytics.getInstance(this);
-        mGaTracker = mGaInstance.getTracker("UA-205323-8");
     }
     
     /**
@@ -207,6 +174,11 @@ public class MainActivity extends SherlockFragmentActivity {
         public Fragment getItem(int position) {
             if (position == 3) {
                 return new StateListFragment();
+            } else if (position == 0) {
+                AreaListFragment frag =  new AreaListFragment();
+                frag.setType(AreaListFragment.TYPE_SEARCH);
+                frag.setSearch("yosemite");
+                return frag;
             } else if (position == 1) {
                 //return new FavoriteListFragment();
                 AreaListFragment frag =  new AreaListFragment();

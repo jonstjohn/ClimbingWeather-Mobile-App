@@ -9,4 +9,5 @@
     <string name="add_favorite">Add to Favorites</string>
     <string name="loading">Loading &#8230;</string>
     <string name="loadingDescription">Loading image</string>
+    <string name="searchHint">Search by area, state or zip code</string>
 </resources>

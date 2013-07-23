@@ -21,7 +21,7 @@ public class CwApi {
     /**
      * Base URL
      */
-    private String mBaseUrl = "http://dev.climbingweather.com";
+    private String mBaseUrl = "http://api.climbingweather.com";
     
     // Version
     private String version;

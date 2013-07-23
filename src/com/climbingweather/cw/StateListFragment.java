@@ -115,6 +115,7 @@ public class StateListFragment extends ExpandableListFragment {
         Log.i("CW", "StateListFragment onStart()");
         loadStates();
         super.onStart();
+        ((MainActivity) getActivity()).mGaTracker.sendView("/byState");
         
     }
     

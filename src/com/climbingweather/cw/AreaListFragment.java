@@ -3,6 +3,7 @@ package com.climbingweather.cw;
 import java.util.ArrayList;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.google.analytics.tracking.android.EasyTracker;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 
@@ -136,6 +137,26 @@ public class AreaListFragment extends SherlockListFragment {
         super.onStart();
         startLocation();
         loadAreas();
+        ((MainActivity) getActivity()).mGaTracker.sendView(getScreenName());
+    }
+    
+    // Get screen name for GA
+    private String getScreenName()
+    {
+        String name = "";
+        switch (typeId)
+        {
+        case TYPE_NEARBY:
+            name = "/nearby";
+            break;
+        case TYPE_SEARCH:
+            name = "/search";
+            break;
+        case TYPE_FAVORITE:
+            name = "/favorite";
+            break;
+        }
+        return name;
     }
     
     @Override

@@ -34,6 +34,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.GoogleAnalytics;
+import com.google.analytics.tracking.android.Tracker;
 import com.viewpagerindicator.TabPageIndicator;
 
 public class MainActivity extends SherlockFragmentActivity {
@@ -59,6 +62,9 @@ public class MainActivity extends SherlockFragmentActivity {
      * User longitude
      */
     private double longitude;
+    
+    public Tracker mGaTracker;
+    private GoogleAnalytics mGaInstance;
     
     /** 
      * Called when the activity is first created. 
@@ -179,6 +185,9 @@ public class MainActivity extends SherlockFragmentActivity {
 
         TabPageIndicator indicator = (TabPageIndicator)findViewById(R.id.indicator);
         indicator.setViewPager(pager);
+        
+        mGaInstance = GoogleAnalytics.getInstance(this);
+        mGaTracker = mGaInstance.getTracker("UA-205323-8");
     }
     
     /**
@@ -241,6 +250,7 @@ public class MainActivity extends SherlockFragmentActivity {
     public void onStart()
     {
         super.onStart();
+        EasyTracker.getInstance().activityStart(this);
         //addLocationListener();
     }
     

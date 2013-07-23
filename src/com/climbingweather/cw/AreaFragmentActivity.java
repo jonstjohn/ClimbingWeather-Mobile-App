@@ -17,6 +17,9 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.climbingweather.cw.MainActivity.CwPagerAdapter;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.GoogleAnalytics;
+import com.google.analytics.tracking.android.Tracker;
 import com.viewpagerindicator.TabPageIndicator;
 
 public class AreaFragmentActivity extends SherlockFragmentActivity
@@ -26,6 +29,9 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
     private String areaId;
     
     private String name;
+    
+    public Tracker mGaTracker;
+    private GoogleAnalytics mGaInstance;
     
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -56,6 +62,9 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
 
         TabPageIndicator indicator = (TabPageIndicator)findViewById(R.id.indicator);
         indicator.setViewPager(pager);
+        
+        mGaInstance = GoogleAnalytics.getInstance(this);
+        mGaTracker = mGaInstance.getTracker("UA-205323-8");
     }
 
     /**
@@ -96,7 +105,6 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
           return CONTENT.length;
         }
     }
-    
     
     /**
      * Create menu options
@@ -216,4 +224,15 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
         return areaId;
     }
     
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+    }
+    
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+    }
 }

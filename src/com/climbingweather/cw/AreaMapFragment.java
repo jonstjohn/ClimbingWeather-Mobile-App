@@ -74,6 +74,7 @@ public class AreaMapFragment extends SherlockFragment
     {
         Logger.log("AreaMapFragment onStart()");
         super.onStart();
+        ((MainActivity) getActivity()).mGaTracker.sendView("/map");
         //loadAreas();
     }
     // Setup google map 

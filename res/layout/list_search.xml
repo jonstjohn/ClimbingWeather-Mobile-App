@@ -12,7 +12,9 @@
         android:background="@drawable/cw_custom_tab_indicator_unselected"
         android:drawableRight="@android:drawable/ic_menu_search"
         android:hint="@string/searchHint"
-        android:padding="10dp" />
+        android:padding="10dp"
+        android:singleLine="true"
+        android:imeOptions="actionDone"/>
 
     <ListView android:id="@+id/android:list" style="@style/BasicList"/>
     <TextView android:id="@+id/android:empty" android:text="" style="@style/BasicRow"/>

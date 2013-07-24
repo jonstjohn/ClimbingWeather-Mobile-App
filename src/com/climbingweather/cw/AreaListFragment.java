@@ -12,22 +12,27 @@ import com.google.gson.JsonParseException;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -98,29 +103,6 @@ public class AreaListFragment extends SherlockListFragment {
       super.onCreate(savedInstanceState);
       setRetainInstance(true);
       
-      /*
-      // Grab passed in info
-      Bundle extras = getActivity().getIntent().getExtras();
-      
-      // Determine JSON request URL
-      String url = "";
-      if (extras.containsKey("stateCode")) { // state search
-          
-          url = "/api/state/area/" + extras.getString("stateCode");
-          noneText = "No areas for this state";
-          
-      } else if (extras.containsKey("latitude")) { // lat/long search
-          
-          url = "/api/area/search/ll=" + extras.getString("latitude") + "," + extras.getString("longitude");
-          noneText = "Unable to locate nearby areas";
-          
-      } else if (extras.containsKey("srch")) { // keyword search
-          
-          url = "/api/area/search/" + extras.getString("srch");
-          noneText = "No areas found for the search";
-          
-      }
-      */
     }
     
     /**
@@ -134,54 +116,40 @@ public class AreaListFragment extends SherlockListFragment {
         
         if (typeId == TYPE_SEARCH) {
             view = inflater.inflate(R.layout.list_search, null);
+            
             // Search text
             final EditText searchEdit = (EditText) view.findViewById(R.id.search);
-
-            // Capture key actions
-            searchEdit.setOnKeyListener(new OnKeyListener() {
-                
-                // Capture key actions
-                public boolean onKey(View v, int keyCode, KeyEvent event) {
-                    
-                    Logger.log("TEST");
-                    // If enter is pressed, do search
-                    if ((event.getAction() == KeyEvent.ACTION_DOWN) 
-                        && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-
-                        doSearch();
-                        return true;
-                        
+            
+            searchEdit.setOnEditorActionListener(new OnEditorActionListener() {
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        loadAreas();
                     }
-                    
                     return false;
+                }
+            });
+
+            searchEdit.addTextChangedListener(new TextWatcher() {
+                public void afterTextChanged(Editable s)
+                {
+                    // do nothing
+                }
+                
+                public void beforeTextChanged(CharSequence s, int start, int count, int after)
+                {
+                    // do nothing
+                }
+                
+                public void onTextChanged(CharSequence s, int start, int before, int count)
+                {
+                    search = s.toString();
+                    Logger.log(s.toString());
                 }
             });
         } else {
             view = inflater.inflate(R.layout.list, null);
         }
         return view;
-        
-    }
-    
-    private boolean doSearch() {
-
-        EditText searchEdit = (EditText) getActivity().findViewById(R.id.search_edit);
-        String srch = searchEdit.getText().toString();
-        Logger.log(srch);
-        /*
-        try {
-            srch = URLEncoder.encode(srch, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        // Clean-up search string - URL encode
-        Intent i = new Intent(getActivity().getApplicationContext(), AreaListActivity.class);
-        i.putExtra("srch", srch);
-        startActivity(i);
-        */
-        return true;
         
     }
     
@@ -286,10 +254,15 @@ public class AreaListFragment extends SherlockListFragment {
                 }
                 break;
             case TYPE_SEARCH:
-                url = "/api/area/search/" + search + "?days=3";
-                async = new GetAreasJsonTask(this);
-                async.execute(url);
-                Log.i("CW", url);
+                try {
+                    String encodedSearch = URLEncoder.encode(search, "UTF-8");
+                    url = "/api/area/search/" + encodedSearch + "?days=3";
+                    async = new GetAreasJsonTask(this);
+                    async.execute(url);
+                    Log.i("CW", url);
+                } catch (UnsupportedEncodingException e) {
+                    Toast.makeText(mContext, "An error occurred while performing search", Toast.LENGTH_SHORT).show();
+                }
                 break;
                 /*
         } else if (extras.containsKey("srch")) { // keyword search

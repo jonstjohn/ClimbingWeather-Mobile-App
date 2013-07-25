@@ -10,4 +10,7 @@
     <string name="loading">Loading &#8230;</string>
     <string name="loadingDescription">Loading image</string>
     <string name="searchHint">Search by area, state or zip code</string>
+    
+    <string name="pref_tempUnit">Temperature Units</string>
+    <string name="pref_tempUnit_default">f</string>
 </resources>

@@ -45,107 +45,7 @@ public class MainActivity extends SherlockFragmentActivity {
         
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         
-        //setContentView(R.layout.main);
         setContentView(R.layout.simple_tabs);
-        
-        /*
-        // Favorite text and image
-        TextView favoriteText = (TextView)findViewById(R.id.favorite_text);
-        favoriteText.setOnClickListener(favoriteListener);
-        
-        ImageView favoriteImage = (ImageView) findViewById(R.id.favorite_image);
-        favoriteImage.setOnClickListener(favoriteListener);
-        
-        LinearLayout favoriteLayout = (LinearLayout) findViewById(R.id.favorite);
-        favoriteLayout.setOnClickListener(favoriteListener);
-        
-        LinearLayout stateLayout = (LinearLayout) findViewById(R.id.state);
-        stateLayout.setOnClickListener(stateListener);
-        
-        LinearLayout nearestLayout = (LinearLayout) findViewById(R.id.closest);
-        nearestLayout.setOnClickListener(closestListener);
-        
-        // Search text
-        final EditText searchEdit = (EditText) findViewById(R.id.search_edit);
-
-        // Capture key actions
-        searchEdit.setOnKeyListener(new OnKeyListener() {
-            
-            // Capture key actions
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                
-                // If enter is pressed, do search
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) 
-                    && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-
-                    doSearch();
-                    return true;
-                    
-                }
-                
-                return false;
-            }
-        });
-        
-        // Search button
-        ImageView searchButton = (ImageView) findViewById(R.id.search_button);
-        searchButton.setOnClickListener(searchListener);
-        */
-        
-        /*
-        // Start location manager
-        
-        lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationListener = new MyLocationListener();
-        
-        // Get last known location
-        Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        
-        // If GPS location is found, use that
-        if (loc != null) {
-            latitude = loc.getLatitude();
-            longitude = loc.getLongitude();
-            
-        // If no GPS location is found, try network provider
-        } else {
-            Location locNetwork = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            
-            if (locNetwork != null) {
-                latitude = locNetwork.getLatitude();
-                longitude = locNetwork.getLongitude();
-            }
-        }
-        
-        // Add location listener
-        addLocationListener();
-        */
-        
-        /*
-        final ActionBar actionBar = getSupportActionBar();
-
-        // Specify that tabs should be displayed in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        // Create a tab listener that is called when the user changes tabs.
-        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
-            public void onTabSelected(ActionBar.Tab tab,
-                    FragmentTransaction ft) { }
-
-            public void onTabUnselected(ActionBar.Tab tab,
-                    FragmentTransaction ft) { }
-
-            public void onTabReselected(ActionBar.Tab tab,
-                    FragmentTransaction ft) { }
-        };
-
-        // Add 3 tabs.
-        for (int i = 0; i < 3; i++) {
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText("Tab " + (i + 1))
-                            .setTabListener(tabListener));
-        }
-        */
         
         FragmentPagerAdapter adapter = new CwPagerAdapter(getSupportFragmentManager());
 
@@ -213,7 +113,6 @@ public class MainActivity extends SherlockFragmentActivity {
     public void onDestroy()
     {
         super.onDestroy();
-        //removeLocationListener();
     }
     
     /**
@@ -223,7 +122,6 @@ public class MainActivity extends SherlockFragmentActivity {
     {
         super.onStart();
         EasyTracker.getInstance().activityStart(this);
-        //addLocationListener();
     }
     
     /**
@@ -232,7 +130,6 @@ public class MainActivity extends SherlockFragmentActivity {
     public void onStop()
     {
         super.onStop();
-        //removeLocationListener();
     }
     
     /**
@@ -241,7 +138,6 @@ public class MainActivity extends SherlockFragmentActivity {
     public void onRestart()
     {
         super.onRestart();
-        //addLocationListener();
     }
     
     /**
@@ -250,7 +146,6 @@ public class MainActivity extends SherlockFragmentActivity {
     public void onPause()
     {
         super.onPause();
-        //removeLocationListener();
     }
     
     /**
@@ -259,29 +154,7 @@ public class MainActivity extends SherlockFragmentActivity {
     public void onResume()
     {
         super.onResume();
-        //addLocationListener();
     }
-    
-    /*
-    private boolean doSearch() {
-
-        EditText searchEdit = (EditText) findViewById(R.id.search_edit);
-        String srch = searchEdit.getText().toString();
-        try {
-            srch = URLEncoder.encode(srch, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        // Clean-up search string - URL encode
-        Intent i = new Intent(getApplicationContext(), AreaListActivity.class);
-        i.putExtra("srch", srch);
-        startActivity(i);
-        return true;
-        
-    }
-    */
     
     /**
      * Create options menu
@@ -308,7 +181,7 @@ public class MainActivity extends SherlockFragmentActivity {
             dialog.show();
             return true;
         case R.id.settings:
-            Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+            Intent i = new Intent(getApplicationContext(), PreferencesActivity.class);
             startActivity(i);
             return true;
         }

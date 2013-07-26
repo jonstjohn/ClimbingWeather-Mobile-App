@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
@@ -37,6 +38,8 @@ public class AreaMapFragment extends SherlockFragment
     private GoogleMap gmap;
     
     private Area[] areas;
+    
+    private Area area;
     
     private Activity activity;
     
@@ -86,6 +89,8 @@ public class AreaMapFragment extends SherlockFragment
         Logger.log(gmap.toString());
         
         gmap.setMyLocationEnabled(true);
+        
+        gmap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(area.getLatitude(), area.getLongitude()) , 10.0f) );
         
         gmap.setOnCameraChangeListener(new OnCameraChangeListener() {
             public void onCameraChange(CameraPosition position)
@@ -250,12 +255,22 @@ public class AreaMapFragment extends SherlockFragment
                     }
                 }
                 
+                if (area != null) {
+                    Logger.log("Area exists");
+                    Logger.log(area.getLatitude().toString());
+                }
+                
             } catch (JsonParseException e) {
                 Toast.makeText(
                         AreaMapFragment.this.getActivity(), "An error occurred while retrieving map areas", Toast.LENGTH_SHORT
                 ).show();
             }
         }
+    }
+    
+    public void setArea(Area area)
+    {
+        this.area = area;
     }
     
 }

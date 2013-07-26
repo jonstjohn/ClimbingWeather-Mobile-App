@@ -228,15 +228,17 @@ public class ForecastListFragment  extends ExpandableListFragment
          */
         protected void onPostExecute(String result)
         {
-            ForecastListFragment.this.getSherlockActivity().setSupportProgressBarIndeterminateVisibility(Boolean.FALSE); 
-            Log.i("CW", "Finishing JSON task " + result);
-            if (days != null) {
-                Arrays.fill(days, null);
+            if (ForecastListFragment.this != null && ForecastListFragment.this.getSherlockActivity() != null) {
+                ForecastListFragment.this.getSherlockActivity().setSupportProgressBarIndeterminateVisibility(Boolean.FALSE); 
+                Log.i("CW", "Finishing JSON task " + result);
+                if (days != null) {
+                    Arrays.fill(days, null);
+                }
+                if (hours != null) {
+                    Arrays.fill(hours, null);
+                }
+                processJson(result);
             }
-            if (hours != null) {
-                Arrays.fill(hours, null);
-            }
-            processJson(result);
         }
         
         private void processJson(String result)

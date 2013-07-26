@@ -1,6 +1,10 @@
 package com.climbingweather.cw;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -9,6 +13,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Window;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
@@ -20,6 +25,12 @@ import com.climbingweather.cw.MainActivity.CwPagerAdapter;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.GoogleAnalytics;
 import com.google.analytics.tracking.android.Tracker;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import com.viewpagerindicator.TabPageIndicator;
 
 public class AreaFragmentActivity extends SherlockFragmentActivity
@@ -29,6 +40,8 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
     private String areaId;
     
     private String name;
+    
+    private Area area;
     
     public Tracker mGaTracker;
     private GoogleAnalytics mGaInstance;
@@ -65,6 +78,9 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
         
         mGaInstance = GoogleAnalytics.getInstance(this);
         mGaTracker = mGaInstance.getTracker("UA-205323-8");
+        
+        GetDetailJsonTask task = new GetDetailJsonTask();
+        task.execute();
     }
 
     /**
@@ -89,7 +105,11 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
             } else if (position == 2) {
                 return new AreaAverageFragment();
             } else if (position == 3) {
-                return new AreaMapFragment();
+                AreaMapFragment mapFrag = new AreaMapFragment();
+                if (area != null) {
+                    mapFrag.setArea(area);
+                }
+                return mapFrag;
             } else {
                 return TestFragment.newInstance(CONTENT[position % CONTENT.length]);
             }
@@ -234,5 +254,57 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
     public void onStop()
     {
         super.onStop();
+    }
+    
+    /**
+     * Asynchronous get JSON task
+     */
+    private class GetDetailJsonTask extends AsyncTask<String, Void, String>
+    {
+        /**
+         * Execute in background
+         */
+        protected String doInBackground(String... args) {
+              
+              CwApi api = new CwApi(AreaFragmentActivity.this, "2.0");
+              String url = "/api/area/detail/" + areaId;
+              Logger.log(url);
+              return api.getJson(url);
+
+        }
+        
+        protected void onPreExecute() {
+            AreaFragmentActivity.this.setProgressBarIndeterminateVisibility(Boolean.TRUE); 
+        }
+        
+        /**
+         * After execute (in UI thread context)
+         */
+        protected void onPostExecute(String result)
+        {
+            AreaFragmentActivity.this.setProgressBarIndeterminateVisibility(Boolean.FALSE); 
+            processJson(result);
+        }
+        
+        private void processJson(String result)
+        {
+            Logger.log("AreaMapFragment processJson()");
+            try {
+                Gson gson = new Gson();
+                CwApiAreaDetailResponse apiResponse = gson.fromJson(result,  CwApiAreaDetailResponse.class);
+
+                area = apiResponse.getArea();
+                
+            } catch (JsonParseException e) {
+                Toast.makeText(
+                        AreaFragmentActivity.this, "An error occurred while retrieving area detail", Toast.LENGTH_SHORT
+                ).show();
+            }
+        }
+    }
+    
+    public Area getArea()
+    {
+        return area;
     }
 }

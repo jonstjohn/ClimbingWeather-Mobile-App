@@ -157,7 +157,9 @@ public class AreaListFragment extends SherlockListFragment {
     {
         Log.i("CW", "AreaListFragment onStart()");
         super.onStart();
-        startLocation();
+        if (typeId == TYPE_NEARBY) {
+            startLocation();
+        }
         loadAreas();
          ((CwApplication) this.getActivity().getApplication()).getGaTracker().sendView(getScreenName());
     }
@@ -189,12 +191,6 @@ public class AreaListFragment extends SherlockListFragment {
     {
         super.onDestroyView();
         Log.i("CW", "AreaListFragment onDestroyView()");
-        /*
-        removeLocationListener();
-        if (async != null) {
-            async.cancel(true);
-        }
-        */
     }
     
     /*
@@ -318,6 +314,9 @@ public class AreaListFragment extends SherlockListFragment {
     {
         Log.i("CW", "AreaListFragment onStop()");
         super.onStop();
+        if (typeId == TYPE_NEARBY) {
+            removeLocationListener();
+        }
     }
     
     /**

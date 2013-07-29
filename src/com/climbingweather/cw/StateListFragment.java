@@ -32,6 +32,8 @@ public class StateListFragment extends ExpandableListFragment {
     
     private View view;
     
+    private static final String TAG = StateListFragment.class.getName();
+    
     /**
      * Adapter
      */
@@ -84,11 +86,11 @@ public class StateListFragment extends ExpandableListFragment {
         Logger.log("loadStates()");
         if (view != null) {
             Logger.log("View is not null");
-            //ExpandableListView lv = getExpandableListView();
+            ExpandableListView lv = getExpandableListView();
             new GetStatesJsonTask(this).execute("/api/state/list");
             
             // Set on item click listener
-            //lv.setOnChildClickListener(this);
+            lv.setOnChildClickListener(this);
         }
     }
     
@@ -96,6 +98,7 @@ public class StateListFragment extends ExpandableListFragment {
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
             int childPosition, long id) {
         // use groupPosition and childPosition to locate the current item in the adapter
+        Log.i(TAG, "Child clicked");
         Area area = states.get(groupPosition).getArea(childPosition);
         Intent i = new Intent(getActivity(), AreaFragmentActivity.class);
         i.putExtra("areaId", Integer.valueOf(area.getId()).toString());

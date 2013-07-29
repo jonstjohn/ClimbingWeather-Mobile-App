@@ -90,7 +90,9 @@ public class AreaMapFragment extends SherlockFragment
         
         gmap.setMyLocationEnabled(true);
         
-        gmap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(area.getLatitude(), area.getLongitude()) , 10.0f) );
+        if (area != null) {
+            gmap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(area.getLatitude(), area.getLongitude()) , 10.0f) );
+        }
         
         gmap.setOnCameraChangeListener(new OnCameraChangeListener() {
             public void onCameraChange(CameraPosition position)
@@ -146,6 +148,15 @@ public class AreaMapFragment extends SherlockFragment
         markerAreas.clear();
         areaIdsOnMap.clear();
         Logger.log("AreaMapFragment onDestroyView()");
+        
+        /*
+        Fragment fragment = (getFragmentManager().findFragmentById(R.id.map));
+        if (fragment != null) {
+            android.support.v4.app.FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+            ft.remove(fragment);
+            ft.commit();
+        }
+        */
     }
 
     @Override

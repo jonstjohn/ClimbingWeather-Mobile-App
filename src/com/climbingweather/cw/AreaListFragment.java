@@ -263,7 +263,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                 */
                 
                 url = "/api/area/search/ll=" + Double.toString(latitude) + "," + Double.toString(longitude);
-                api.initLoader(this, url, params, LOADER_AREA_NEARBY);
+                api.initLoader(this, url, params, LOADER_AREA_NEARBY, false);
                 break;
             case TYPE_FAVORITE:
                 FavoriteDbAdapter favDb = new FavoriteDbAdapter(mContext);
@@ -277,7 +277,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                     }
                     idStr += ids.get(ids.size() - 1);
                     url = "/api/area/list/ids-" + idStr; // + "?days=3";
-                    api.initLoader(this, url, params, LOADER_AREA_FAVORITE);
+                    api.initLoader(this, url, params, LOADER_AREA_FAVORITE, false);
                     //async = new GetAreasJsonTask(this);
                     //async.execute(url);
                 }
@@ -286,7 +286,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                 try {
                     String encodedSearch = URLEncoder.encode(search, "UTF-8");
                     url = "/api/area/search/" + encodedSearch; //  + "?days=3";
-                    api.initLoader(this, url, params, LOADER_AREA_SEARCH);
+                    api.initLoader(this, url, params, LOADER_AREA_SEARCH, true);
                     //async = new GetAreasJsonTask(this);
                     //async.execute(url);
                     Log.i("CW", url);
@@ -521,7 +521,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         if (args != null && args.containsKey(ARGS_URI) && args.containsKey(ARGS_PARAMS)) {
             Uri    action = args.getParcelable(ARGS_URI);
             Bundle params = args.getParcelable(ARGS_PARAMS);
-            
+            getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE);
             return new RESTLoader(this.getActivity(), RESTLoader.HTTPVerb.GET, action, params);
         }
         
@@ -531,6 +531,8 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     public void onLoadFinished(Loader<RESTLoader.RESTResponse> loader, RESTLoader.RESTResponse data) {
         int    code = data.getCode();
         String json = data.getData();
+        
+        getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
         
         // Check to see if we got an HTTP 200 code and have some data.
         if (code == 200 && !json.equals("")) {

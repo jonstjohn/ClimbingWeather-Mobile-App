@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+import android.support.v4.content.Loader;
 import android.util.Log;
 
 /**
@@ -130,7 +131,7 @@ public class CwApi {
     }
     
     ///  LoaderCallbacks<D> callback
-    public void initLoader(AreaListFragment areaListFragment, String url, Bundle params, int loaderId)
+    public void initLoader(AreaListFragment areaListFragment, String url, Bundle params, int loaderId, boolean forceNewLoader)
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         
@@ -153,7 +154,14 @@ public class CwApi {
         Bundle args = new Bundle();
         args.putParcelable(ARGS_URI, uri);
         args.putParcelable(ARGS_PARAMS, new Bundle());
-        ((SherlockFragmentActivity) mContext).getSupportLoaderManager().initLoader(loaderId, args, areaListFragment);    
+        
+        Loader loader = ((SherlockFragmentActivity) mContext).getSupportLoaderManager().getLoader(loaderId);
+        
+        if (forceNewLoader) {
+            ((SherlockFragmentActivity) mContext).getSupportLoaderManager().restartLoader(loaderId, args, areaListFragment);
+        } else {
+            ((SherlockFragmentActivity) mContext).getSupportLoaderManager().initLoader(loaderId, args, areaListFragment);
+        }
     }
     
 

@@ -220,30 +220,35 @@ public class AreaAverageFragment extends SherlockFragment
 
             AreaAverage average = response.getAreaAverage();
             AreaAverageData data = average.getAreaAverageData();
-            Logger.log(data.getHigh().getMonthlyData().toString());
             
-            mTempHighSeries = new XYSeries("High");
-            Double[] highs = data.getHigh().getMonthlyData();
-            Logger.log("Highs:");
-            for (int i = 0; i < highs.length; i++) {
-                Logger.log(Double.toString(highs[i]));
-                mTempHighSeries.add(i + 1, highs[i]);
+            if (data.getHigh() != null) {
+                mTempHighSeries = new XYSeries("High");
+                Double[] highs = data.getHigh().getMonthlyData();
+                Logger.log("Highs:");
+                for (int i = 0; i < highs.length; i++) {
+                    Logger.log(Double.toString(highs[i]));
+                    mTempHighSeries.add(i + 1, highs[i]);
+                }
             }
             
-            mTempLowSeries = new XYSeries("Low");
-            Logger.log("Lows:");
-            Double[] lows = data.getLow().getMonthlyData();
-            for (int i = 0; i < lows.length; i++) {
-                Logger.log(Double.toString(lows[i]));
-                mTempLowSeries.add(i + 1, lows[i]);
+            if (data.getLow() != null) {
+                mTempLowSeries = new XYSeries("Low");
+                Logger.log("Lows:");
+                Double[] lows = data.getLow().getMonthlyData();
+                for (int i = 0; i < lows.length; i++) {
+                    Logger.log(Double.toString(lows[i]));
+                    mTempLowSeries.add(i + 1, lows[i]);
+                }
             }
             
-            mTempMeanSeries = new XYSeries("Mean");
-            Logger.log("Means:");
-            Double[] means = data.getMean().getMonthlyData();
-            for (int i = 0; i < means.length; i++) {
-                Logger.log(Double.toString(means[i]));
-                mTempMeanSeries.add(i + 1, means[i]);
+            if (data.getMean() != null) {
+                mTempMeanSeries = new XYSeries("Mean");
+                Logger.log("Means:");
+                Double[] means = data.getMean().getMonthlyData();
+                for (int i = 0; i < means.length; i++) {
+                    Logger.log(Double.toString(means[i]));
+                    mTempMeanSeries.add(i + 1, means[i]);
+                }
             }
             
             initChart();

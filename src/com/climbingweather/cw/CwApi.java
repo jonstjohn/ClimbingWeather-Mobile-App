@@ -2,8 +2,13 @@ package com.climbingweather.cw;
 
 import java.io.IOException;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.app.SherlockListActivity;
+
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.util.Log;
@@ -25,6 +30,11 @@ public class CwApi {
     
     // Version
     private String version;
+    
+    private static final String ARGS_URI    = "com.climbingweather.cw.ARGS_URI";
+    private static final String ARGS_PARAMS = "com.climbingweather.cw.ARGS_PARAMS";
+    
+    private static final String TAG = CwApi.class.getName();
     
     /**
      * Constructor
@@ -118,5 +128,34 @@ public class CwApi {
         apiKey += androidId;
         return apiKey;
     }
+    
+    ///  LoaderCallbacks<D> callback
+    public void initLoader(AreaListFragment areaListFragment, String url, Bundle params, int loaderId)
+    {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        
+        Uri.Builder uriBuilder = new Uri.Builder()
+        .scheme("http")
+        .authority("dev.climbingweather.com")
+        .path(url)
+        .appendQueryParameter("apiKey", getApiKey())
+        .appendQueryParameter("tempUnit", prefs.getString("tempUnit", "f"))
+        .appendQueryParameter("version", "2.0");
+        
+        
+        for (String key : params.keySet()) {
+            uriBuilder.appendQueryParameter(key, params.getString(key));
+        }
+        
+        Uri uri = uriBuilder.build();
+        
+        Log.i(TAG, uri.toString());
+        Bundle args = new Bundle();
+        args.putParcelable(ARGS_URI, uri);
+        args.putParcelable(ARGS_PARAMS, new Bundle());
+        ((SherlockFragmentActivity) mContext).getSupportLoaderManager().initLoader(loaderId, args, areaListFragment);    
+    }
+    
+
 
 }

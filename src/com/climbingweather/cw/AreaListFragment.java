@@ -16,8 +16,11 @@ import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -36,7 +39,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class AreaListFragment extends SherlockListFragment {
+public class AreaListFragment extends SherlockListFragment implements LoaderCallbacks<RESTLoader.RESTResponse> {
 
     /**
      * Location manager for location updates
@@ -93,6 +96,17 @@ public class AreaListFragment extends SherlockListFragment {
     private View view;
     
     private GetAreasJsonTask async;
+    
+    private static final String TAG = AreaListFragment.class.getName();
+    
+    private static final int LOADER_AREA_NEARBY = 1;
+    
+    private static final int LOADER_AREA_FAVORITE = 2;
+    
+    private static final int LOADER_AREA_SEARCH = 3;
+    
+    private static final String ARGS_URI    = "com.climbingweather.cw.ARGS_URI";
+    private static final String ARGS_PARAMS = "com.climbingweather.cw.ARGS_PARAMS";
 
     /**
      * On create
@@ -226,12 +240,30 @@ public class AreaListFragment extends SherlockListFragment {
         
         String url = "";
         
+        CwApi api = new CwApi(getActivity(), "2.0");
+        Bundle params = new Bundle();
+        params.putString("days", "3");
+        
         switch (typeId) {
             case TYPE_NEARBY:
-                url = "/api/area/search/ll=" + Double.toString(latitude) + "," + Double.toString(longitude) + "?days=3";
-                async = new GetAreasJsonTask(this);
-                async.execute(url);
-                Log.i("CW", url);
+                //url = "/api/area/search/ll=" + Double.toString(latitude) + "," + Double.toString(longitude) + "?days=3";
+                //async = new GetAreasJsonTask(this);
+                //async.execute(url);
+                /*
+                url = "http://api.climbingweather.com/api/area/search/ll=" + Double.toString(latitude) + "," + Double.toString(longitude);
+                Uri cwUri = Uri.parse(url);
+                Bundle params = new Bundle();
+                params.putString("days", "3");
+                params.putString("apiKey", "android-test");
+                
+                Bundle args = new Bundle();
+                args.putParcelable(ARGS_URI, cwUri);
+                args.putParcelable(ARGS_PARAMS, params);
+                getActivity().getSupportLoaderManager().initLoader(LOADER_AREA_NEARBY, args, this);
+                */
+                
+                url = "/api/area/search/ll=" + Double.toString(latitude) + "," + Double.toString(longitude);
+                api.initLoader(this, url, params, LOADER_AREA_NEARBY);
                 break;
             case TYPE_FAVORITE:
                 FavoriteDbAdapter favDb = new FavoriteDbAdapter(mContext);
@@ -244,17 +276,19 @@ public class AreaListFragment extends SherlockListFragment {
                         idStr += ids.get(i) + ",";
                     }
                     idStr += ids.get(ids.size() - 1);
-                    url = "/api/area/list/ids-" + idStr + "?days=3";
-                    async = new GetAreasJsonTask(this);
-                    async.execute(url);
+                    url = "/api/area/list/ids-" + idStr; // + "?days=3";
+                    api.initLoader(this, url, params, LOADER_AREA_FAVORITE);
+                    //async = new GetAreasJsonTask(this);
+                    //async.execute(url);
                 }
                 break;
             case TYPE_SEARCH:
                 try {
                     String encodedSearch = URLEncoder.encode(search, "UTF-8");
-                    url = "/api/area/search/" + encodedSearch + "?days=3";
-                    async = new GetAreasJsonTask(this);
-                    async.execute(url);
+                    url = "/api/area/search/" + encodedSearch; //  + "?days=3";
+                    api.initLoader(this, url, params, LOADER_AREA_SEARCH);
+                    //async = new GetAreasJsonTask(this);
+                    //async.execute(url);
                     Log.i("CW", url);
                 } catch (UnsupportedEncodingException e) {
                     Toast.makeText(mContext, "An error occurred while performing search", Toast.LENGTH_SHORT).show();
@@ -362,8 +396,9 @@ public class AreaListFragment extends SherlockListFragment {
     public void processJson(String result) {
     
         try {
+            Log.i(TAG, result);
             Gson gson = new Gson();
-            areas = gson.fromJson(result, Area[].class);
+            areas = gson.fromJson(result, CwApiAreaListResponse.class).getAreas();
             AreaAdapter adapter = new AreaAdapter(mContext, R.id.list_item_text_view, areas);
             setListAdapter(adapter);
         } catch (JsonParseException e) {
@@ -480,6 +515,35 @@ public class AreaListFragment extends SherlockListFragment {
         if (lm != null && locationListener != null) {
             lm.removeUpdates(locationListener);
         }
+    }
+    
+    public Loader<RESTLoader.RESTResponse> onCreateLoader(int id, Bundle args) {
+        if (args != null && args.containsKey(ARGS_URI) && args.containsKey(ARGS_PARAMS)) {
+            Uri    action = args.getParcelable(ARGS_URI);
+            Bundle params = args.getParcelable(ARGS_PARAMS);
+            
+            return new RESTLoader(this.getActivity(), RESTLoader.HTTPVerb.GET, action, params);
+        }
+        
+        return null;
+    }
+
+    public void onLoadFinished(Loader<RESTLoader.RESTResponse> loader, RESTLoader.RESTResponse data) {
+        int    code = data.getCode();
+        String json = data.getData();
+        
+        // Check to see if we got an HTTP 200 code and have some data.
+        if (code == 200 && !json.equals("")) {
+            Log.i(TAG, "onLoadFinished() using new loader");
+            AreaListFragment.this.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
+            processJson(json);
+        }
+        else {
+            Toast.makeText(this.getActivity(), "Failed to load Twitter data. Check your internet settings.", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    public void onLoaderReset(Loader<RESTLoader.RESTResponse> loader) {
     }
     
 }

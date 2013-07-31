@@ -2,15 +2,15 @@ package com.climbingweather.cw;
 
 public class CwApiHourlyResponse {
     
-    // Name
-    private String n;
+    // Status
+    private String status;
     
     // Forecast hours
-    private ForecastHour[] f;
+    private CwApiHourlyResult results;
     
-    public ForecastHour[] getForecastHours()
+    public CwApiHourlyResult getResult()
     {
-        return f;
+        return results;
     }
 
 }

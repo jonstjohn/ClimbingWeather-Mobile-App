@@ -297,7 +297,7 @@ public class ForecastListFragment  extends ExpandableListFragment
                 Gson gson = new Gson();
                 CwApiHourlyResponse apiResponse = gson.fromJson(result,  CwApiHourlyResponse.class);
 
-                hours = apiResponse.getForecastHours();
+                hours = apiResponse.getResult().getForecastHours();
                 
                 // Assume start with first day
                 int dayPosition = 0;

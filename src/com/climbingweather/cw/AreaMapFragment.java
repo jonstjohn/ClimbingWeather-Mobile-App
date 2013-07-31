@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,13 +42,13 @@ public class AreaMapFragment extends SherlockFragment
     
     private Area area;
     
-    private Activity activity;
-    
     private ArrayList<Integer> areaIdsOnMap = new ArrayList<Integer>();
     
     private HashMap<String, Area> markerAreas = new HashMap<String, Area>();
     
     private GetAreasJsonTask areasJsonTask;
+    
+    private View view;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,10 +67,24 @@ public class AreaMapFragment extends SherlockFragment
         
         Logger.log("AreaMapFragment onCreateView()");
         
-        View view = inflater.inflate(R.layout.area_map, container, false);
-        
+        /*
+        view = inflater.inflate(R.layout.area_map, container, false);
         setupGmap();
         
+        return view;
+        */
+        
+        if (view != null) {
+            ViewGroup parent = (ViewGroup) view.getParent();
+            if (parent != null)
+                parent.removeView(view);
+        }
+        try {
+            view = inflater.inflate(R.layout.area_map, container, false);
+            setupGmap();
+        } catch (InflateException e) {
+            /* map is already there, just return view as it is */
+        }
         return view;
         
     }
@@ -132,7 +147,6 @@ public class AreaMapFragment extends SherlockFragment
     public void onAttach(Activity activity)
     {
         Logger.log("AreaMapFragment onAttach()");
-        this.activity = activity;
         super.onAttach(activity);
     }
     
@@ -144,9 +158,10 @@ public class AreaMapFragment extends SherlockFragment
     
     public void onDestroyView() {
         super.onDestroyView();
-        areas = null;
-        markerAreas.clear();
-        areaIdsOnMap.clear();
+        //areas = null;
+        //markerAreas.clear();
+        //areaIdsOnMap.clear();
+        //gmap.clear();
         Logger.log("AreaMapFragment onDestroyView()");
         
         /*
@@ -228,7 +243,7 @@ public class AreaMapFragment extends SherlockFragment
         }
         
         protected void onPreExecute() {
-            activity.setProgressBarIndeterminateVisibility(Boolean.TRUE); 
+            AreaMapFragment.this.getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE); 
         }
         
         /**

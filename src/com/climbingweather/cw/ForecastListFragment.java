@@ -149,7 +149,12 @@ public class ForecastListFragment  extends ExpandableListFragment
             } else {
                 convertView = inflater.inflate(R.layout.list_item_child, parent,false);
                 TextView textView = (TextView) convertView.findViewById(R.id.list_item_text_child);
-                textView.setText("Loading areas ...");
+                textView.setTextSize(12);
+                if (days[groupPosition].getHoursLoaded()) {
+                    textView.setText("No hourly data available");
+                } else {
+                    textView.setText("");
+                }
             }
      
             //return the entire view

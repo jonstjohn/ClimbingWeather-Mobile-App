@@ -39,7 +39,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class AreaListFragment extends SherlockListFragment implements LoaderCallbacks<RESTLoader.RESTResponse> {
+public class AreaListFragment extends SherlockListFragment implements LoaderCallbacks<RESTLoader.RESTResponse>, DataFragmentInterface {
 
     /**
      * Location manager for location updates
@@ -548,4 +548,8 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     public void onLoaderReset(Loader<RESTLoader.RESTResponse> loader) {
     }
     
+    public void refresh()
+    {
+        loadAreas();
+    }
 }

@@ -34,7 +34,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 
-public class AreaMapFragment extends SherlockFragment
+public class AreaMapFragment extends SherlockFragment implements DataFragmentInterface
 {
     private GoogleMap gmap;
     
@@ -297,6 +297,11 @@ public class AreaMapFragment extends SherlockFragment
     public void setArea(Area area)
     {
         this.area = area;
+    }
+    
+    public void refresh()
+    {
+        loadAreas();
     }
     
 }

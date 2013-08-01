@@ -23,7 +23,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 
-public class StateListFragment extends ExpandableListFragment {
+public class StateListFragment extends ExpandableListFragment implements DataFragmentInterface {
 	
     // State objects
     private ArrayList<State> states = new ArrayList<State>();
@@ -91,6 +91,8 @@ public class StateListFragment extends ExpandableListFragment {
             
             // Set on item click listener
             lv.setOnChildClickListener(this);
+        } else {
+            Logger.log("View is null");
         }
     }
     
@@ -448,6 +450,11 @@ public class StateListFragment extends ExpandableListFragment {
     private boolean isFresh()
     {
         return lastUpdateMillis > System.currentTimeMillis() - CwCache.cacheMillis; 
+    }
+    
+    public void refresh()
+    {
+        loadStates();
     }
 
 }

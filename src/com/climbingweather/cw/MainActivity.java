@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.view.Window;
 
 import com.actionbarsherlock.view.Menu;
@@ -14,6 +15,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.analytics.tracking.android.EasyTracker;
@@ -35,6 +37,10 @@ public class MainActivity extends SherlockFragmentActivity {
      */
     private double longitude;
     
+    private CwViewPager pager;
+    
+    private CwPagerAdapter adapter;
+    
     /** 
      * Called when the activity is first created. 
      */
@@ -47,9 +53,10 @@ public class MainActivity extends SherlockFragmentActivity {
         
         setContentView(R.layout.simple_tabs);
         
-        FragmentPagerAdapter adapter = new CwPagerAdapter(getSupportFragmentManager());
+        adapter = new CwPagerAdapter(getSupportFragmentManager());
 
-        CwViewPager pager = (CwViewPager)findViewById(R.id.pager);
+        pager = (CwViewPager)findViewById(R.id.pager);
+        
         pager.setAdapter(adapter);
 
         TabPageIndicator indicator = (TabPageIndicator)findViewById(R.id.indicator);
@@ -62,6 +69,11 @@ public class MainActivity extends SherlockFragmentActivity {
      */
     class CwPagerAdapter extends FragmentPagerAdapter {
         
+        private AreaListFragment searchFragment;
+        private AreaListFragment favoriteFragment;
+        private AreaListFragment nearbyFragment;
+        private StateListFragment stateFragment;
+        private AreaMapFragment mapFragment;
         /**
          * Constructor
          * @param fm
@@ -73,24 +85,35 @@ public class MainActivity extends SherlockFragmentActivity {
         @Override
         public Fragment getItem(int position) {
             if (position == 3) {
-                return new StateListFragment();
+                if (stateFragment == null) {
+                    stateFragment = new StateListFragment();
+                }
+                return stateFragment;
             } else if (position == 0) {
-                AreaListFragment frag =  new AreaListFragment();
-                frag.setType(AreaListFragment.TYPE_SEARCH);
-                frag.setSearch("yosemite");
-                return frag;
+                if (searchFragment == null) {
+                    searchFragment =  new AreaListFragment();
+                    searchFragment.setType(AreaListFragment.TYPE_SEARCH);
+                    searchFragment.setSearch("yosemite");
+                }
+                return searchFragment;
             } else if (position == 1) {
-                //return new FavoriteListFragment();
-                AreaListFragment frag =  new AreaListFragment();
-                frag.setType(AreaListFragment.TYPE_FAVORITE);
-                return frag;
+                if (favoriteFragment == null) {
+                    favoriteFragment =  new AreaListFragment();
+                    favoriteFragment.setType(AreaListFragment.TYPE_FAVORITE);
+                }
+                return favoriteFragment;
             } else if (position == 2) {
-                AreaListFragment frag =  new AreaListFragment();
-                frag.setType(AreaListFragment.TYPE_NEARBY);
-                frag.setLocation(latitude, longitude);
-                return frag;
+                if (nearbyFragment == null) {
+                    nearbyFragment =  new AreaListFragment();
+                    nearbyFragment.setType(AreaListFragment.TYPE_NEARBY);
+                    nearbyFragment.setLocation(latitude, longitude);
+                }
+                return nearbyFragment;
             } else if (position == 4) {
-                return new AreaMapFragment();
+                if (mapFragment == null) {
+                    mapFragment = new AreaMapFragment();
+                }
+                return mapFragment;
             } else {
                 return TestFragment.newInstance(CONTENT[position % CONTENT.length]);
             }
@@ -104,6 +127,13 @@ public class MainActivity extends SherlockFragmentActivity {
         @Override
         public int getCount() {
           return CONTENT.length;
+        }
+        
+        public void finishUpdate(ViewGroup container)
+        {
+            super.finishUpdate(container);
+            Logger.log("Finish update");
+            Logger.log(container.toString());
         }
     }
     
@@ -184,6 +214,9 @@ public class MainActivity extends SherlockFragmentActivity {
             Intent i = new Intent(getApplicationContext(), PreferencesActivity.class);
             startActivity(i);
             return true;
+        case R.id.refresh:
+            Logger.log(Integer.toString(pager.getCurrentItem()));
+            ((DataFragmentInterface) adapter.getItem(pager.getCurrentItem())).refresh();
         }
         return false;
 

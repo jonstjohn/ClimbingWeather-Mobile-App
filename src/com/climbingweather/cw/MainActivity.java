@@ -93,7 +93,7 @@ public class MainActivity extends SherlockFragmentActivity {
                 if (searchFragment == null) {
                     searchFragment =  new AreaListFragment();
                     searchFragment.setType(AreaListFragment.TYPE_SEARCH);
-                    searchFragment.setSearch("yosemite");
+                    searchFragment.setSearch("");
                 }
                 return searchFragment;
             } else if (position == 1) {
@@ -132,8 +132,6 @@ public class MainActivity extends SherlockFragmentActivity {
         public void finishUpdate(ViewGroup container)
         {
             super.finishUpdate(container);
-            Logger.log("Finish update");
-            Logger.log(container.toString());
         }
     }
     

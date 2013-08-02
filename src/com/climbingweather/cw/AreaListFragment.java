@@ -262,7 +262,8 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                 getActivity().getSupportLoaderManager().initLoader(LOADER_AREA_NEARBY, args, this);
                 */
                 
-                url = "/api/area/search/ll=" + Double.toString(latitude) + "," + Double.toString(longitude);
+                url = "/api/area/list/" + Double.toString(latitude) + "," + Double.toString(longitude);
+                Logger.log(url);
                 api.initLoader(this, url, params, LOADER_AREA_NEARBY, false);
                 break;
             case TYPE_FAVORITE:
@@ -285,7 +286,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             case TYPE_SEARCH:
                 try {
                     String encodedSearch = URLEncoder.encode(search, "UTF-8");
-                    url = "/api/area/search/" + encodedSearch; //  + "?days=3";
+                    url = "/api/area/list/" + encodedSearch; //  + "?days=3";
                     api.initLoader(this, url, params, LOADER_AREA_SEARCH, true);
                     //async = new GetAreasJsonTask(this);
                     //async.execute(url);
@@ -320,6 +321,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             
         // If no GPS location is found, try network provider
         } else {
+            Logger.log("Trying network provider");
             Location locNetwork = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             
             if (locNetwork != null) {
@@ -329,7 +331,11 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         }
         
         // Add location listener
-        addLocationListener();
+        lm.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER,
+                600000,
+                2000,
+                locationListener);
     }
     
     /**
@@ -496,23 +502,12 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     }
     
     /**
-     * Add location listener
-     */
-    private void addLocationListener()
-    {
-        lm.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                600000,
-                2000,
-                locationListener);
-    }
-
-    /**
      * Remove location listener
      */
     private void removeLocationListener()
     {
         if (lm != null && locationListener != null) {
+            Logger.log("Removing location listener from nearby areas");
             lm.removeUpdates(locationListener);
         }
     }

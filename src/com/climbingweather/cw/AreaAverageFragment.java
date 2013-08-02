@@ -8,13 +8,9 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.climbingweather.cw.AreaListFragment.AreaAdapter;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 
-import android.R.color;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,13 +18,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
-public class AreaAverageFragment extends SherlockFragment
+public class AreaAverageFragment extends SherlockFragment  implements DataFragmentInterface
 {
     private GraphicalView mChart;
 
@@ -65,32 +58,24 @@ public class AreaAverageFragment extends SherlockFragment
         super.onResume();
         LinearLayout layout = (LinearLayout) getView().findViewById(R.id.chart);
         if (mChart == null) {
-            //initChart();
-            //addSampleData();
-            //mChart = ChartFactory.getCubeLineChartView(getActivity(), mDataset, mRenderer, 0.3f);
             mChart = ChartFactory.getCubeLineChartView(getActivity(), mDataset, mRenderer, 0.3f);
             layout.addView(mChart);
-            
-            String url = "/api/area/averages/" + ((AreaFragmentActivity) getActivity()).getAreaId();
-            GetAveragesJsonTask async = new GetAveragesJsonTask(this);
-            async.execute(url);
+            loadData();
         } else {
             mChart.repaint();
         }
     }
     
+    private void loadData()
+    {
+        String url = "/api/area/averages/" + ((AreaFragmentActivity) getActivity()).getAreaId();
+        GetAveragesJsonTask async = new GetAveragesJsonTask(this);
+        async.execute(url);
+    }
+    
     private void initChart()
     {
         // Temperature High
-        /*
-        mTempHighSeries = new XYSeries("High");
-        mTempHighSeries.add(1, 38.7);
-        mTempHighSeries.add(2, 45.1);
-        mTempHighSeries.add(3, 53.5);
-        mTempHighSeries.add(4, 61.6);
-        mTempHighSeries.add(5, 71.5);
-        */
-        
         mDataset.addSeries(mTempHighSeries);
         
         mTempHighRenderer = new XYSeriesRenderer();
@@ -102,8 +87,6 @@ public class AreaAverageFragment extends SherlockFragment
         mRenderer.addSeriesRenderer(mTempHighRenderer);
         
         // Temperature mean
-        //mTempMeanSeries = new XYSeries("Mean");
-        
         mDataset.addSeries(mTempMeanSeries);
         mTempMeanRenderer = new XYSeriesRenderer();
         mTempMeanRenderer.setDisplayChartValues(true);
@@ -114,15 +97,6 @@ public class AreaAverageFragment extends SherlockFragment
         mRenderer.addSeriesRenderer(mTempMeanRenderer);
         
         // Temperature low
-        /*
-        mTempLowSeries = new XYSeries("Low");
-        mTempLowSeries.add(1, 22.1);
-        mTempLowSeries.add(2, 26.5);
-        mTempLowSeries.add(3, 33.7);
-        mTempLowSeries.add(4, 40.5);
-        mTempLowSeries.add(5, 48.2);
-        */
-        
         mDataset.addSeries(mTempLowSeries);
         mTempLowRenderer = new XYSeriesRenderer();
         mTempLowRenderer.setDisplayChartValues(true);
@@ -132,10 +106,6 @@ public class AreaAverageFragment extends SherlockFragment
         
         mRenderer.addSeriesRenderer(mTempLowRenderer);
         
-        //mRenderer.setChartTitle("Temperature");
-        //mRenderer.setXTitle("Months");
-        //mRenderer.setYTitle("Temperature");
-        //mRenderer.setBackgroundColor(color.white);
         mRenderer.setAxisTitleTextSize(30);
         mRenderer.setLabelsTextSize(30);
         mRenderer.setLegendTextSize(30);
@@ -147,28 +117,25 @@ public class AreaAverageFragment extends SherlockFragment
         mRenderer.setShowGridX(true);
         mRenderer.setShowLabels(true);
         
-        int color = Color.argb(0, 255, 255, 255); // Transparent colour
+        int color = Color.argb(0, 255, 255, 255); // Transparent color
         mRenderer.setBackgroundColor(color);
         mRenderer.setMarginsColor(color);
         
-        mRenderer.setXLabels(0);
+        mRenderer.setXLabels(12);
         mRenderer.addXTextLabel(1, "Jan");
         mRenderer.addXTextLabel(2, "Feb");
         mRenderer.addXTextLabel(3, "Mar");
         mRenderer.addXTextLabel(4, "Apr");
         mRenderer.addXTextLabel(5, "May");
-        
-        
+        mRenderer.addXTextLabel(5, "Jun");
+        mRenderer.addXTextLabel(5, "Jul");
+        mRenderer.addXTextLabel(5, "Aug");
+        mRenderer.addXTextLabel(5, "Sep");
+        mRenderer.addXTextLabel(5, "Oct");
+        mRenderer.addXTextLabel(5, "Nov");
+        mRenderer.addXTextLabel(5, "Dec");
     }
 
-    private void addSampleData() {
-        mTempMeanSeries.add(1, 30.4);
-        mTempMeanSeries.add(2, 35.8);
-        mTempMeanSeries.add(3, 43.6);
-        mTempMeanSeries.add(4, 51.1);
-        mTempMeanSeries.add(5, 61.6);
-    }
-    
     /**
      * Asynchronous get JSON task
      */
@@ -258,5 +225,10 @@ public class AreaAverageFragment extends SherlockFragment
             Toast.makeText(getActivity(), "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
         }
         
+    }
+    
+    public void refresh()
+    {
+        loadData();
     }
 }

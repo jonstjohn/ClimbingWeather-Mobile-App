@@ -46,6 +46,10 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
     public Tracker mGaTracker;
     private GoogleAnalytics mGaInstance;
     
+    private ViewPager pager;
+    
+    private AreaPagerAdapter adapter;
+    
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -63,11 +67,11 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
         
         setContentView(R.layout.simple_tabs);
       
-        FragmentPagerAdapter adapter = new AreaPagerAdapter(getSupportFragmentManager());
+        adapter = new AreaPagerAdapter(getSupportFragmentManager());
         
         Log.i("CW", new Boolean(adapter == null).toString());
 
-        ViewPager pager = (ViewPager)findViewById(R.id.pager);
+        pager = (ViewPager)findViewById(R.id.pager);
         
         Log.i("CW", new Boolean(pager == null).toString());
         
@@ -88,6 +92,10 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
      */
     class AreaPagerAdapter extends FragmentPagerAdapter {
         
+        private ForecastListFragment forecastFragment;
+        private AreaAverageFragment averageFragment;
+        private AreaMapFragment mapFragment;
+        
         /**
          * Constructor
          * @param fm
@@ -99,17 +107,23 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
         @Override
         public Fragment getItem(int position) {
             if (position == 0) {
-                return new ForecastListFragment();
-            } else if (position == 11) {
-                return new FavoriteListFragment();
-            } else if (position == 2) {
-                return new AreaAverageFragment();
-            } else if (position == 3) {
-                AreaMapFragment mapFrag = new AreaMapFragment();
-                if (area != null) {
-                    mapFrag.setArea(area);
+                if (forecastFragment == null) {
+                    forecastFragment = new ForecastListFragment();
                 }
-                return mapFrag;
+                return forecastFragment;
+            } else if (position == 2) {
+                if (averageFragment == null) {
+                    averageFragment = new AreaAverageFragment();
+                }
+                return averageFragment;
+            } else if (position == 3) {
+                if (mapFragment == null) {
+                    mapFragment = new AreaMapFragment();
+                }
+                if (area != null) {
+                    mapFragment.setArea(area);
+                }
+                return mapFragment;
             } else {
                 return TestFragment.newInstance(CONTENT[position % CONTENT.length]);
             }
@@ -172,7 +186,7 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
                 }
                 return true;
             case R.id.refresh:
-                // refresh();
+                ((DataFragmentInterface) adapter.getItem(pager.getCurrentItem())).refresh();
                 return true;
             case R.id.home:
                 Intent homeIntent = new Intent(this, MainActivity.class);

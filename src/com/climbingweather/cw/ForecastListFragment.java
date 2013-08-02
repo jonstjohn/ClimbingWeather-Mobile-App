@@ -19,7 +19,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 
-public class ForecastListFragment  extends ExpandableListFragment
+public class ForecastListFragment  extends ExpandableListFragment implements DataFragmentInterface
 {
     // Forecast day objects
     private ForecastDay[] days;
@@ -64,11 +64,14 @@ public class ForecastListFragment  extends ExpandableListFragment
         name = extras.getString("name");
         
         ExpandableListView lv = getExpandableListView();
-        
-        new GetDaysJsonTask().execute("/api/area/daily/" + areaId);
-          
         lv.setTextFilterEnabled(true);
         
+        loadAreas();
+    }
+    
+    public void loadAreas()
+    {
+        new GetDaysJsonTask().execute("/api/area/daily/" + areaId);
     }
     
     @Override
@@ -76,7 +79,7 @@ public class ForecastListFragment  extends ExpandableListFragment
     {
         super.onResume();
         if (!isFresh()) {
-            new GetDaysJsonTask().execute("/api/area/daily/" + areaId);
+            loadAreas();
         }
     }
     
@@ -335,6 +338,11 @@ public class ForecastListFragment  extends ExpandableListFragment
             
         }
         
+    }
+    
+    public void refresh()
+    {
+        loadAreas();
     }
 
 }

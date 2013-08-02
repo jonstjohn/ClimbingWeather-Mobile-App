@@ -213,8 +213,8 @@ public class MainActivity extends SherlockFragmentActivity {
             startActivity(i);
             return true;
         case R.id.refresh:
-            Logger.log(Integer.toString(pager.getCurrentItem()));
             ((DataFragmentInterface) adapter.getItem(pager.getCurrentItem())).refresh();
+            return true;
         }
         return false;
 

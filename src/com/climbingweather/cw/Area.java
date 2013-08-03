@@ -1,5 +1,8 @@
 package com.climbingweather.cw;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,11 +82,13 @@ public class Area
         TextView nameTextView = (TextView) view.findViewById(R.id.name);
         LinearLayout areaLinearLayout = (LinearLayout) view.findViewById(R.id.area);
         ImageView loadingImageView = (ImageView) view.findViewById(R.id.loading);
+        TextView stateTextView = (TextView) view.findViewById(R.id.state);
         TextView day1TextView = (TextView) view.findViewById(R.id.d1);
         TextView day2TextView = (TextView) view.findViewById(R.id.d2);
         TextView day3TextView = (TextView) view.findViewById(R.id.d3);
     
         nameTextView.setText(getName());
+        stateTextView.setText(CwApplication.getStateNameFromCode(state));
         
         String symbol1 = getDay(0).getSymbol().replace(".png", "");
         day1TextView.setCompoundDrawablesWithIntrinsicBounds(0, context.getResources().getIdentifier(symbol1, "drawable", "com.climbingweather.cw"), 0, 0);

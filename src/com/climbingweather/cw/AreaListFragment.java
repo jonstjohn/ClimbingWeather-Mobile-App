@@ -284,22 +284,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         
         switch (typeId) {
             case TYPE_NEARBY:
-                //url = "/api/area/search/ll=" + Double.toString(latitude) + "," + Double.toString(longitude) + "?days=3";
-                //async = new GetAreasJsonTask(this);
-                //async.execute(url);
-                /*
-                url = "http://api.climbingweather.com/api/area/search/ll=" + Double.toString(latitude) + "," + Double.toString(longitude);
-                Uri cwUri = Uri.parse(url);
-                Bundle params = new Bundle();
-                params.putString("days", "3");
-                params.putString("apiKey", "android-test");
-                
-                Bundle args = new Bundle();
-                args.putParcelable(ARGS_URI, cwUri);
-                args.putParcelable(ARGS_PARAMS, params);
-                getActivity().getSupportLoaderManager().initLoader(LOADER_AREA_NEARBY, args, this);
-                */
-                
                 url = "/api/area/list/" + Double.toString(latitude) + "," + Double.toString(longitude);
                 Logger.log(url);
                 api.initLoader(this, url, params, LOADER_AREA_NEARBY, false);
@@ -317,8 +301,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                     idStr += ids.get(ids.size() - 1);
                     url = "/api/area/list/ids-" + idStr; // + "?days=3";
                     api.initLoader(this, url, params, LOADER_AREA_FAVORITE, false);
-                    //async = new GetAreasJsonTask(this);
-                    //async.execute(url);
                 }
                 break;
             case TYPE_SEARCH:
@@ -326,19 +308,11 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                     String encodedSearch = URLEncoder.encode(search, "UTF-8");
                     url = "/api/area/list/" + encodedSearch; //  + "?days=3";
                     api.initLoader(this, url, params, LOADER_AREA_SEARCH, true);
-                    //async = new GetAreasJsonTask(this);
-                    //async.execute(url);
                     Log.i("CW", url);
                 } catch (UnsupportedEncodingException e) {
                     Toast.makeText(mContext, "An error occurred while performing search", Toast.LENGTH_SHORT).show();
                 }
                 break;
-                /*
-        } else if (extras.containsKey("srch")) { // keyword search
-            
-            url = "/api/area/search/" + extras.getString("srch");
-            noneText = "No areas found for the search";
-            */
         }
 
     }

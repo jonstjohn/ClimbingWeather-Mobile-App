@@ -118,10 +118,11 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
                 return averageFragment;
             } else if (position == 3) {
                 if (mapFragment == null) {
-                    mapFragment = new AreaMapFragment();
-                }
-                if (area != null) {
-                    mapFragment.setArea(area);
+                    if (area != null) {
+                        mapFragment = AreaMapFragment.newInstance(area.getLatitude(), area.getLongitude(), 10.0f);
+                    } else {
+                        mapFragment = new AreaMapFragment();
+                    }
                 }
                 return mapFragment;
             } else {

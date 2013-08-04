@@ -3,6 +3,7 @@ package com.climbingweather.cw;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -120,12 +121,14 @@ public class MainActivity extends SherlockFragmentActivity {
                 return favoriteFragment;
             } else if (position == 2) {
                 if (nearbyFragment == null) {
+                    Logger.log("Put main nearby latitude longitude " + Double.toString(latitude) + " " + Double.toString(longitude));
                     nearbyFragment =  AreaListFragment.newInstance(AreaListFragment.TYPE_NEARBY, latitude, longitude);
                 }
                 return nearbyFragment;
             } else if (position == 4) {
                 if (mapFragment == null) {
-                    mapFragment = new AreaMapFragment();
+                    Logger.log("Put main latitude longitude " + Double.toString(latitude) + " " + Double.toString(longitude));
+                    mapFragment = AreaMapFragment.newInstance(latitude, longitude, 8.0f);
                 }
                 return mapFragment;
             } else {
@@ -164,6 +167,12 @@ public class MainActivity extends SherlockFragmentActivity {
     {
         super.onStart();
         EasyTracker.getInstance().activityStart(this);
+        
+        LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        Location loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        latitude = loc.getLatitude();
+        longitude = loc.getLongitude();
+        
     }
     
     /**

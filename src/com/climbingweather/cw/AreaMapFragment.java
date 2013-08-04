@@ -40,8 +40,6 @@ public class AreaMapFragment extends SherlockFragment implements DataFragmentInt
     
     private Area[] areas;
     
-    private Area area;
-    
     private ArrayList<Integer> areaIdsOnMap = new ArrayList<Integer>();
     
     private HashMap<String, Area> markerAreas = new HashMap<String, Area>();
@@ -50,10 +48,38 @@ public class AreaMapFragment extends SherlockFragment implements DataFragmentInt
     
     private View view;
     
+    private double latitude;
+    
+    private double longitude;
+    
+    private float zoomLevel = 10.0f;
+    
+    /**
+     * Get instance
+     * @return AreaListFragment
+     */
+    public static AreaMapFragment newInstance(double latitude, double longitude, float zoomLevel) 
+    {
+        AreaMapFragment myFragment = new AreaMapFragment();
+        Bundle args = new Bundle();
+        args.putDouble("latitude", latitude);
+        args.putDouble("longitude", longitude);
+        args.putFloat("zoomLevel", zoomLevel);
+        Logger.log("Put latitude longitude " + Double.toString(latitude) + " " + Double.toString(longitude));
+        myFragment.setArguments(args);
+        
+        return myFragment;
+    }
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         
         super.onCreate(savedInstanceState);
+        
+        latitude = getArguments().getDouble("latitude");
+        longitude = getArguments().getDouble("longitude");
+        
+        zoomLevel = getArguments().getFloat("zoomLevel");
         setRetainInstance(true);
     }
     
@@ -103,10 +129,10 @@ public class AreaMapFragment extends SherlockFragment implements DataFragmentInt
         gmap = ((SupportMapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         Logger.log(gmap.toString());
         
-        gmap.setMyLocationEnabled(true);
+        //gmap.setMyLocationEnabled(true);
         
-        if (area != null) {
-            gmap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(area.getLatitude(), area.getLongitude()) , 10.0f) );
+        if (latitude != 0.0 && longitude != 0.0) {
+            gmap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude) , zoomLevel) );
         }
         
         gmap.setOnCameraChangeListener(new OnCameraChangeListener() {
@@ -281,22 +307,12 @@ public class AreaMapFragment extends SherlockFragment implements DataFragmentInt
                     }
                 }
                 
-                if (area != null) {
-                    Logger.log("Area exists");
-                    Logger.log(area.getLatitude().toString());
-                }
-                
             } catch (JsonParseException e) {
                 Toast.makeText(
                         AreaMapFragment.this.getActivity(), "An error occurred while retrieving map areas", Toast.LENGTH_SHORT
                 ).show();
             }
         }
-    }
-    
-    public void setArea(Area area)
-    {
-        this.area = area;
     }
     
     public void refresh()

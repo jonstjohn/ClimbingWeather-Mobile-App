@@ -91,22 +91,17 @@ public class MainActivity extends SherlockFragmentActivity {
                 return stateFragment;
             } else if (position == 0) {
                 if (searchFragment == null) {
-                    searchFragment =  new AreaListFragment();
-                    searchFragment.setType(AreaListFragment.TYPE_SEARCH);
-                    searchFragment.setSearch("");
+                    searchFragment =  AreaListFragment.newInstance(AreaListFragment.TYPE_SEARCH);
                 }
                 return searchFragment;
             } else if (position == 1) {
                 if (favoriteFragment == null) {
-                    favoriteFragment =  new AreaListFragment();
-                    favoriteFragment.setType(AreaListFragment.TYPE_FAVORITE);
+                    favoriteFragment =  AreaListFragment.newInstance(AreaListFragment.TYPE_FAVORITE);
                 }
                 return favoriteFragment;
             } else if (position == 2) {
                 if (nearbyFragment == null) {
-                    nearbyFragment =  new AreaListFragment();
-                    nearbyFragment.setType(AreaListFragment.TYPE_NEARBY);
-                    nearbyFragment.setLocation(latitude, longitude);
+                    nearbyFragment =  AreaListFragment.newInstance(AreaListFragment.TYPE_NEARBY, latitude, longitude);
                 }
                 return nearbyFragment;
             } else if (position == 4) {

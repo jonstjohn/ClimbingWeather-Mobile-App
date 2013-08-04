@@ -91,7 +91,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     
     private double longitude;
     
-    private String search;
+    private String search = "";
     
     private View view;
     
@@ -109,12 +109,51 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     private static final String ARGS_PARAMS = "com.climbingweather.cw.ARGS_PARAMS";
 
     /**
+     * Get instance
+     * @return AreaListFragment
+     */
+    public static AreaListFragment newInstance(int typeId) 
+    {
+        AreaListFragment myFragment = new AreaListFragment();
+        
+        Bundle args = new Bundle();
+        args.putInt("typeId", typeId);
+        myFragment.setArguments(args);
+        
+        //myFragment.setType(typeId);
+        return myFragment;
+    }
+    
+    /**
+     * Get instance
+     * @return AreaListFragment
+     */
+    public static AreaListFragment newInstance(int typeId, double latitude, double longitude) 
+    {
+        AreaListFragment myFragment = new AreaListFragment();
+        Bundle args = new Bundle();
+        args.putInt("typeId", typeId);
+        args.putDouble("latitude", latitude);
+        args.putDouble("longitude", longitude);
+        myFragment.setArguments(args);
+        
+        //myFragment.setType(typeId);
+        //myFragment.setLocation(latitude,  longitude);
+        return myFragment;
+    }
+    
+    /**
      * On create
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         
       super.onCreate(savedInstanceState);
+      Logger.log("AreaListFragment " + getScreenName() + " onCreate()");
+      
+      typeId = getArguments().getInt("typeId");
+      latitude = getArguments().getDouble("latitude");
+      longitude = getArguments().getDouble("longitude");
       setRetainInstance(true);
       
     }
@@ -125,8 +164,9 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         
-        Log.i("CW", "AreaListFragment onCreateView()");
+        Log.i("CW", "AreaListFragment " + getScreenName() + " onCreateView()");
         super.onCreateView(inflater, container, savedInstanceState);
+        mContext = getActivity();
         
         if (typeId == TYPE_SEARCH) {
             view = inflater.inflate(R.layout.list_search, null);
@@ -169,7 +209,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     
     public void onStart()
     {
-        Log.i("CW", "AreaListFragment onStart()");
+        Log.i("CW", "AreaListFragment " + getScreenName() + " onStart()");
         super.onStart();
         if (typeId == TYPE_NEARBY) {
             startLocation();
@@ -204,7 +244,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     public void onDestroyView()
     {
         super.onDestroyView();
-        Log.i("CW", "AreaListFragment onDestroyView()");
+        Log.i("CW", "AreaListFragment " + getScreenName() + " onDestroyView()");
     }
     
     /*
@@ -227,7 +267,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     public void onResume()
     {
         super.onResume();
-        Log.i("CW", "AreaListFragment onResume()");
+        Log.i("CW", "AreaListFragment " + getScreenName() + " onResume()");
         if (typeId == TYPE_NEARBY) {
             startLocation();
         }
@@ -236,8 +276,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     
     private void loadAreas()
     {
-        mContext = getActivity();
-        
         String url = "";
         
         CwApi api = new CwApi(getActivity(), "2.0");
@@ -343,7 +381,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
      */
     public void onPause()
     {
-        Log.i("CW", "AreaListFragment onPause()");
+        Log.i("CW", "AreaListFragment " + getScreenName() + " onPause()");
         super.onPause();
         if (typeId == TYPE_NEARBY) {
             removeLocationListener();
@@ -352,7 +390,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     
     public void onStop()
     {
-        Log.i("CW", "AreaListFragment onStop()");
+        Log.i("CW", "AreaListFragment " + getScreenName() + " onStop()");
         super.onStop();
         if (typeId == TYPE_NEARBY) {
             removeLocationListener();

@@ -1,12 +1,15 @@
 package com.climbingweather.cw;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -58,8 +61,24 @@ public class MainActivity extends SherlockFragmentActivity {
         pager = (CwViewPager)findViewById(R.id.pager);
         
         pager.setAdapter(adapter);
-
+        
         TabPageIndicator indicator = (TabPageIndicator)findViewById(R.id.indicator);
+        
+        // Listen for page changes
+        indicator.setOnPageChangeListener(new OnPageChangeListener() {
+            public void onPageScrollStateChanged(int state) {}
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+            public void onPageSelected(int position) {
+                // Hide soft keyboard on tab change
+                EditText editText = (EditText) findViewById(R.id.search);
+                if (editText != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+                }
+            }
+        });
+
         indicator.setViewPager(pager);
         
     }

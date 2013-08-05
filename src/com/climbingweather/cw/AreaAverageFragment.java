@@ -121,19 +121,19 @@ public class AreaAverageFragment extends SherlockFragment  implements DataFragme
         mRenderer.setBackgroundColor(color);
         mRenderer.setMarginsColor(color);
         
-        mRenderer.setXLabels(12);
+        mRenderer.setXLabels(0);
         mRenderer.addXTextLabel(1, "Jan");
         mRenderer.addXTextLabel(2, "Feb");
         mRenderer.addXTextLabel(3, "Mar");
         mRenderer.addXTextLabel(4, "Apr");
         mRenderer.addXTextLabel(5, "May");
-        mRenderer.addXTextLabel(5, "Jun");
-        mRenderer.addXTextLabel(5, "Jul");
-        mRenderer.addXTextLabel(5, "Aug");
-        mRenderer.addXTextLabel(5, "Sep");
-        mRenderer.addXTextLabel(5, "Oct");
-        mRenderer.addXTextLabel(5, "Nov");
-        mRenderer.addXTextLabel(5, "Dec");
+        mRenderer.addXTextLabel(6, "Jun");
+        mRenderer.addXTextLabel(7, "Jul");
+        mRenderer.addXTextLabel(8, "Aug");
+        mRenderer.addXTextLabel(9, "Sep");
+        mRenderer.addXTextLabel(10, "Oct");
+        mRenderer.addXTextLabel(11, "Nov");
+        mRenderer.addXTextLabel(12, "Dec");
     }
 
     /**

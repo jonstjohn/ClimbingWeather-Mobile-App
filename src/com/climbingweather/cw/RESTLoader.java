@@ -27,13 +27,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
+import android.widget.Toast;
 
 public class RESTLoader extends AsyncTaskLoader<RESTLoader.RESTResponse> {
     private static final String TAG = RESTLoader.class.getName();
     
     // We use this delta to determine if our cached data is 
     // old or not. The value we have here is 10 minutes;
-    private static final long STALE_DELTA = 600000;
+    private static final long STALE_DELTA = 10000; // 600000;
+    
+    private Context mContext;
     
     public enum HTTPVerb {
         GET,
@@ -72,6 +75,8 @@ public class RESTLoader extends AsyncTaskLoader<RESTLoader.RESTResponse> {
     
     public RESTLoader(Context context) {
         super(context);
+        
+        mContext = context;
     }
     
     public RESTLoader(Context context, HTTPVerb verb, Uri action) {
@@ -79,6 +84,8 @@ public class RESTLoader extends AsyncTaskLoader<RESTLoader.RESTResponse> {
         
         mVerb   = verb;
         mAction = action;
+        
+        mContext = context;
     }
     
     public RESTLoader(Context context, HTTPVerb verb, Uri action, Bundle params) {
@@ -87,6 +94,7 @@ public class RESTLoader extends AsyncTaskLoader<RESTLoader.RESTResponse> {
         mVerb   = verb;
         mAction = action;
         mParams = params;
+        mContext = context;
     }
 
     @Override
@@ -202,16 +210,25 @@ public class RESTLoader extends AsyncTaskLoader<RESTLoader.RESTResponse> {
     
     @Override
     protected void onStartLoading() {
-        if (mRestResponse != null) {
-            // We have a cached result, so we can just
-            // return right away.
+        
+        // Return cached result if it exists and is not statel
+        if (mRestResponse != null && !isStale()) {
+            Log.i(TAG, "Deliverying immediately");
             super.deliverResult(mRestResponse);
         }
         
         // If our response is null or we have hung onto it for a long time,
         // then we perform a force load.
-        if (mRestResponse == null || System.currentTimeMillis() - mLastLoad >= STALE_DELTA) forceLoad();
+        if (mRestResponse == null || isStale()) {
+            Log.i(TAG, "Forcing reload");
+            forceLoad();
+        }
+        Log.i(TAG, "Update last load");
         mLastLoad = System.currentTimeMillis();
+    }
+    
+    private boolean isStale() {
+        return System.currentTimeMillis() - mLastLoad >= STALE_DELTA;
     }
     
     @Override

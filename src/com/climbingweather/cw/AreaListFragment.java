@@ -548,7 +548,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             processJson(json);
         }
         else {
-            Toast.makeText(this.getActivity(), "Failed to load Twitter data. Check your internet settings.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.getActivity(), "Failed to load data. Check your internet settings.", Toast.LENGTH_SHORT).show();
         }
     }
     

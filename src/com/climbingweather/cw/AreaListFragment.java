@@ -323,22 +323,12 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         locationListener = new AreaLocationListener();
         
         // Get last known location
-        Location loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         
-        // If GPS location is found, use that
+        // If location is found, use for latitude and longitude
         if (loc != null) {
             latitude = loc.getLatitude();
             longitude = loc.getLongitude();
-            
-        // If no GPS location is found, try network provider
-        } else {
-            Logger.log("Trying network provider");
-            Location locNetwork = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            
-            if (locNetwork != null) {
-                latitude = locNetwork.getLatitude();
-                longitude = locNetwork.getLongitude();
-            }
         }
         
         // Add location listener

@@ -177,7 +177,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             searchEdit.setOnEditorActionListener(new OnEditorActionListener() {
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        loadAreas();
+                        loadAreas(false);
                     }
                     return false;
                 }
@@ -214,8 +214,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         if (typeId == TYPE_NEARBY) {
             startLocation();
         }
-        loadAreas();
-         ((CwApplication) this.getActivity().getApplication()).getGaTracker().sendView(getScreenName());
+        ((CwApplication) this.getActivity().getApplication()).getGaTracker().sendView(getScreenName());
     }
     
     // Get screen name for GA
@@ -271,10 +270,10 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         if (typeId == TYPE_NEARBY) {
             startLocation();
         }
-        loadAreas();
+        loadAreas(false);
     }
     
-    private void loadAreas()
+    private void loadAreas(boolean forceReload)
     {
         String url = "";
         
@@ -286,7 +285,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             case TYPE_NEARBY:
                 url = "/api/area/list/" + Double.toString(latitude) + "," + Double.toString(longitude);
                 Logger.log(url);
-                api.initLoader(this, url, params, LOADER_AREA_NEARBY, false);
+                api.initLoader(this, url, params, LOADER_AREA_NEARBY, forceReload);
                 break;
             case TYPE_FAVORITE:
                 FavoriteDbAdapter favDb = new FavoriteDbAdapter(mContext);
@@ -300,7 +299,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                     }
                     idStr += ids.get(ids.size() - 1);
                     url = "/api/area/list/ids-" + idStr; // + "?days=3";
-                    api.initLoader(this, url, params, LOADER_AREA_FAVORITE, false);
+                    api.initLoader(this, url, params, LOADER_AREA_FAVORITE, forceReload);
                 }
                 break;
             case TYPE_SEARCH:
@@ -495,7 +494,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             if (loc != null) {
                 latitude = loc.getLatitude();
                 longitude = loc.getLongitude();
-                loadAreas();
+                loadAreas(false);
             }
         }
 
@@ -557,6 +556,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     
     public void refresh()
     {
-        loadAreas();
+        loadAreas(true);
     }
 }

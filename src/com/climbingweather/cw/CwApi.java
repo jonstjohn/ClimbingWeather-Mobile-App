@@ -131,7 +131,7 @@ public class CwApi {
     }
     
     ///  LoaderCallbacks<D> callback
-    public void initLoader(AreaListFragment areaListFragment, String url, Bundle params, int loaderId, boolean forceNewLoader)
+    public void initLoader(AreaListFragment areaListFragment, String url, Bundle params, int loaderId, boolean forceReload)
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         
@@ -151,17 +151,38 @@ public class CwApi {
         Uri uri = uriBuilder.build();
         
         Log.i(TAG, uri.toString());
+        
+        String cacheFileName = uri.toString().replace("/",  "_").replace(":", "_");
+        
+        Log.i(TAG, cacheFileName);
+        
         Bundle args = new Bundle();
         args.putParcelable(ARGS_URI, uri);
         args.putParcelable(ARGS_PARAMS, new Bundle());
         
-        Loader loader = ((SherlockFragmentActivity) mContext).getSupportLoaderManager().getLoader(loaderId);
+        CwCache cache = new CwCache(mContext);
         
+        // Check to see if cache is enabled and content is fresh
+        if (cache.isEnabled() && cache.isFresh(cacheFileName) && !forceReload) {
+            
+            Log.i(TAG, "Using cached file " + cacheFileName);
+            ((SherlockFragmentActivity) mContext).getSupportLoaderManager().initLoader(loaderId, args, areaListFragment);
+            
+        } else {
+        
+            Log.i(TAG, "Cache not fresh, reloading");
+            ((SherlockFragmentActivity) mContext).getSupportLoaderManager().restartLoader(loaderId, args, areaListFragment);
+            cache.write(cacheFileName, "1");
+            
+        }
+        
+        /*
         if (forceNewLoader) {
             ((SherlockFragmentActivity) mContext).getSupportLoaderManager().restartLoader(loaderId, args, areaListFragment);
         } else {
             ((SherlockFragmentActivity) mContext).getSupportLoaderManager().initLoader(loaderId, args, areaListFragment);
         }
+        */
     }
     
 

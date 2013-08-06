@@ -99,6 +99,15 @@ public class RESTLoader extends AsyncTaskLoader<RESTLoader.RESTResponse> {
 
     @Override
     public RESTResponse loadInBackground() {
+        Log.i(TAG, "loadInBackground()");
+        
+        Log.i(TAG, Boolean.toString(mRestResponse == null));
+        Log.i(TAG, Boolean.toString(isStale()));
+        if (mRestResponse != null && !isStale()) {
+            Log.i(TAG, "Using cached rest response");
+            return mRestResponse;
+        }
+        
         try {
             // At the very least we always need an action.
             if (mAction == null) {
@@ -176,8 +185,8 @@ public class RESTLoader extends AsyncTaskLoader<RESTLoader.RESTResponse> {
                 int        statusCode     = responseStatus != null ? responseStatus.getStatusCode() : 0;
                 
                 // Here we create our response and send it back to the LoaderCallbacks<RESTResponse> implementation.
-                RESTResponse restResponse = new RESTResponse(responseEntity != null ? EntityUtils.toString(responseEntity) : null, statusCode);
-                return restResponse;
+                mRestResponse = new RESTResponse(responseEntity != null ? EntityUtils.toString(responseEntity) : null, statusCode);
+                return mRestResponse;
             }
             
             // Request was null if we get here, so let's just send our empty RESTResponse like usual.
@@ -206,11 +215,13 @@ public class RESTLoader extends AsyncTaskLoader<RESTLoader.RESTResponse> {
         // Here we cache our response.
         mRestResponse = data;
         super.deliverResult(data);
+        Log.i(TAG, "deliverResult()");
     }
     
     @Override
     protected void onStartLoading() {
         
+        Log.i(TAG, "onStartLoading()");
         // Return cached result if it exists and is not statel
         if (mRestResponse != null && !isStale()) {
             Log.i(TAG, "Deliverying immediately");
@@ -233,6 +244,7 @@ public class RESTLoader extends AsyncTaskLoader<RESTLoader.RESTResponse> {
     
     @Override
     protected void onStopLoading() {
+        Log.i(TAG, "onStopLoading()");
         // This prevents the AsyncTask backing this
         // loader from completing if it is currently running.
         cancelLoad();
@@ -241,6 +253,7 @@ public class RESTLoader extends AsyncTaskLoader<RESTLoader.RESTResponse> {
     @Override
     protected void onReset() {
         super.onReset();
+        Log.i(TAG, "onReset()");
         
         // Stop the Loader if it is currently running.
         onStopLoading();

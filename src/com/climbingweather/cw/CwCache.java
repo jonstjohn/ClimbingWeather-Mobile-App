@@ -42,7 +42,7 @@ public class CwCache {
     
     public boolean isEnabled()
     {
-        return false;
+        return true;
     }
     
     private static String readFileAsString(String filePath) throws java.io.IOException

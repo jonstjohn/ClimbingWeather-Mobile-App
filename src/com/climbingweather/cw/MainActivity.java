@@ -29,7 +29,7 @@ import com.viewpagerindicator.TabPageIndicator;
 
 public class MainActivity extends SherlockFragmentActivity {
     
-    private static final String[] CONTENT = new String[] { "Home", "Favorites", "Nearby", "By State", "Map" };
+    private static final String[] CONTENT = new String[] { "Favorites", "Nearby", "By State", "Search", "Map" };
     
     /**
      * User latitude
@@ -104,27 +104,32 @@ public class MainActivity extends SherlockFragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
-            if (position == 3) {
+            // State
+            if (position == 2) {
                 if (stateFragment == null) {
                     stateFragment = new StateListFragment();
                 }
                 return stateFragment;
-            } else if (position == 0) {
+            // Search
+            } else if (position == 3) {
                 if (searchFragment == null) {
                     searchFragment =  AreaListFragment.newInstance(AreaListFragment.TYPE_SEARCH);
                 }
                 return searchFragment;
-            } else if (position == 1) {
+            // Favorite
+            } else if (position == 0) {
                 if (favoriteFragment == null) {
                     favoriteFragment =  AreaListFragment.newInstance(AreaListFragment.TYPE_FAVORITE);
                 }
                 return favoriteFragment;
-            } else if (position == 2) {
+            // Nearby
+            } else if (position == 1) {
                 if (nearbyFragment == null) {
                     Logger.log("Put main nearby latitude longitude " + Double.toString(latitude) + " " + Double.toString(longitude));
                     nearbyFragment =  AreaListFragment.newInstance(AreaListFragment.TYPE_NEARBY, latitude, longitude);
                 }
                 return nearbyFragment;
+            // Map
             } else if (position == 4) {
                 if (mapFragment == null) {
                     Logger.log("Put main latitude longitude " + Double.toString(latitude) + " " + Double.toString(longitude));

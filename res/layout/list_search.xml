@@ -17,5 +17,5 @@
         android:imeOptions="actionDone"/>
 
     <ListView android:id="@+id/android:list" style="@style/BasicList"/>
-    <TextView android:id="@+id/android:empty" android:text="" style="@style/BasicRow"/>
+    <TextView android:id="@+id/emptyView" android:visibility="gone" android:text="No areas found" style="@style/BasicRow"/>
 </LinearLayout>

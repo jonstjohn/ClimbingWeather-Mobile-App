@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#ffffff">
+
+    <ListView android:id="@+id/android:list" style="@style/BasicList"/>
+    
+    <LinearLayout android:layout_width="fill_parent"
+        android:id="@+id/emptyView"
+        android:layout_height="fill_parent"
+        android:background="#ffffff"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <TextView
+            android:text="Get started adding favorites"
+            android:textColor="#999999"
+            android:textSize="22sp"
+            android:padding="10dp"
+            style="@style/BasicRow"/>
+        <TextView
+            android:text="To mark an area as favorite, find in the 'Nearby', 'By State', or 'Search' tab, then click the area.  Each area has an 'Add Favorite' option in the area menu."
+            android:textColor="#666666"
+            android:textSize="18sp"
+            android:padding="10dp"
+            style="@style/BasicRow"/>
+    </LinearLayout>
+</LinearLayout>

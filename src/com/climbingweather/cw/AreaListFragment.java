@@ -200,9 +200,13 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                     Logger.log(s.toString());
                 }
             });
+        } else if (typeId == TYPE_FAVORITE) {
+            view = inflater.inflate(R.layout.list_favorites, null);
         } else {
             view = inflater.inflate(R.layout.list, null);
+            //final TextView emptyView = (TextView) view.findViewById(R.id.empty);
         }
+        
         return view;
         
     }
@@ -215,6 +219,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             startLocation();
         }
         ((CwApplication) this.getActivity().getApplication()).getGaTracker().sendView(getScreenName());
+        getListView().setEmptyView(view.findViewById(R.id.emptyView));
     }
     
     // Get screen name for GA
@@ -300,6 +305,9 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                     idStr += ids.get(ids.size() - 1);
                     url = "/api/area/list/ids-" + idStr; // + "?days=3";
                     api.initLoader(this, url, params, LOADER_AREA_FAVORITE, forceReload);
+                } else {
+                    View tv = (View) view.findViewById(R.id.emptyView);
+                    tv.setVisibility(View.VISIBLE);
                 }
                 break;
             case TYPE_SEARCH:
@@ -408,6 +416,15 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             areas = gson.fromJson(result, CwApiAreaListResponse.class).getAreas();
             AreaAdapter adapter = new AreaAdapter(mContext, R.id.list_item_text_view, areas);
             setListAdapter(adapter);
+            
+            View tv = (View) view.findViewById(R.id.emptyView);
+            
+            if (areas.length > 0) {
+                tv.setVisibility(View.GONE);
+            } else {
+                tv.setVisibility(View.VISIBLE);
+            }
+            
         } catch (JsonParseException e) {
             Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
         }
@@ -415,9 +432,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         try {
             ListView lv = getListView();
             lv.setTextFilterEnabled(true);
-            
-            // Populate empty row in case we didn't find any areas
-            //emptyView.setText(noneText);
             
             // Set on item click listener for states
             lv.setOnItemClickListener(new OnItemClickListener() {

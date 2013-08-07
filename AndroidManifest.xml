@@ -85,6 +85,15 @@
             android:name="com.climbingweather.cw.PreferencesActivity"
             android:label="@string/title_activity_preferences" >
         </activity>
+        
+        <receiver android:name="CwAppWidgetProvider" >
+        <intent-filter>
+            <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+        </intent-filter>
+        <meta-data android:name="android.appwidget.provider"
+                   android:resource="@xml/cw_appwidget_info" />
+        </receiver>
+    
     </application>
 
 </manifest>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@+id/LL"
+      android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#ffffff">
+
+    <ListView android:id="@+id/listView" style="@style/BasicList"/>
+    
+        <TextView
+            android:text="Get started adding favorites"
+            android:textColor="#999999"
+            android:textSize="22sp"
+            android:padding="10dp"
+            style="@style/BasicRow"/>
+</LinearLayout>

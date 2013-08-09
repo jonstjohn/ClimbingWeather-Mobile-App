@@ -5,19 +5,15 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.google.analytics.tracking.android.EasyTracker;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
@@ -26,7 +22,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
@@ -57,21 +52,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     private Area[] areas;
     
     /**
-     * Progress dialog for loading
-     */
-    private ProgressDialog dialog;
-    
-    /**
-     * Text to display if no areas are found
-     */
-    private String noneText = "No areas found";
-    
-    /**
-     * The empty area view
-     */
-    private TextView emptyView;
-    
-    /**
      * Context
      */
     private Context mContext;
@@ -81,28 +61,59 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
      */
     private int typeId;
     
+    /**
+     * Type NEARBY areas
+     */
     public static final int TYPE_NEARBY = 1;
     
+    /**
+     * Type SEARCH areas
+     */
     public static final int TYPE_SEARCH = 2;
     
+    /**
+     * Type FAVORITE areas
+     */
     public static final int TYPE_FAVORITE = 3;
     
+    /**
+     * Latitude used for nearby
+     */
     private double latitude;
     
+    /**
+     * Longitude used for nearby
+     */
     private double longitude;
     
+    /**
+     * Search string used for search
+     */
     private String search = "";
     
+    /**
+     * List fragment view, depends on type
+     */
     private View view;
     
-    private GetAreasJsonTask async;
-    
+    /**
+     * Tag for logging
+     */
     private static final String TAG = AreaListFragment.class.getName();
     
+    /**
+     * Loader for NEARBY areas
+     */
     private static final int LOADER_AREA_NEARBY = 1;
     
+    /**
+     * Loader for FAVORITE areas
+     */
     private static final int LOADER_AREA_FAVORITE = 2;
     
+    /**
+     * Loader for SEARCH areas
+     */
     private static final int LOADER_AREA_SEARCH = 3;
     
     private static final String ARGS_URI    = "com.climbingweather.cw.ARGS_URI";
@@ -112,15 +123,13 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
      * Get instance
      * @return AreaListFragment
      */
-    public static AreaListFragment newInstance(int typeId) 
+    public static AreaListFragment newInstance(int typeId)
     {
         AreaListFragment myFragment = new AreaListFragment();
         
         Bundle args = new Bundle();
         args.putInt("typeId", typeId);
         myFragment.setArguments(args);
-        
-        //myFragment.setType(typeId);
         return myFragment;
     }
     
@@ -136,9 +145,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         args.putDouble("latitude", latitude);
         args.putDouble("longitude", longitude);
         myFragment.setArguments(args);
-        
-        //myFragment.setType(typeId);
-        //myFragment.setLocation(latitude,  longitude);
         return myFragment;
     }
     
@@ -151,6 +157,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
       super.onCreate(savedInstanceState);
       Logger.log("AreaListFragment " + getScreenName() + " onCreate()");
       
+      // Get typeId, latitude and longitude from arguments set in newInstance()
       typeId = getArguments().getInt("typeId");
       latitude = getArguments().getDouble("latitude");
       longitude = getArguments().getDouble("longitude");
@@ -168,12 +175,14 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         super.onCreateView(inflater, container, savedInstanceState);
         mContext = getActivity();
         
+        // Type is SEARCH
         if (typeId == TYPE_SEARCH) {
             view = inflater.inflate(R.layout.list_search, null);
             
-            // Search text
+            // Search edit text
             final EditText searchEdit = (EditText) view.findViewById(R.id.search);
             
+            // Add listener so when 'Done' is clicked, a search is performed
             searchEdit.setOnEditorActionListener(new OnEditorActionListener() {
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -183,6 +192,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                 }
             });
 
+            // When text is changed in search, write to instance variable
             searchEdit.addTextChangedListener(new TextWatcher() {
                 public void afterTextChanged(Editable s)
                 {
@@ -197,32 +207,44 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                 public void onTextChanged(CharSequence s, int start, int before, int count)
                 {
                     search = s.toString();
-                    Logger.log(s.toString());
                 }
             });
+        // FAVORITE
         } else if (typeId == TYPE_FAVORITE) {
             view = inflater.inflate(R.layout.list_favorites, null);
+        // Other, such as NEARBY
         } else {
             view = inflater.inflate(R.layout.list, null);
-            //final TextView emptyView = (TextView) view.findViewById(R.id.empty);
         }
         
         return view;
-        
     }
     
+    /**
+     * On fragment start
+     */
+    @Override
     public void onStart()
     {
         Log.i("CW", "AreaListFragment " + getScreenName() + " onStart()");
         super.onStart();
+        
+        // Start location for nearby areas
         if (typeId == TYPE_NEARBY) {
             startLocation();
         }
+        
+        // Record to google analytics
         ((CwApplication) this.getActivity().getApplication()).getGaTracker().sendView(getScreenName());
+        
+        // Set empty view for list
         getListView().setEmptyView(view.findViewById(R.id.emptyView));
     }
     
-    // Get screen name for GA
+    /**
+     * Get screen name for GA
+     * @return String
+     */
     private String getScreenName()
     {
         String name = "";
@@ -244,30 +266,9 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         return name;
     }
     
-    @Override
-    public void onDestroyView()
-    {
-        super.onDestroyView();
-        Log.i("CW", "AreaListFragment " + getScreenName() + " onDestroyView()");
-    }
-    
-    /*
-    @Override
-    public void setUserVisibleHint(final boolean visible) {
-        super.setUserVisibleHint(visible);
-        if (visible && view != null) {
-            if (typeId == TYPE_NEARBY) {
-                startLocation();
-            }
-            loadAreas();
-        } else {
-            if (typeId == TYPE_NEARBY) {
-                removeLocationListener();
-            }
-        }
-    }
-    */
-    
+    /**
+     * On Resume, start location and load areas
+     */
     public void onResume()
     {
         super.onResume();
@@ -278,6 +279,10 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         loadAreas(false);
     }
     
+    /**
+     * Load areas
+     * @param forceReload Force reload of areas, ignore cache
+     */
     private void loadAreas(boolean forceReload)
     {
         String url = "";
@@ -287,16 +292,21 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         params.putString("days", "3");
         
         switch (typeId) {
+            // NEARBY using latitude and longitude
             case TYPE_NEARBY:
                 url = "/api/area/list/" + Double.toString(latitude) + "," + Double.toString(longitude);
-                Logger.log(url);
                 api.initLoader(this, url, params, LOADER_AREA_NEARBY, forceReload);
                 break;
+            // FAVORITE using db adapter to fetch stored favorites
             case TYPE_FAVORITE:
+                
+                // Get favorites from DB
                 FavoriteDbAdapter favDb = new FavoriteDbAdapter(mContext);
                 favDb.open();
                 ArrayList<String> ids = favDb.fetchAllFavoriteAreaIds();
                 favDb.close();
+                
+                // Loop over favorite area ids to build URL
                 if (ids.size() > 0) {
                     String idStr = "";
                     for (int i = 0; i < ids.size() - 1; i++) {
@@ -305,15 +315,17 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                     idStr += ids.get(ids.size() - 1);
                     url = "/api/area/list/ids-" + idStr; // + "?days=3";
                     api.initLoader(this, url, params, LOADER_AREA_FAVORITE, forceReload);
+                // If no favorites, show empty view
                 } else {
                     View tv = (View) view.findViewById(R.id.emptyView);
                     tv.setVisibility(View.VISIBLE);
                 }
                 break;
+            // SEARCH build URL using search string
             case TYPE_SEARCH:
                 try {
                     String encodedSearch = URLEncoder.encode(search, "UTF-8");
-                    url = "/api/area/list/" + encodedSearch; //  + "?days=3";
+                    url = "/api/area/list/" + encodedSearch;
                     api.initLoader(this, url, params, LOADER_AREA_SEARCH, true);
                     Log.i("CW", url);
                 } catch (UnsupportedEncodingException e) {
@@ -324,6 +336,9 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
 
     }
     
+    /**
+     * Start location tracking
+     */
     private void startLocation()
     {
         // Start location manager
@@ -350,6 +365,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     /**
      * On pause activity
      */
+    @Override
     public void onPause()
     {
         Log.i("CW", "AreaListFragment " + getScreenName() + " onPause()");
@@ -359,6 +375,10 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         }
     }
     
+    /**
+     * On stop
+     */
+    @Override
     public void onStop()
     {
         Log.i("CW", "AreaListFragment " + getScreenName() + " onStop()");
@@ -369,49 +389,14 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     }
     
     /**
-     * Asynchronous get JSON task
-     */
-    private class GetAreasJsonTask extends AsyncTask<String, Void, String> {
-        
-        private AreaListFragment listFragment;
-        
-        public GetAreasJsonTask(AreaListFragment listFragment) {
-            this.listFragment = listFragment;
-            //dialog = new ProgressDialog(listFragment.getActivity());
-        }
-        
-        /**
-         * Execute in background
-         */
-        protected String doInBackground(String... args) {
-              
-              Log.i("CW", args[0]);
-              CwApi api = new CwApi(mContext);
-              return api.getJson(args[0]);
-
-        }
-        
-        protected void onPreExecute() {
-            listFragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE); 
-        }
-        
-        /**
-         * After execute (in UI thread context)
-         */
-        protected void onPostExecute(String result)
-        {
-            listFragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
-            processJson(result);
-        }
-    }
-    
-    /**
      * Load areas from JSON string result
      */
     public void processJson(String result) {
     
         try {
             Log.i(TAG, result);
+            
+            // Convert JSON into areas using GSON
             Gson gson = new Gson();
             areas = gson.fromJson(result, CwApiAreaListResponse.class).getAreas();
             AreaAdapter adapter = new AreaAdapter(mContext, R.id.list_item_text_view, areas);
@@ -433,7 +418,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             ListView lv = getListView();
             lv.setTextFilterEnabled(true);
             
-            // Set on item click listener for states
+            // Set click listener for areas
             lv.setOnItemClickListener(new OnItemClickListener() {
                 
                 /**
@@ -456,30 +441,19 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
       
     }
     
-    public void setType(int typeId)
-    {
-        this.typeId = typeId;
-    }
-    
-    public void setLocation(double latitude, double longitude)
-    {
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
-    
-    public void setSearch(String search)
-    {
-        this.search = search;
-    }
-    
+    /**
+     * Area adapter for list
+     */
     public class AreaAdapter extends ArrayAdapter<Area>
     {
         public AreaAdapter(Context context, int textViewResourceId,
                 Area[] objects) {
             super(context, textViewResourceId, objects);
-            // TODO Auto-generated constructor stub
         }
 
+        /**
+         * Get view
+         */
         public View getView(int position, View convertView, ViewGroup parent)
         {
             return ((Area) getItem(position)).getListRowView(convertView, parent, getContext());
@@ -502,18 +476,12 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             }
         }
 
-        public void onProviderDisabled(String provider) {
-            // TODO Auto-generated method stub
-        }
+        public void onProviderDisabled(String provider) {}
 
-        public void onProviderEnabled(String provider) {
-            // TODO Auto-generated method stub
-        }
+        public void onProviderEnabled(String provider) {}
 
         public void onStatusChanged(String provider, int status, 
-            Bundle extras) {
-            // TODO Auto-generated method stub
-        }
+            Bundle extras) {}
     }
     
     /**
@@ -527,6 +495,9 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         }
     }
     
+    /**
+     * Callback for loader
+     */
     public Loader<RESTLoader.RESTResponse> onCreateLoader(int id, Bundle args) {
         if (args != null && args.containsKey(ARGS_URI) && args.containsKey(ARGS_PARAMS)) {
             Uri    action = args.getParcelable(ARGS_URI);
@@ -538,6 +509,9 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         return null;
     }
 
+    /**
+     * Callback for loader
+     */
     public void onLoadFinished(Loader<RESTLoader.RESTResponse> loader, RESTLoader.RESTResponse data) {
         int    code = data.getCode();
         String json = data.getData();
@@ -555,9 +529,15 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         }
     }
     
+    /**
+     * Callback for loader
+     */
     public void onLoaderReset(Loader<RESTLoader.RESTResponse> loader) {
     }
     
+    /**
+     * Refresh data
+     */
     public void refresh()
     {
         loadAreas(true);

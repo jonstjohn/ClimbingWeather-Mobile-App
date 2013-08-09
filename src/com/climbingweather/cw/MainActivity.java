@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.ViewGroup;
@@ -23,8 +22,6 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.analytics.tracking.android.EasyTracker;
-import com.google.analytics.tracking.android.GoogleAnalytics;
-import com.google.analytics.tracking.android.Tracker;
 import com.viewpagerindicator.TabPageIndicator;
 
 public class MainActivity extends SherlockFragmentActivity {
@@ -94,6 +91,7 @@ public class MainActivity extends SherlockFragmentActivity {
         private AreaListFragment nearbyFragment;
         private StateListFragment stateFragment;
         private AreaMapFragment mapFragment;
+        
         /**
          * Constructor
          * @param fm
@@ -158,14 +156,6 @@ public class MainActivity extends SherlockFragmentActivity {
     }
     
     /**
-     * On destroy activity
-     */
-    public void onDestroy()
-    {
-        super.onDestroy();
-    }
-    
-    /**
      * On start activity
      */
     public void onStart()
@@ -178,38 +168,6 @@ public class MainActivity extends SherlockFragmentActivity {
         latitude = loc.getLatitude();
         longitude = loc.getLongitude();
         
-    }
-    
-    /**
-     * On stop activity
-     */
-    public void onStop()
-    {
-        super.onStop();
-    }
-    
-    /**
-     * On restart activity
-     */
-    public void onRestart()
-    {
-        super.onRestart();
-    }
-    
-    /**
-     * On pause activity
-     */
-    public void onPause()
-    {
-        super.onPause();
-    }
-    
-    /**
-     * On resume activity
-     */
-    public void onResume()
-    {
-        super.onResume();
     }
     
     /**

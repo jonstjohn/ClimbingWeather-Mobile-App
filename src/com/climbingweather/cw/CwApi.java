@@ -3,7 +3,6 @@ package com.climbingweather.cw;
 import java.io.IOException;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.app.SherlockListActivity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
-import android.support.v4.content.Loader;
 import android.util.Log;
 
 /**
@@ -96,16 +94,6 @@ public class CwApi {
             
             cache.write(cacheFileName, json);
             
-                /*
-                //Log.i("CW", "File contents:");
-                try {
-                    Log.i("CW", cache.read(cacheFileName));
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                */
-            
             return json;
             
         }
@@ -176,13 +164,6 @@ public class CwApi {
             
         }
         
-        /*
-        if (forceNewLoader) {
-            ((SherlockFragmentActivity) mContext).getSupportLoaderManager().restartLoader(loaderId, args, areaListFragment);
-        } else {
-            ((SherlockFragmentActivity) mContext).getSupportLoaderManager().initLoader(loaderId, args, areaListFragment);
-        }
-        */
     }
     
 

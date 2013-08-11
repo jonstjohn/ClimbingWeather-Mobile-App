@@ -36,8 +36,6 @@ public class ForecastListFragment  extends ExpandableListFragment implements Dat
     // Area id
     private String areaId;
     
-    // Area name
-    private String name;
     
     private long lastUpdateMillis = 0L;
     
@@ -61,7 +59,6 @@ public class ForecastListFragment  extends ExpandableListFragment implements Dat
 
         Bundle extras = getActivity().getIntent().getExtras();
         areaId = extras.getString("areaId");
-        name = extras.getString("name");
         
         ExpandableListView lv = getExpandableListView();
         lv.setTextFilterEnabled(true);

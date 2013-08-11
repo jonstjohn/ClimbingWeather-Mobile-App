@@ -259,18 +259,6 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
         return areaId;
     }
     
-    @Override
-    public void onStart()
-    {
-        super.onStart();
-    }
-    
-    @Override
-    public void onStop()
-    {
-        super.onStop();
-    }
-    
     /**
      * Asynchronous get JSON task
      */

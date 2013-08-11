@@ -194,8 +194,8 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
                 startActivity(homeIntent);
                 return true;
             case R.id.settings:
-                Intent settingsIntent = new Intent(this, SettingsActivity.class);
-                startActivity(settingsIntent);
+                Intent i = new Intent(getApplicationContext(), PreferencesActivity.class);
+                startActivity(i);
                 return true;
         }
         return false;

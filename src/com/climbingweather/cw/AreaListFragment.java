@@ -239,6 +239,9 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         
         // Set empty view for list
         getListView().setEmptyView(view.findViewById(R.id.emptyView));
+        
+        Intent intent = new Intent(getActivity(), CwApiService.class);
+        getActivity().startService(intent);
     }
     
     /**

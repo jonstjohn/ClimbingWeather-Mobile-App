@@ -126,7 +126,7 @@ public class CwApi {
         Uri.Builder uriBuilder = new Uri.Builder()
         .scheme("http")
         .authority("api.climbingweather.com")
-        .path("/v2/" + url)
+        .path("/v2" + url)
         .appendQueryParameter("apiKey", getApiKey())
         .appendQueryParameter("tempUnit", prefs.getString("tempUnit", "f"))
         .appendQueryParameter("version", "2.0");

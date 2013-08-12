@@ -362,7 +362,7 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
          */
         protected String doInBackground(String... args) {
             
-              CwApi api = new CwApi(mContext);
+              CwApi api = new CwApi(mContext, "2.0");
               return api.getJson(args[0]);
 
         }
@@ -383,7 +383,8 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
             
             try {
                 Gson gson = new Gson();
-                State[] states = gson.fromJson(result, State[].class);
+                CwApiStateListResponse response = gson.fromJson(result, CwApiStateListResponse.class);
+                State[] states = response.getStates();
                 stateAdapter.addStates(states);
                 setListAdapter(stateAdapter);
                 stateAdapter.notifyDataSetChanged();
@@ -416,7 +417,7 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
          */
         protected String doInBackground(String... args) {
             
-              CwApi api = new CwApi(mContext);
+              CwApi api = new CwApi(mContext, "2.0");
               return api.getJson(args[0]);
 
         }
@@ -434,7 +435,8 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
             
             try {
                 Gson gson = new Gson();
-                Area[] areas = gson.fromJson(result, Area[].class);
+                CwApiAreaListResponse response = gson.fromJson(result, CwApiAreaListResponse.class);
+                Area[] areas = response.getAreas();
                 stateAdapter.addAreasToState(statePosition, areas);
                 stateAdapter.notifyDataSetChanged();
               

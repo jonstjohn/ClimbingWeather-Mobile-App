@@ -25,7 +25,7 @@ public class CwApi {
     /**
      * Base URL
      */
-    private String mBaseUrl = "http://api.climbingweather.com";
+    private String mBaseUrl = "http://api.climbingweather.com/v2";
     
     // Version
     private String version;
@@ -126,7 +126,7 @@ public class CwApi {
         Uri.Builder uriBuilder = new Uri.Builder()
         .scheme("http")
         .authority("api.climbingweather.com")
-        .path(url)
+        .path("/v2/" + url)
         .appendQueryParameter("apiKey", getApiKey())
         .appendQueryParameter("tempUnit", prefs.getString("tempUnit", "f"))
         .appendQueryParameter("version", "2.0");

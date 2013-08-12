@@ -68,7 +68,7 @@ public class AreaAverageFragment extends SherlockFragment  implements DataFragme
     
     private void loadData()
     {
-        String url = "/api/area/averages/" + ((AreaFragmentActivity) getActivity()).getAreaId();
+        String url = "/area/averages/" + ((AreaFragmentActivity) getActivity()).getAreaId();
         GetAveragesJsonTask async = new GetAveragesJsonTask(this);
         async.execute(url);
     }

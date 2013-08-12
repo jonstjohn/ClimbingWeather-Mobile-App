@@ -270,7 +270,7 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
         protected String doInBackground(String... args) {
               
               CwApi api = new CwApi(AreaFragmentActivity.this, "2.0");
-              String url = "/api/area/detail/" + areaId;
+              String url = "/area/detail/" + areaId;
               Logger.log(url);
               return api.getJson(url);
 

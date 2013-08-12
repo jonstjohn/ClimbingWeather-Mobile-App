@@ -68,7 +68,7 @@ public class ForecastListFragment  extends ExpandableListFragment implements Dat
     
     public void loadAreas()
     {
-        new GetDaysJsonTask().execute("/api/area/daily/" + areaId);
+        new GetDaysJsonTask().execute("/area/daily/" + areaId);
     }
     
     @Override
@@ -197,7 +197,7 @@ public class ForecastListFragment  extends ExpandableListFragment implements Dat
             // Check for state areas
             if (!days[groupPosition].getHoursLoaded()) {
                 // Load async
-                new GetHoursJsonTask().execute("/api/area/hourly/" + areaId);
+                new GetHoursJsonTask().execute("/area/hourly/" + areaId);
             }
         }
         

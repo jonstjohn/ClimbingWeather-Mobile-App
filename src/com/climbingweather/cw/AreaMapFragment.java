@@ -262,7 +262,7 @@ public class AreaMapFragment extends SherlockFragment implements DataFragmentInt
               
               CharSequence date = android.text.format.DateFormat.format("yyyy-MM-dd", today);
               Logger.log(date.toString());
-              String url = "/api/area/map?bounds=" + bounds + "&zoom=" + Integer.toString(zoom) + "&date=" + dateStr;
+              String url = "/area/map?bounds=" + bounds + "&zoom=" + Integer.toString(zoom) + "&date=" + dateStr;
               Logger.log(url);
               return api.getJson(url);
 

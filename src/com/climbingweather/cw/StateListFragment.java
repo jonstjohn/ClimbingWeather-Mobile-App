@@ -87,7 +87,7 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         if (view != null) {
             Logger.log("View is not null");
             ExpandableListView lv = getExpandableListView();
-            new GetStatesJsonTask(this).execute("/api/state/list");
+            new GetStatesJsonTask(this).execute("/state/list");
             
             // Set on item click listener
             lv.setOnChildClickListener(this);
@@ -314,7 +314,7 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
             String stateCode = states.get(groupPosition).getCode();
             if (!states.get(groupPosition).hasAreas()) {
                 // Load async
-                new GetAreasJsonTask(groupPosition, context).execute("/api/state/area/" + stateCode + "?days=3");
+                new GetAreasJsonTask(groupPosition, context).execute("/state/area/" + stateCode + "?days=3");
             }
         }
         

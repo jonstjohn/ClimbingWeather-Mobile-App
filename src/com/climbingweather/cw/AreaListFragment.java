@@ -294,7 +294,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         switch (typeId) {
             // NEARBY using latitude and longitude
             case TYPE_NEARBY:
-                url = "/api/area/list/" + Double.toString(latitude) + "," + Double.toString(longitude);
+                url = "/area/list/" + Double.toString(latitude) + "," + Double.toString(longitude);
                 api.initLoader(this, url, params, LOADER_AREA_NEARBY, forceReload);
                 break;
             // FAVORITE using db adapter to fetch stored favorites
@@ -313,7 +313,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                         idStr += ids.get(i) + ",";
                     }
                     idStr += ids.get(ids.size() - 1);
-                    url = "/api/area/list/ids-" + idStr; // + "?days=3";
+                    url = "/area/list/ids-" + idStr; // + "?days=3";
                     api.initLoader(this, url, params, LOADER_AREA_FAVORITE, forceReload);
                 // If no favorites, show empty view
                 } else {
@@ -325,7 +325,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             case TYPE_SEARCH:
                 try {
                     String encodedSearch = URLEncoder.encode(search, "UTF-8");
-                    url = "/api/area/list/" + encodedSearch;
+                    url = "/area/list/" + encodedSearch;
                     api.initLoader(this, url, params, LOADER_AREA_SEARCH, true);
                     Log.i("CW", url);
                 } catch (UnsupportedEncodingException e) {

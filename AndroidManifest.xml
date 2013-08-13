@@ -74,7 +74,7 @@
 
         <provider
             android:name="com.climbingweather.cw.CwContentProvider"
-            android:authorities="com.climbingweather.cw" >
+            android:authorities="com.climbingweather.cw.provider" >
         </provider>
 
         <meta-data

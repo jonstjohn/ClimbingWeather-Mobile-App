@@ -11,152 +11,226 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-// http://www.mysamplecode.com/2012/11/android-database-content-provider.html
-
+/**
+ * CW Content Provider
+ */
 public class CwContentProvider extends ContentProvider
 {
     private CwDbHelper dbHelper;
     
     private static final int ALL_FAVORITES = 1;
     private static final int SINGLE_FAVORITE = 2;
+    private static final int ALL_STATES = 3;
+    private static final int SINGLE_STATE = 4;
     
-    private static final String AUTHORITY = "com.climbingweather.cw";
+    /**
+     * Authority
+     */
+    private static final String AUTHORITY = "com.climbingweather.cw.provider";
     
-    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/favorites");
+    /**
+     * URI for favorites
+     */
+    public static final Uri CONTENT_URI_FAVORITES = Uri.parse("content://" + AUTHORITY + "/favorites");
     
+    /**
+     * URI for states
+     */
+    public static final Uri CONTENT_URI_STATES = Uri.parse("content://" + AUTHORITY + "/states");
+    
+    /**
+     * URI matcher
+     */
     public static final UriMatcher uriMatcher;
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(AUTHORITY, "favorites", ALL_FAVORITES);
         uriMatcher.addURI(AUTHORITY, "favorites/#", SINGLE_FAVORITE);
+        uriMatcher.addURI(AUTHORITY, "states", ALL_STATES);
+        uriMatcher.addURI(AUTHORITY, "states/#", SINGLE_STATE);
     }
     
     public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
             + "/favorites";
-        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
+    public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
             + "/favorites";
     
-    // system calls onCreate() when it starts up the provider.
+    /**
+     * On create, called at provider startup
+     */
     @Override
     public boolean onCreate() {
-     // get access to the database helper
-     dbHelper = new CwDbHelper(getContext());
-     return false;
+        dbHelper = new CwDbHelper(getContext());
+        return false;
     }
     
-    //Return the MIME type corresponding to a content URI
+    /**
+     * Return the MIME type corresponding to a content URI
+     */
     @Override
     public String getType(Uri uri) {
       
-     switch (uriMatcher.match(uri)) {
-     case ALL_FAVORITES: 
-      return "vnd.android.cursor.dir/vnd.com.climbingweather.cw.favorites";
-     case SINGLE_FAVORITE: 
-      return "vnd.android.cursor.item/vnd.com.climbingweather.cw.favorites";
-     default: 
-      throw new IllegalArgumentException("Unsupported URI: " + uri);
-     }
+        switch (uriMatcher.match(uri)) {
+        case ALL_FAVORITES: 
+            return "vnd.android.cursor.dir/vnd.com.climbingweather.cw.provider.favorites";
+        case SINGLE_FAVORITE: 
+            return "vnd.android.cursor.item/vnd.com.climbingweather.cw.provider.favorites";
+        case ALL_STATES:
+            return "vnd.android.cursor.dir/vnd.com.climbingweather.cw.provider.states";
+        case SINGLE_STATE:
+            return "vnd.android.cursor.item/vnd.com.climbingweather.cw.provider.states";
+        default: 
+            throw new IllegalArgumentException("Unsupported URI: " + uri);
+        }
     }
     
-    // The insert() method adds a new row to the appropriate table, using the values 
-    // in the ContentValues argument. If a column name is not in the ContentValues argument, 
-    // you may want to provide a default value for it either in your provider code or in 
-    // your database schema. 
+    /**
+     * Insert new row
+     */
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-      
-     SQLiteDatabase db = dbHelper.getWritableDatabase();
-     switch (uriMatcher.match(uri)) {
-     case ALL_FAVORITES:
-      //do nothing
-      break;
-     default:
-      throw new IllegalArgumentException("Unsupported URI: " + uri);
-     }
-     long id = db.insert(FavoriteDbAdapter.DATABASE_TABLE, null, values);
-     getContext().getContentResolver().notifyChange(uri, null);
-     return Uri.parse(CONTENT_URI + "/" + id);
+        Uri _uri = null;
+        
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        
+        switch (uriMatcher.match(uri)) {
+        case ALL_FAVORITES:
+            //do nothing
+            break;
+        case SINGLE_FAVORITE:
+            long favoriteId = db.insert(CwDbHelper.Tables.FAVORITES, null, values);
+            _uri = Uri.parse(CONTENT_URI_FAVORITES + "/" + favoriteId);
+            getContext().getContentResolver().notifyChange(_uri, null);
+            break;
+        case ALL_STATES:
+            // do nothing
+            break;
+        case SINGLE_STATE:
+            long stateId = db.insert(CwDbHelper.Tables.STATES, null, values);
+            _uri = Uri.parse(CONTENT_URI_STATES + "/" + stateId);
+            getContext().getContentResolver().notifyChange(_uri, null);
+            break;
+        default:
+            throw new IllegalArgumentException("Unsupported URI: " + uri);
+        }
+        
+        return _uri;
     }
     
- // The query() method must return a Cursor object, or if it fails, 
-    // throw an Exception. If you are using an SQLite database as your data storage, 
-    // you can simply return the Cursor returned by one of the query() methods of the 
-    // SQLiteDatabase class. If the query does not match any rows, you should return a 
-    // Cursor instance whose getCount() method returns 0. You should return null only 
-    // if an internal error occurred during the query process. 
+    /**
+     * Query
+     */
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
-      String[] selectionArgs, String sortOrder) {
-     SQLiteDatabase db = dbHelper.getWritableDatabase();
-     SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-     queryBuilder.setTables(FavoriteDbAdapter.DATABASE_TABLE);
-     Log.i("CW", "QUERY");
-     switch (uriMatcher.match(uri)) {
-     case ALL_FAVORITES:
-      //do nothing 
-      break;
-     case SINGLE_FAVORITE:
-      String id = uri.getPathSegments().get(1);
-      queryBuilder.appendWhere(FavoriteDbAdapter.KEY_ROWID + "=" + id);
-      break;
-     default:
-      throw new IllegalArgumentException("Unsupported URI: " + uri);
-     }
+            String[] selectionArgs, String sortOrder) {
+        
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+        
+        Log.i("CW", "QUERY");
+        switch (uriMatcher.match(uri)) {
+        case ALL_FAVORITES:
+            queryBuilder.setTables(CwDbHelper.Tables.FAVORITES);
+            break;
+        case SINGLE_FAVORITE:
+            queryBuilder.setTables(CwDbHelper.Tables.FAVORITES);
+            String favoriteId = uri.getPathSegments().get(1);
+            queryBuilder.appendWhere(FavoritesContract.Columns.ID + "=" + favoriteId);
+            break;
+        case ALL_STATES:
+            queryBuilder.setTables(CwDbHelper.Tables.STATES);
+            break;
+        case SINGLE_STATE:
+            queryBuilder.setTables(CwDbHelper.Tables.STATES);
+            String id = uri.getPathSegments().get(1);
+            queryBuilder.appendWhere(StatesContract.Columns.ID + "=" + id);
+            break;
+        default:
+            throw new IllegalArgumentException("Unsupported URI: " + uri);
+        }
     
-     Cursor cursor = queryBuilder.query(db, projection, selection,
-       selectionArgs, null, null, sortOrder);
-     return cursor;
-    
+        Cursor cursor = queryBuilder.query(db, projection, selection,
+                selectionArgs, null, null, sortOrder);
+        return cursor;
     }
 
-    // The delete() method deletes rows based on the seletion or if an id is 
-    // provided then it deleted a single row. The methods returns the numbers
-    // of records delete from the database. If you choose not to delete the data
-    // physically then just update a flag here.
+    /**
+     * Delete
+     */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
     
-     SQLiteDatabase db = dbHelper.getWritableDatabase();
-     switch (uriMatcher.match(uri)) {
-     case ALL_FAVORITES:
-      //do nothing 
-      break;
-     case SINGLE_FAVORITE:
-      String id = uri.getPathSegments().get(1);
-      selection = FavoriteDbAdapter.KEY_ROWID + "=" + id
-      + (!TextUtils.isEmpty(selection) ? 
-        " AND (" + selection + ')' : "");
-      break;
-     default:
-      throw new IllegalArgumentException("Unsupported URI: " + uri);
-     }
-     int deleteCount = db.delete(FavoriteDbAdapter.DATABASE_TABLE, selection, selectionArgs);
-     getContext().getContentResolver().notifyChange(uri, null);
-     return deleteCount;
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        
+        int deleteCount = 0;
+        
+        switch (uriMatcher.match(uri)) {
+        case ALL_FAVORITES:
+            //do nothing 
+            break;
+        case SINGLE_FAVORITE:
+            String favoriteId = uri.getPathSegments().get(1);
+            selection = FavoritesContract.Columns.ID + "=" + favoriteId
+                    + (!TextUtils.isEmpty(selection) ? 
+                            " AND (" + selection + ')' : "");
+            deleteCount = db.delete(CwDbHelper.Tables.FAVORITES, selection, selectionArgs);
+            getContext().getContentResolver().notifyChange(uri, null);
+            break;
+        case ALL_STATES:
+            //do nothing 
+            break;
+        case SINGLE_STATE:
+            String stateId = uri.getPathSegments().get(1);
+            selection = StatesContract.Columns.ID + "=" + stateId
+                    + (!TextUtils.isEmpty(selection) ? 
+                            " AND (" + selection + ')' : "");
+            deleteCount = db.delete(CwDbHelper.Tables.STATES, selection, selectionArgs);
+            getContext().getContentResolver().notifyChange(uri, null);
+            break;
+        default:
+            throw new IllegalArgumentException("Unsupported URI: " + uri);
+        }
+
+        return deleteCount;
     }
     
-    // The update method() is same as delete() which updates multiple rows
-    // based on the selection or a single row if the row id is provided. The
-    // update method returns the number of updated rows.
+    /**
+     * Update
+     */
     @Override
     public int update(Uri uri, ContentValues values, String selection,
-      String[] selectionArgs) {
-     SQLiteDatabase db = dbHelper.getWritableDatabase();
-     switch (uriMatcher.match(uri)) {
-     case ALL_FAVORITES:
-      //do nothing 
-      break;
-     case SINGLE_FAVORITE:
-      String id = uri.getPathSegments().get(1);
-      selection = FavoriteDbAdapter.KEY_ROWID + "=" + id
-      + (!TextUtils.isEmpty(selection) ? 
-        " AND (" + selection + ')' : "");
-      break;
-     default:
-      throw new IllegalArgumentException("Unsupported URI: " + uri);
-     }
-     int updateCount = db.update(FavoriteDbAdapter.DATABASE_TABLE, values, selection, selectionArgs);
-     getContext().getContentResolver().notifyChange(uri, null);
-     return updateCount;
+            String[] selectionArgs) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        
+        int updateCount = 0;
+        
+        switch (uriMatcher.match(uri)) {
+        case ALL_FAVORITES:
+            //do nothing 
+            break;
+        case SINGLE_FAVORITE:
+            String favoriteId = uri.getPathSegments().get(1);
+            selection = FavoritesContract.Columns.ID + "=" + favoriteId
+                + (!TextUtils.isEmpty(selection) ? 
+                " AND (" + selection + ')' : "");
+            updateCount = db.update(CwDbHelper.Tables.FAVORITES, values, selection, selectionArgs);
+            getContext().getContentResolver().notifyChange(uri, null);
+            break;
+        case ALL_STATES:
+            // do nothing
+            break;
+        case SINGLE_STATE:
+            String stateId = uri.getPathSegments().get(1);
+            selection = StatesContract.Columns.ID + "=" + stateId
+                + (!TextUtils.isEmpty(selection) ? 
+                " AND (" + selection + ')' : "");
+            updateCount = db.update(CwDbHelper.Tables.STATES, values, selection, selectionArgs);
+            getContext().getContentResolver().notifyChange(uri, null);
+            break;
+        default:
+            throw new IllegalArgumentException("Unsupported URI: " + uri);
+        }
+     
+        return updateCount;
     }
 }

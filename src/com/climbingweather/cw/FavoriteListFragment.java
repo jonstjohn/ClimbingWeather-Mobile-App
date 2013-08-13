@@ -141,7 +141,7 @@ public class FavoriteListFragment extends SherlockListFragment
         Log.i("CW", Long.toString(id));
         
         Intent i = new Intent(getActivity(), AreaFragmentActivity.class);
-        Uri favoriteUri = Uri.parse(CwContentProvider.CONTENT_URI + "/" + id);
+        Uri favoriteUri = Uri.parse(CwContentProvider.CONTENT_URI_FAVORITES + "/" + id);
         
         Cursor cursor = getActivity().getContentResolver().query(favoriteUri, null, null, null, null);
         cursor.moveToFirst();
@@ -165,7 +165,7 @@ public class FavoriteListFragment extends SherlockListFragment
         String[] dataColumns = { FavoriteDbAdapter.KEY_NAME, FavoriteDbAdapter.KEY_AREAID };
         return new CursorLoader(
             getActivity(),
-            CwContentProvider.CONTENT_URI,
+            CwContentProvider.CONTENT_URI_FAVORITES,
             null,
             null,
             null,

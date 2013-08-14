@@ -13,7 +13,7 @@ import android.util.Log;
 public class CwDbHelper extends SQLiteOpenHelper {
     
     private static final String DATABASE_NAME = "cw";
-    private static final int DATABASE_VERSION = 1; 
+    private static final int DATABASE_VERSION = 3; 
     
     public interface Tables {
         public static final String FAVORITES = "favorite";
@@ -105,7 +105,7 @@ public class CwDbHelper extends SQLiteOpenHelper {
                 "state_code TEXT," +
                 "areas INTEGER," +
                 "updated INTEGER);");
-        db.execSQL("CREATE INDEX stateCodeIndex ON state(state_code)");
+        db.execSQL("CREATE UNIQUE INDEX stateCodeIndex ON state(state_code)");
     }
 
 }

@@ -21,6 +21,8 @@ public final class StatesContract {
         public static final String ID = "_id";
         public static final String STATE_CODE = "state_code";
         public static final String NAME = "name";
+        public static final String AREAS = "areas";
+        public static final String UPDATED = "updated";
     }
 
 }

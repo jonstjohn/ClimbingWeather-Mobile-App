@@ -3,8 +3,10 @@ package com.climbingweather.cw;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -46,6 +48,12 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         
       super.onCreate(savedInstanceState);
       setRetainInstance(true);
+      
+      Cursor cursor = getActivity().getContentResolver().query(StatesContract.CONTENT_URI, null, null, null, null);
+      while (cursor.moveToNext()) {
+          Logger.log(cursor.getString(cursor.getColumnIndex(StatesContract.Columns.NAME)));
+      }
+      
     }
     
     /**
@@ -178,10 +186,14 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         
         private Context context;
         
+        private Cursor mCursor;
+        
         public StateExpandableListAdapter(Context context)
         {
             inflater = LayoutInflater.from(context);
             this.context = context;
+            mCursor = getActivity().getContentResolver().query(
+                    StatesContract.CONTENT_URI, null, null, null, "NAME DESC");
         }
         
         public void addState(State state)
@@ -215,6 +227,11 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         }
 
         public int getChildrenCount(int groupPosition) {
+            
+            // TODO
+            //mCursor.moveToPosition(groupPosition);
+            //State state = State.getInstanceFromCode(getActivity(), mCursor.getString(mCursor.getColumnIndex(StatesContract.Columns.STATE_CODE)));
+            
             if (!states.get(groupPosition).hasAreas()) {
                 return 1;
             } else {
@@ -288,12 +305,16 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
                 convertView = inflater.inflate(R.layout.list_item_state, parent,false);
             }
      
+            mCursor.moveToPosition(groupPosition);
+            
             TextView nameTextView = (TextView) convertView.findViewById(R.id.name);
-            String stateStr = states.get(groupPosition).getName();
+            //String stateStr = states.get(groupPosition).getName();
+            String stateStr = mCursor.getString(mCursor.getColumnIndex(StatesContract.Columns.NAME));
             nameTextView.setText(stateStr);
             
             TextView areaCountTextView = (TextView) convertView.findViewById(R.id.areaCount);
-            String areaCount = Integer.toString(states.get(groupPosition).getAreaCount());
+            //String areaCount = Integer.toString(states.get(groupPosition).getAreaCount());
+            String areaCount = mCursor.getString(mCursor.getColumnIndex(StatesContract.Columns.AREAS));
             areaCountTextView.setText(areaCount + " areas");
      
             return convertView;
@@ -311,7 +332,8 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         public void onGroupExpanded (int groupPosition)
         {
             // Check for state areas
-            String stateCode = states.get(groupPosition).getCode();
+            mCursor.moveToPosition(groupPosition);
+            String stateCode = mCursor.getString(mCursor.getColumnIndex(StatesContract.Columns.STATE_CODE));
             if (!states.get(groupPosition).hasAreas()) {
                 // Load async
                 new GetAreasJsonTask(groupPosition, context).execute("/state/area/" + stateCode + "?days=3");
@@ -363,7 +385,27 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         protected String doInBackground(String... args) {
             
               CwApi api = new CwApi(mContext, "2.0");
-              return api.getJson(args[0]);
+              String result = api.getJson(args[0]);
+              
+              
+              Gson gson = new Gson();
+              CwApiStateListResponse response = gson.fromJson(result, CwApiStateListResponse.class);
+              State[] states = response.getStates();
+              
+              Long timestamp = System.currentTimeMillis()/1000;
+              
+              // Save states to content provider
+              for (int i = 0; i < states.length; i++) {
+                  ContentValues values = new ContentValues();
+                  values.put(StatesContract.Columns.STATE_CODE, states[i].getCode());
+                  values.put(StatesContract.Columns.NAME, states[i].getName());
+                  values.put(StatesContract.Columns.AREAS, states[i].getAreaCount());
+                  values.put(StatesContract.Columns.UPDATED, timestamp);
+                  getActivity().getContentResolver().insert(
+                          StatesContract.CONTENT_URI, values);
+              }
+              
+              return result;
 
         }
         
@@ -375,7 +417,6 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
             Log.i("CW", "Finishing StateListFragment JSON task");
             
             lastUpdateMillis = System.currentTimeMillis();
-            StateListFragment.this.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
 
             // Setup adapter
             stateAdapter = new StateExpandableListAdapter(mContext);
@@ -385,9 +426,27 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
                 Gson gson = new Gson();
                 CwApiStateListResponse response = gson.fromJson(result, CwApiStateListResponse.class);
                 State[] states = response.getStates();
+                
+                /*
+                Long timestamp = System.currentTimeMillis()/1000;
+                
+                // Save states to content provider
+                for (int i = 0; i < states.length; i++) {
+                    ContentValues values = new ContentValues();
+                    values.put(StatesContract.Columns.STATE_CODE, states[i].getCode());
+                    values.put(StatesContract.Columns.NAME, states[i].getName());
+                    values.put(StatesContract.Columns.AREAS, states[i].getAreaCount());
+                    values.put(StatesContract.Columns.UPDATED, timestamp);
+                    getActivity().getContentResolver().insert(
+                            StatesContract.CONTENT_URI, values);
+                }
+                */
+                
                 stateAdapter.addStates(states);
                 setListAdapter(stateAdapter);
                 stateAdapter.notifyDataSetChanged();
+                
+                StateListFragment.this.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
               
             } catch (JsonParseException e) {
               

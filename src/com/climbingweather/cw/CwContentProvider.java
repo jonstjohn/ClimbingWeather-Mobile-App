@@ -89,12 +89,11 @@ public class CwContentProvider extends ContentProvider
         case SINGLE_FAVORITE:
             break;
         case ALL_STATES:
-            // do nothing
+            long stateId = db.replace(CwDbHelper.Tables.STATES, null, values);
+            _uri = Uri.parse(FavoritesContract.CONTENT_URI + "/" + stateId);
+            getContext().getContentResolver().notifyChange(_uri, null);
             break;
         case SINGLE_STATE:
-            long stateId = db.insert(CwDbHelper.Tables.STATES, null, values);
-            _uri = Uri.parse(StatesContract.CONTENT_URI + "/" + stateId);
-            getContext().getContentResolver().notifyChange(_uri, null);
             break;
         default:
             throw new IllegalArgumentException("Unsupported URI: " + uri);

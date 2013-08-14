@@ -117,7 +117,7 @@ public class FavoriteListFragment extends SherlockListFragment
                 getActivity(),
                 R.layout.list_row,
                 null,
-                new String[] { FavoriteDbAdapter.KEY_NAME },
+                new String[] { FavoritesContract.Columns.NAME },
                 new int[] { R.id.name },
                 0
             );
@@ -141,13 +141,13 @@ public class FavoriteListFragment extends SherlockListFragment
         Log.i("CW", Long.toString(id));
         
         Intent i = new Intent(getActivity(), AreaFragmentActivity.class);
-        Uri favoriteUri = Uri.parse(CwContentProvider.CONTENT_URI_FAVORITES + "/" + id);
+        Uri favoriteUri = Uri.parse(FavoritesContract.CONTENT_URI + "/" + id);
         
         Cursor cursor = getActivity().getContentResolver().query(favoriteUri, null, null, null, null);
         cursor.moveToFirst();
         
-        String name = cursor.getString(cursor.getColumnIndexOrThrow(FavoriteDbAdapter.KEY_NAME));
-        String areaId = cursor.getString(cursor.getColumnIndexOrThrow(FavoriteDbAdapter.KEY_AREAID));
+        String name = cursor.getString(cursor.getColumnIndexOrThrow(FavoritesContract.Columns.NAME));
+        String areaId = cursor.getString(cursor.getColumnIndexOrThrow(FavoritesContract.Columns.AREA_ID));
             
         i.putExtra("areaId", areaId);
         i.putExtra("name", name);
@@ -158,18 +158,14 @@ public class FavoriteListFragment extends SherlockListFragment
         
     }
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        // This is called when a new Loader needs to be created.  This
-        // sample only has one Loader, so we don't care about the ID.
-        // First, pick the base URI to use depending on whether we are
-        // currently filtering.
-        String[] dataColumns = { FavoriteDbAdapter.KEY_NAME, FavoriteDbAdapter.KEY_AREAID };
+        
         return new CursorLoader(
             getActivity(),
-            CwContentProvider.CONTENT_URI_FAVORITES,
+            FavoritesContract.CONTENT_URI,
             null,
             null,
             null,
-            FavoriteDbAdapter.KEY_NAME
+            FavoritesContract.Columns.NAME
         );
         
     }

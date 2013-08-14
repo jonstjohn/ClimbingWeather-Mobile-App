@@ -10,6 +10,7 @@ import com.google.gson.JsonParseException;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -303,11 +304,13 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             // FAVORITE using db adapter to fetch stored favorites
             case TYPE_FAVORITE:
                 
-                // Get favorites from DB
-                FavoriteDbAdapter favDb = new FavoriteDbAdapter(mContext);
-                favDb.open();
-                ArrayList<String> ids = favDb.fetchAllFavoriteAreaIds();
-                favDb.close();
+                // Get ids from content provider
+                ArrayList<String> ids = new ArrayList<String>();
+                Cursor cursor = getActivity().getContentResolver().query(
+                        FavoritesContract.CONTENT_URI, null, null, null, FavoritesContract.Columns.NAME + " ASC");
+                while (cursor.moveToNext()) {
+                    ids.add(cursor.getString(cursor.getColumnIndex(FavoritesContract.Columns.AREA_ID)));
+                }
                 
                 // Loop over favorite area ids to build URL
                 if (ids.size() > 0) {

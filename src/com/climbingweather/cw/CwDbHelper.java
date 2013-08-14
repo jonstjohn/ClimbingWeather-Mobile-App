@@ -16,8 +16,8 @@ public class CwDbHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1; 
     
     public interface Tables {
-        public static final String FAVORITES = "favorites";
-        public static final String STATES = "states";
+        public static final String FAVORITES = "favorite";
+        public static final String STATES = "state";
     }
     
     CwDbHelper(Context context) {

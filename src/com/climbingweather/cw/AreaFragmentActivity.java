@@ -1,9 +1,13 @@
 package com.climbingweather.cw;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -225,10 +229,11 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
      */
     public void saveFavorite()
     {
-        FavoriteDbAdapter dbAdapter = new FavoriteDbAdapter(this);
-        dbAdapter.open();
-        dbAdapter.addFavorite(Integer.parseInt(areaId), name);
-        
+        ContentValues values = new ContentValues();
+        values.put(FavoritesContract.Columns.AREA_ID, Integer.parseInt(areaId));
+        values.put(FavoritesContract.Columns.NAME, name);
+        getContentResolver().insert(
+                FavoritesContract.CONTENT_URI, values);
     }
     
     /**
@@ -236,22 +241,29 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
      */
     public void removeFavorite() {
         
-        FavoriteDbAdapter dbAdapter = new FavoriteDbAdapter(this);
-        dbAdapter.open();
-        dbAdapter.removeFavorite(Integer.parseInt(areaId));
-        
+        Uri uri = Uri.parse(FavoritesContract.CONTENT_URI.toString() + "/" + areaId);
+        Logger.log(uri.toString());
+        getContentResolver().delete(
+                uri, null, null);
     }
     
     /**
      * Check to see if area is already a favorite
      */
     public boolean isFavorite() {
-
-        FavoriteDbAdapter dbAdapter = new FavoriteDbAdapter(this);
-        dbAdapter.open();
-        boolean isFavorite = dbAdapter.isFavorite(Integer.parseInt(areaId));
-        return isFavorite;
-
+        // Get ids from content provider
+        Cursor cursor = getContentResolver().query(
+                FavoritesContract.CONTENT_URI, null, null, null, null);
+        Logger.log("isFavorite()");
+        Logger.log(areaId);
+        while (cursor.moveToNext()) {
+            Logger.log(cursor.getString(cursor.getColumnIndex(FavoritesContract.Columns.AREA_ID)));
+            if (cursor.getString(cursor.getColumnIndex(FavoritesContract.Columns.AREA_ID)).equals(areaId)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     public String getAreaId()

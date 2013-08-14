@@ -1,5 +1,7 @@
 package com.climbingweather.cw;
 
+import java.util.List;
+
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -24,30 +26,15 @@ public class CwContentProvider extends ContentProvider
     private static final int SINGLE_STATE = 4;
     
     /**
-     * Authority
-     */
-    private static final String AUTHORITY = "com.climbingweather.cw.provider";
-    
-    /**
-     * URI for favorites
-     */
-    public static final Uri CONTENT_URI_FAVORITES = Uri.parse("content://" + AUTHORITY + "/favorites");
-    
-    /**
-     * URI for states
-     */
-    public static final Uri CONTENT_URI_STATES = Uri.parse("content://" + AUTHORITY + "/states");
-    
-    /**
      * URI matcher
      */
     public static final UriMatcher uriMatcher;
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(AUTHORITY, "favorites", ALL_FAVORITES);
-        uriMatcher.addURI(AUTHORITY, "favorites/#", SINGLE_FAVORITE);
-        uriMatcher.addURI(AUTHORITY, "states", ALL_STATES);
-        uriMatcher.addURI(AUTHORITY, "states/#", SINGLE_STATE);
+        uriMatcher.addURI(FavoritesContract.AUTHORITY, null, ALL_FAVORITES);
+        uriMatcher.addURI(FavoritesContract.AUTHORITY, "#", SINGLE_FAVORITE);
+        uriMatcher.addURI(StatesContract.AUTHORITY, null, ALL_STATES);
+        uriMatcher.addURI(StatesContract.AUTHORITY, "#", SINGLE_STATE);
     }
     
     public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
@@ -95,19 +82,18 @@ public class CwContentProvider extends ContentProvider
         
         switch (uriMatcher.match(uri)) {
         case ALL_FAVORITES:
-            //do nothing
+            long favoriteId = db.insert(CwDbHelper.Tables.FAVORITES, null, values);
+            _uri = Uri.parse(FavoritesContract.CONTENT_URI + "/" + favoriteId);
+            getContext().getContentResolver().notifyChange(_uri, null);
             break;
         case SINGLE_FAVORITE:
-            long favoriteId = db.insert(CwDbHelper.Tables.FAVORITES, null, values);
-            _uri = Uri.parse(CONTENT_URI_FAVORITES + "/" + favoriteId);
-            getContext().getContentResolver().notifyChange(_uri, null);
             break;
         case ALL_STATES:
             // do nothing
             break;
         case SINGLE_STATE:
             long stateId = db.insert(CwDbHelper.Tables.STATES, null, values);
-            _uri = Uri.parse(CONTENT_URI_STATES + "/" + stateId);
+            _uri = Uri.parse(StatesContract.CONTENT_URI + "/" + stateId);
             getContext().getContentResolver().notifyChange(_uri, null);
             break;
         default:
@@ -169,8 +155,12 @@ public class CwContentProvider extends ContentProvider
             //do nothing 
             break;
         case SINGLE_FAVORITE:
-            String favoriteId = uri.getPathSegments().get(1);
-            selection = FavoritesContract.Columns.ID + "=" + favoriteId
+            List<String> segs = uri.getPathSegments();
+            for (String s: segs) {
+                Logger.log(s);
+            }
+            String areaId = uri.getPathSegments().get(0);
+            selection = FavoritesContract.Columns.AREA_ID + "=" + areaId
                     + (!TextUtils.isEmpty(selection) ? 
                             " AND (" + selection + ')' : "");
             deleteCount = db.delete(CwDbHelper.Tables.FAVORITES, selection, selectionArgs);

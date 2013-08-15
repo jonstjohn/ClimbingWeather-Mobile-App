@@ -29,6 +29,9 @@ public class CwDbHelper extends SQLiteOpenHelper {
     
         createFavoriteTable(db);
         createStateTable(db);
+        createAreaTable(db);
+        createDailyTable(db);
+        createHourlyTable(db);
 
     }
 
@@ -39,6 +42,7 @@ public class CwDbHelper extends SQLiteOpenHelper {
         
         db.execSQL("DROP TABLE IF EXISTS favorite");
         db.execSQL("DROP TABLE IF EXISTS state");
+        db.execSQL("DROP TABLE IF EXISTS area");
         onCreate(db);
 
     }
@@ -106,6 +110,83 @@ public class CwDbHelper extends SQLiteOpenHelper {
                 "areas INTEGER," +
                 "updated INTEGER);");
         db.execSQL("CREATE UNIQUE INDEX stateCodeIndex ON state(state_code)");
+        db.execSQL("CREATE INDEX updatedIndex ON state(updated)");
+    }
+    
+    /**
+     * Create area table
+     * @param db
+     */
+    private void createAreaTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE area (" +
+                "_id INTEGER PRIMARY KEY," +
+                "area_id INTEGER," +
+                "name TEXT," +
+                "latitude NUMERIC," +
+                "longitude NUMERIC," +
+                "state_code TEXT," +
+                "elevation TEXT," +
+                "detail_updated INTEGER," +
+                "updated INTEGER)");
+        db.execSQL("CREATE UNIQUE INDEX areaIdIndex ON area(area_id)");
+        db.execSQL("CREATE INDEX updatedIndex ON area(updated)");
+        db.execSQL("CREATE INDEX detailUpdatedIndex ON area(detail_updated)");
+    }
+    
+    /**
+     * Create daily table
+     * @param db
+     */
+    private void createDailyTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE daily (" +
+                "_id INTEGER PRIMARY KEY," +
+                "area_id INTEGER," +
+                "high INTEGER," +
+                "low INTEGER," +
+                "precip_day INTEGER," +
+                "date TEXT," +
+                "sky INTEGER," +
+                "precip_night INTEGER," +
+                "relative_humidity INTEGER," +
+                "wsym TEXT," +
+                "rain_amount NUMERIC," +
+                "wind_sustained INTEGER," +
+                "wind_gust INTEGER," +
+                "weather TEXT," +
+                "snow_amount NUMERIC," +
+                "detail_updated INTEGER," +
+                "updated INTEGER)");
+        db.execSQL("CREATE INDEX areaIdIndex ON daily(area_id)");
+        db.execSQL("CREATE INDEX dateIndex ON daily(date)");
+        db.execSQL("CREATE INDEX updatedIndex ON daily(updated)");
+        db.execSQL("CREATE INDEX detailUpdatedIndex ON daily(detail_updated)");
+    }
+    
+    /**
+     * Create hourly table
+     * @param db
+     */
+    private void createHourlyTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE hourly (" +
+                "_id INTEGER PRIMARY KEY," +
+                "area_id INTEGER," +
+                "temp INTEGER," +
+                "precip INTEGER," +
+                "timestamp INTEGER," +
+                "sky INTEGER," +
+                "relative_humidity INTEGER," +
+                "wsym TEXT," +
+                "rain_amount NUMERIC," +
+                "wind_sustained INTEGER," +
+                "wind_gust INTEGER," +
+                "weather TEXT," +
+                "snow_amount NUMERIC," +
+                "detail_updated INTEGER," +
+                "updated INTEGER)");
+        db.execSQL("CREATE INDEX areaIdIndex ON hourly(area_id)");
+        db.execSQL("CREATE INDEX dateIndex ON hourly(date)");
+        db.execSQL("CREATE INDEX updatedIndex ON hourly(updated)");
+        db.execSQL("CREATE INDEX detailUpdatedIndex ON hourly(detail_updated)");
     }
 
 }

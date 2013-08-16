@@ -18,6 +18,9 @@ public class CwDbHelper extends SQLiteOpenHelper {
     public interface Tables {
         public static final String FAVORITES = "favorite";
         public static final String STATES = "state";
+        public static final String AREAS = "area";
+        public static final String DAILY = "daily";
+        public static final String HOURLY = "hourly";
     }
     
     CwDbHelper(Context context) {
@@ -120,7 +123,6 @@ public class CwDbHelper extends SQLiteOpenHelper {
     private void createAreaTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE area (" +
                 "_id INTEGER PRIMARY KEY," +
-                "area_id INTEGER," +
                 "name TEXT," +
                 "latitude NUMERIC," +
                 "longitude NUMERIC," +

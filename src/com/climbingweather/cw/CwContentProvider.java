@@ -24,6 +24,10 @@ public class CwContentProvider extends ContentProvider
     private static final int SINGLE_FAVORITE = 2;
     private static final int ALL_STATES = 3;
     private static final int SINGLE_STATE = 4;
+    private static final int ALL_AREAS = 5;
+    private static final int SINGLE_AREA = 6;
+    private static final int AREA_DAILY = 7;
+    private static final int AREA_HOURLY = 8;
     
     /**
      * URI matcher
@@ -35,6 +39,10 @@ public class CwContentProvider extends ContentProvider
         uriMatcher.addURI(FavoritesContract.AUTHORITY, "#", SINGLE_FAVORITE);
         uriMatcher.addURI(StatesContract.AUTHORITY, null, ALL_STATES);
         uriMatcher.addURI(StatesContract.AUTHORITY, "#", SINGLE_STATE);
+        uriMatcher.addURI(AreasContract.AUTHORITY, null, ALL_AREAS);
+        uriMatcher.addURI(AreasContract.AUTHORITY, "#", SINGLE_AREA);
+        uriMatcher.addURI(DailyContract.AUTHORITY, "#", AREA_DAILY);
+        uriMatcher.addURI(HourlyContract.AUTHORITY, "#", AREA_HOURLY);
     }
     
     public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
@@ -94,6 +102,23 @@ public class CwContentProvider extends ContentProvider
             getContext().getContentResolver().notifyChange(_uri, null);
             break;
         case SINGLE_STATE:
+            break;
+        case ALL_AREAS:
+            long areaId = db.insert(CwDbHelper.Tables.AREAS, null, values);
+            _uri = Uri.parse(AreasContract.CONTENT_URI + "/" + areaId);
+            getContext().getContentResolver().notifyChange(_uri, null);
+            break;
+        case SINGLE_AREA:
+            break;
+        case AREA_DAILY:
+            db.insert(CwDbHelper.Tables.DAILY, null, values);
+            _uri = DailyContract.CONTENT_URI;
+            getContext().getContentResolver().notifyChange(_uri, null); // TODO
+            break;
+        case AREA_HOURLY:
+            db.insert(CwDbHelper.Tables.HOURLY, null, values);
+            _uri = HourlyContract.CONTENT_URI;
+            getContext().getContentResolver().notifyChange(_uri, null); // TODO
             break;
         default:
             throw new IllegalArgumentException("Unsupported URI: " + uri);

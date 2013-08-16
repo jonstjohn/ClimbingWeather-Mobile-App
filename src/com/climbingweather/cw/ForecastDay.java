@@ -2,7 +2,9 @@ package com.climbingweather.cw;
 
 import java.util.ArrayList;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -179,5 +181,26 @@ public class ForecastDay {
     public String getHigh()
     {
         return hi;
+    }
+    
+    public Uri save(Context context, String areaId) {
+        
+        ContentValues values = new ContentValues();
+        values.put(DailyContract.Columns.AREA_ID, areaId);
+        values.put(DailyContract.Columns.DATE, d);
+        values.put(DailyContract.Columns.HIGH, hi);
+        values.put(DailyContract.Columns.LOW, l);
+        values.put(DailyContract.Columns.PRECIP_DAY, pd);
+        values.put(DailyContract.Columns.PRECIP_NIGHT, pn);
+        values.put(DailyContract.Columns.RAIN_AMOUNT, r);
+        values.put(DailyContract.Columns.RELATIVE_HUMIDITY, h);
+        values.put(DailyContract.Columns.SNOW_AMOUNT, s);
+        values.put(DailyContract.Columns.WEATHER, w);
+        values.put(DailyContract.Columns.WEATHER_SYMBOL, sy);
+        values.put(DailyContract.Columns.WIND_GUST, wg);
+        values.put(DailyContract.Columns.WIND_SUSTAINED, ws);
+        Uri uri = context.getContentResolver().insert(
+                Uri.parse(DailyContract.CONTENT_URI.toString() + "/" + areaId), values);
+        return uri;
     }
 }

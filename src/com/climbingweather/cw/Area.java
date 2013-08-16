@@ -3,7 +3,9 @@ package com.climbingweather.cw;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -160,5 +162,25 @@ public class Area
     public String getWeatherSymbol()
     {
         return wsym;
+    }
+    
+    public Uri save(Context context)
+    {
+        ContentValues values = new ContentValues();
+        values.put(AreasContract.Columns.AREA_ID, id);
+        values.put(AreasContract.Columns.LATITUDE, lat);
+        values.put(AreasContract.Columns.LONGITUDE, lon);
+        values.put(AreasContract.Columns.NAME, name);
+        values.put(AreasContract.Columns.STATE_CODE, state);
+        Uri uri = context.getContentResolver().insert(
+                AreasContract.CONTENT_URI, values);
+        
+        String areaId = uri.getPathSegments().get(0);
+        
+        for (int i = 0; i < f.length; i++) {
+            f[i].save(context, areaId);
+        }
+        
+        return uri;
     }
 }

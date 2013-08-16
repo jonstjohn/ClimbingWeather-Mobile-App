@@ -72,7 +72,7 @@
 
         <provider
             android:name="com.climbingweather.cw.CwContentProvider"
-            android:authorities="com.climbingweather.cw.provider.favorites;com.climbingweather.cw.provider.states" >
+            android:authorities="com.climbingweather.cw.provider.favorites;com.climbingweather.cw.provider.states;com.climbingweather.cw.provider.areas;com.climbingweather.cw.provider.daily;com.climbingweather.cw.provider.hourly" >
         </provider>
 
         <meta-data

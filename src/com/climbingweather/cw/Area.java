@@ -168,19 +168,79 @@ public class Area
     {
         ContentValues values = new ContentValues();
         values.put(AreasContract.Columns.AREA_ID, id);
-        values.put(AreasContract.Columns.LATITUDE, lat);
-        values.put(AreasContract.Columns.LONGITUDE, lon);
-        values.put(AreasContract.Columns.NAME, name);
-        values.put(AreasContract.Columns.STATE_CODE, state);
+        
+        if (lat != null) {
+            values.put(AreasContract.Columns.LATITUDE, lat);
+        }
+        
+        if (lon != null) {
+            values.put(AreasContract.Columns.LONGITUDE, lon);
+        }
+        
+        if (name != null) {
+            values.put(AreasContract.Columns.NAME, name);
+        }
+        
+        if (state != null) {
+            values.put(AreasContract.Columns.STATE_CODE, state);
+        }
+        
+        // Update timestamps
+        Long timestamp = System.currentTimeMillis()/1000;
+        values.put(AreasContract.Columns.LIST_UPDATED, timestamp);
+        
+        // detail
+        if (_hasDetail()) {
+            values.put(AreasContract.Columns.DETAIL_UPDATED, timestamp);
+        }
+        
+        // daily
+        if (_hasDaily()) {
+            values.put(AreasContract.Columns.DAILY_UPDATED, timestamp);
+        }
+        
+        // hourly
+        if (_hasHourly()) {
+            values.put(AreasContract.Columns.HOURLY_UPDATED, timestamp);
+        }
+        
         Uri uri = context.getContentResolver().insert(
                 AreasContract.CONTENT_URI, values);
         
         String areaId = uri.getPathSegments().get(0);
         
-        for (int i = 0; i < f.length; i++) {
-            f[i].save(context, areaId);
+        if (f != null) {
+            for (int i = 0; i < f.length; i++) {
+                f[i].save(context, areaId);
+                // TODO
+                //for (int j = 0; j < f[i].getHourCount(); j++) {
+                //    f[i].getHour(j).save(context, areaId);
+                //}
+            }
         }
         
         return uri;
+    }
+    
+    private boolean _hasDetail()
+    {
+        return lat != null;
+    }
+    
+    private boolean _hasDaily()
+    {
+        return f != null;
+    }
+    
+    private boolean _hasHourly()
+    {
+        if (_hasDaily()) {
+            for (int i = 0; i < f.length; i++) {
+                if (f[i].hasHours()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

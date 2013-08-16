@@ -22,6 +22,8 @@ public final class DailyContract {
         public static final String PRECIP_DAY = "precip_day";
         public static final String PRECIP_NIGHT = "precip_night";
         public static final String DATE = "date";
+        public static final String DATE_FORMATTED = "date_formatted";
+        public static final String DAY = "day";
         public static final String SKY = "sky";
         public static final String RELATIVE_HUMIDITY = "relative_humidity";
         public static final String WEATHER_SYMBOL = "wsym";

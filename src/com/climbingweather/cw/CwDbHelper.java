@@ -13,7 +13,7 @@ import android.util.Log;
 public class CwDbHelper extends SQLiteOpenHelper {
     
     private static final String DATABASE_NAME = "cw";
-    private static final int DATABASE_VERSION = 3; 
+    private static final int DATABASE_VERSION = 5; 
     
     public interface Tables {
         public static final String FAVORITES = "favorite";
@@ -46,6 +46,8 @@ public class CwDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS favorite");
         db.execSQL("DROP TABLE IF EXISTS state");
         db.execSQL("DROP TABLE IF EXISTS area");
+        db.execSQL("DROP TABLE IF EXISTS daily");
+        db.execSQL("DROP TABLE IF EXISTS hourly");
         onCreate(db);
 
     }
@@ -112,8 +114,8 @@ public class CwDbHelper extends SQLiteOpenHelper {
                 "state_code TEXT," +
                 "areas INTEGER," +
                 "updated INTEGER);");
-        db.execSQL("CREATE UNIQUE INDEX stateCodeIndex ON state(state_code)");
-        db.execSQL("CREATE INDEX updatedIndex ON state(updated)");
+        db.execSQL("CREATE UNIQUE INDEX state_stateCodeIndex ON state(state_code)");
+        db.execSQL("CREATE INDEX state_updatedIndex ON state(updated)");
     }
     
     /**
@@ -128,11 +130,12 @@ public class CwDbHelper extends SQLiteOpenHelper {
                 "longitude NUMERIC," +
                 "state_code TEXT," +
                 "elevation TEXT," +
+                "daily_updated INTEGER," +
+                "averages_updated INTEGER," +
                 "detail_updated INTEGER," +
-                "updated INTEGER)");
-        db.execSQL("CREATE UNIQUE INDEX areaIdIndex ON area(area_id)");
-        db.execSQL("CREATE INDEX updatedIndex ON area(updated)");
-        db.execSQL("CREATE INDEX detailUpdatedIndex ON area(detail_updated)");
+                "list_updated INTEGER)");
+        db.execSQL("CREATE INDEX area_listUpdatedIndex ON area(list_updated)");
+        db.execSQL("CREATE INDEX area_detailUpdatedIndex ON area(detail_updated)");
     }
     
     /**
@@ -147,6 +150,8 @@ public class CwDbHelper extends SQLiteOpenHelper {
                 "low INTEGER," +
                 "precip_day INTEGER," +
                 "date TEXT," +
+                "date_formatted TEXT," +
+                "day TEXT," +
                 "sky INTEGER," +
                 "precip_night INTEGER," +
                 "relative_humidity INTEGER," +
@@ -158,10 +163,10 @@ public class CwDbHelper extends SQLiteOpenHelper {
                 "snow_amount NUMERIC," +
                 "detail_updated INTEGER," +
                 "updated INTEGER)");
-        db.execSQL("CREATE INDEX areaIdIndex ON daily(area_id)");
-        db.execSQL("CREATE INDEX dateIndex ON daily(date)");
-        db.execSQL("CREATE INDEX updatedIndex ON daily(updated)");
-        db.execSQL("CREATE INDEX detailUpdatedIndex ON daily(detail_updated)");
+        db.execSQL("CREATE INDEX daily_areaIdIndex ON daily(area_id)");
+        db.execSQL("CREATE UNIQUE INDEX daily_dateIndex ON daily(date)");
+        db.execSQL("CREATE INDEX daily_updatedIndex ON daily(updated)");
+        db.execSQL("CREATE INDEX daily_detailUpdatedIndex ON daily(detail_updated)");
     }
     
     /**
@@ -185,10 +190,10 @@ public class CwDbHelper extends SQLiteOpenHelper {
                 "snow_amount NUMERIC," +
                 "detail_updated INTEGER," +
                 "updated INTEGER)");
-        db.execSQL("CREATE INDEX areaIdIndex ON hourly(area_id)");
-        db.execSQL("CREATE INDEX dateIndex ON hourly(date)");
-        db.execSQL("CREATE INDEX updatedIndex ON hourly(updated)");
-        db.execSQL("CREATE INDEX detailUpdatedIndex ON hourly(detail_updated)");
+        db.execSQL("CREATE INDEX hourly_areaIdIndex ON hourly(area_id)");
+        db.execSQL("CREATE UNIQUE INDEX hourly_timestampIndex ON hourly(timestamp)");
+        db.execSQL("CREATE INDEX hourly_updatedIndex ON hourly(updated)");
+        db.execSQL("CREATE INDEX hourly_detailUpdatedIndex ON hourly(detail_updated)");
     }
 
 }

@@ -104,19 +104,19 @@ public class CwContentProvider extends ContentProvider
         case SINGLE_STATE:
             break;
         case ALL_AREAS:
-            long areaId = db.insert(CwDbHelper.Tables.AREAS, null, values);
+            long areaId = db.replace(CwDbHelper.Tables.AREAS, null, values);
             _uri = Uri.parse(AreasContract.CONTENT_URI + "/" + areaId);
             getContext().getContentResolver().notifyChange(_uri, null);
             break;
         case SINGLE_AREA:
             break;
         case AREA_DAILY:
-            db.insert(CwDbHelper.Tables.DAILY, null, values);
+            db.replace(CwDbHelper.Tables.DAILY, null, values);
             _uri = DailyContract.CONTENT_URI;
             getContext().getContentResolver().notifyChange(_uri, null); // TODO
             break;
         case AREA_HOURLY:
-            db.insert(CwDbHelper.Tables.HOURLY, null, values);
+            db.replace(CwDbHelper.Tables.HOURLY, null, values);
             _uri = HourlyContract.CONTENT_URI;
             getContext().getContentResolver().notifyChange(_uri, null); // TODO
             break;
@@ -154,6 +154,9 @@ public class CwContentProvider extends ContentProvider
             queryBuilder.setTables(CwDbHelper.Tables.STATES);
             String id = uri.getPathSegments().get(1);
             queryBuilder.appendWhere(StatesContract.Columns.ID + "=" + id);
+            break;
+        case ALL_AREAS:
+            queryBuilder.setTables(CwDbHelper.Tables.AREAS);
             break;
         default:
             throw new IllegalArgumentException("Unsupported URI: " + uri);

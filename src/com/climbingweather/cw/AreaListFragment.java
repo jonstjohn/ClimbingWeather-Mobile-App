@@ -405,6 +405,19 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             // Convert JSON into areas using GSON
             Gson gson = new Gson();
             areas = gson.fromJson(result, CwApiAreaListResponse.class).getAreas();
+            
+            // Save areas
+            for (int i = 0; i < areas.length; i++) {
+                areas[i].save(getActivity());
+            }
+            
+            Cursor cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, null, null, null);
+            Logger.log("Areas Result");
+            Logger.log(Integer.toString(cursor.getCount()));
+            while (cursor.moveToNext()) {
+                Logger.log(cursor.getString(cursor.getColumnIndex(AreasContract.Columns.NAME)));
+            }
+            
             AreaAdapter adapter = new AreaAdapter(mContext, R.id.list_item_text_view, areas);
             setListAdapter(adapter);
             

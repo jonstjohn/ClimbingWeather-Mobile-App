@@ -28,6 +28,7 @@ public class CwContentProvider extends ContentProvider
     private static final int SINGLE_AREA = 6;
     private static final int AREA_DAILY = 7;
     private static final int AREA_HOURLY = 8;
+    private static final int ALL_DAILY = 8;
     
     /**
      * URI matcher
@@ -43,6 +44,7 @@ public class CwContentProvider extends ContentProvider
         uriMatcher.addURI(AreasContract.AUTHORITY, "#", SINGLE_AREA);
         uriMatcher.addURI(DailyContract.AUTHORITY, "#", AREA_DAILY);
         uriMatcher.addURI(HourlyContract.AUTHORITY, "#", AREA_HOURLY);
+        uriMatcher.addURI(DailyContract.AUTHORITY, null, ALL_DAILY);
     }
     
     public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
@@ -111,7 +113,9 @@ public class CwContentProvider extends ContentProvider
         case SINGLE_AREA:
             break;
         case AREA_DAILY:
-            db.replace(CwDbHelper.Tables.DAILY, null, values);
+            Logger.log("Saving daily inside content provider");
+            Long dailyId = db.replace(CwDbHelper.Tables.DAILY, null, values);
+            Logger.log("Daily id: " + Long.toString(dailyId));
             _uri = DailyContract.CONTENT_URI;
             getContext().getContentResolver().notifyChange(_uri, null); // TODO
             break;
@@ -156,7 +160,26 @@ public class CwContentProvider extends ContentProvider
             queryBuilder.appendWhere(StatesContract.Columns.ID + "=" + id);
             break;
         case ALL_AREAS:
-            queryBuilder.setTables(CwDbHelper.Tables.AREAS);
+            //queryBuilder.setTables(CwDbHelper.Tables.AREAS);
+            queryBuilder.setTables("area"
+                    + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now')) AS d1 ON area._id = d1.area_id"
+                    + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now', '+1 day')) AS d2 ON area._id = d2.area_id"
+                    + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now', '+2 day')) AS d3 ON area._id = d3.area_id");
+            
+            //Cursor cursor = db.rawQuery("SELECT area_id, date, high, low FROM daily WHERE date = date('now')", selectionArgs);
+            //Logger.log("Daily count: " + Integer.toString(cursor.getCount()));
+            //return db.rawQuery("select area._id, area.name," 
+//                    + "d1.date as d1_date, d1.high as d1_high, d1.low as d1_low,"
+//                    + "d2.date as d2_date, d2.high as d2_high, d2.low as d2_low,"
+//                    + "d3.date as d3_date, d3.high as d3_high, d3.low as d3_low"
+//                    + " FROM area"
+//                    + " LEFT JOIN (SELECT area_id, date, high, low FROM daily WHERE date = date('now')) AS d1 ON area._id = d1.area_id"
+//                    + " LEFT JOIN (SELECT area_id, date, high, low FROM daily WHERE date = date('now', '+ 1 day')) AS d2 ON area._id = d2.area_id"
+//                    + " LEFT JOIN (SELECT area_id, date, high, low FROM daily WHERE date = date('now', '+ 2 day')) AS d3 ON area._id = d3.area_id"
+//                    + " ORDER BY area.name ASC", selectionArgs);
+            break;
+        case ALL_DAILY:
+            queryBuilder.setTables(CwDbHelper.Tables.DAILY);
             break;
         default:
             throw new IllegalArgumentException("Unsupported URI: " + uri);

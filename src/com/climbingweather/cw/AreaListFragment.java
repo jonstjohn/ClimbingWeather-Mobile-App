@@ -411,11 +411,24 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                 areas[i].save(getActivity());
             }
             
-            Cursor cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, null, null, null);
+            String projection[] = {"area._id AS area_id", "area.name", "d1.high AS d1_high", "d1.wsym AS d1_wsym", "d2.high AS d2_high", "d2.wsym AS d2_wsym", "d3.high AS d3_high", "d3.wsym AS d3_wsym"};
+            Cursor cursor = getActivity().getContentResolver().query(
+                    AreasContract.CONTENT_URI,
+                    projection, null, null, null
+            );
             Logger.log("Areas Result");
             Logger.log(Integer.toString(cursor.getCount()));
             while (cursor.moveToNext()) {
-                Logger.log(cursor.getString(cursor.getColumnIndex(AreasContract.Columns.NAME)));
+                Logger.log(_formatAreaList(cursor));
+                Logger.log(cursor.getString(cursor.getColumnIndex("area_id")));
+            }
+            
+            Logger.log("Daily rows:");
+            Cursor c2 = getActivity().getContentResolver().query(DailyContract.CONTENT_URI, null, null, null, null);
+            while (c2.moveToNext()) {
+                Logger.log(c2.getString(c2.getColumnIndex(DailyContract.Columns.ID)));
+                Logger.log(c2.getString(c2.getColumnIndex(DailyContract.Columns.DATE)));
+                Logger.log(c2.getString(c2.getColumnIndex(DailyContract.Columns.AREA_ID)));
             }
             
             AreaAdapter adapter = new AreaAdapter(mContext, R.id.list_item_text_view, areas);
@@ -560,5 +573,19 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     public void refresh()
     {
         loadAreas(true);
+    }
+    
+    private String _formatAreaList(Cursor cursor)
+    {
+        String str = cursor.getString(cursor.getColumnIndex("name"));
+        str += " " + cursor.getString(cursor.getColumnIndex("d1_high"));
+        str += " " + cursor.getString(cursor.getColumnIndex("d1_wsym"));
+        str += " " + cursor.getString(cursor.getColumnIndex("d2_high"));
+        str += " " + cursor.getString(cursor.getColumnIndex("d2_wsym"));
+        str += " " + cursor.getString(cursor.getColumnIndex("d3_high"));
+        str += " " + cursor.getString(cursor.getColumnIndex("d3_wsym"));
+        
+        return str;
+        
     }
 }

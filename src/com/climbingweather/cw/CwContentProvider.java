@@ -113,9 +113,7 @@ public class CwContentProvider extends ContentProvider
         case SINGLE_AREA:
             break;
         case AREA_DAILY:
-            Logger.log("Saving daily inside content provider");
-            Long dailyId = db.replace(CwDbHelper.Tables.DAILY, null, values);
-            Logger.log("Daily id: " + Long.toString(dailyId));
+            db.replace(CwDbHelper.Tables.DAILY, null, values);
             _uri = DailyContract.CONTENT_URI;
             getContext().getContentResolver().notifyChange(_uri, null); // TODO
             break;
@@ -160,23 +158,10 @@ public class CwContentProvider extends ContentProvider
             queryBuilder.appendWhere(StatesContract.Columns.ID + "=" + id);
             break;
         case ALL_AREAS:
-            //queryBuilder.setTables(CwDbHelper.Tables.AREAS);
             queryBuilder.setTables("area"
                     + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now')) AS d1 ON area._id = d1.area_id"
                     + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now', '+1 day')) AS d2 ON area._id = d2.area_id"
                     + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now', '+2 day')) AS d3 ON area._id = d3.area_id");
-            
-            //Cursor cursor = db.rawQuery("SELECT area_id, date, high, low FROM daily WHERE date = date('now')", selectionArgs);
-            //Logger.log("Daily count: " + Integer.toString(cursor.getCount()));
-            //return db.rawQuery("select area._id, area.name," 
-//                    + "d1.date as d1_date, d1.high as d1_high, d1.low as d1_low,"
-//                    + "d2.date as d2_date, d2.high as d2_high, d2.low as d2_low,"
-//                    + "d3.date as d3_date, d3.high as d3_high, d3.low as d3_low"
-//                    + " FROM area"
-//                    + " LEFT JOIN (SELECT area_id, date, high, low FROM daily WHERE date = date('now')) AS d1 ON area._id = d1.area_id"
-//                    + " LEFT JOIN (SELECT area_id, date, high, low FROM daily WHERE date = date('now', '+ 1 day')) AS d2 ON area._id = d2.area_id"
-//                    + " LEFT JOIN (SELECT area_id, date, high, low FROM daily WHERE date = date('now', '+ 2 day')) AS d3 ON area._id = d3.area_id"
-//                    + " ORDER BY area.name ASC", selectionArgs);
             break;
         case ALL_DAILY:
             queryBuilder.setTables(CwDbHelper.Tables.DAILY);

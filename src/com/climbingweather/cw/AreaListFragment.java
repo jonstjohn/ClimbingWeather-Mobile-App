@@ -35,7 +35,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class AreaListFragment extends SherlockListFragment implements LoaderCallbacks<RESTLoader.RESTResponse>, DataFragmentInterface {
+public class AreaListFragment extends SherlockListFragment implements LoaderCallbacks<RESTClientResponse>, DataFragmentInterface {
 
     /**
      * Location manager for location updates
@@ -530,7 +530,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     /**
      * Callback for loader
      */
-    public Loader<RESTLoader.RESTResponse> onCreateLoader(int id, Bundle args) {
+    public Loader<RESTClientResponse> onCreateLoader(int id, Bundle args) {
         if (args != null && args.containsKey(ARGS_URI) && args.containsKey(ARGS_PARAMS)) {
             Uri    action = args.getParcelable(ARGS_URI);
             Bundle params = args.getParcelable(ARGS_PARAMS);
@@ -544,7 +544,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     /**
      * Callback for loader
      */
-    public void onLoadFinished(Loader<RESTLoader.RESTResponse> loader, RESTLoader.RESTResponse data) {
+    public void onLoadFinished(Loader<RESTClientResponse> loader, RESTClientResponse data) {
         int    code = data.getCode();
         String json = data.getData();
         
@@ -564,7 +564,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     /**
      * Callback for loader
      */
-    public void onLoaderReset(Loader<RESTLoader.RESTResponse> loader) {
+    public void onLoaderReset(Loader<RESTClientResponse> loader) {
     }
     
     /**

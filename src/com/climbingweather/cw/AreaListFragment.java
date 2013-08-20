@@ -352,46 +352,14 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         try {
             Log.i(TAG, "processJson");
             Log.i(TAG, result);
-            
+
             // Convert JSON into areas using GSON
             Gson gson = new Gson();
             areas = gson.fromJson(result, CwApiAreaListResponse.class).getAreas();
-            
-            // Save areas
-            for (int i = 0; i < areas.length; i++) {
-                areas[i].save(getActivity());
-            }
-            
-            String projection[] = {"area._id AS area_id", "area.name", "d1.high AS d1_high", "d1.wsym AS d1_wsym", "d2.high AS d2_high", "d2.wsym AS d2_wsym", "d3.high AS d3_high", "d3.wsym AS d3_wsym"};
-            Cursor cursor = getActivity().getContentResolver().query(
-                    AreasContract.CONTENT_URI,
-                    projection, null, null, null
-            );
-            Logger.log("Areas Result");
-            Logger.log(Integer.toString(cursor.getCount()));
-            while (cursor.moveToNext()) {
-                Logger.log(_formatAreaList(cursor));
-                Logger.log(cursor.getString(cursor.getColumnIndex("area_id")));
-            }
-            
-            Logger.log("Daily rows:");
-            Cursor c2 = getActivity().getContentResolver().query(DailyContract.CONTENT_URI, null, null, null, null);
-            while (c2.moveToNext()) {
-                Logger.log(c2.getString(c2.getColumnIndex(DailyContract.Columns.ID)));
-                Logger.log(c2.getString(c2.getColumnIndex(DailyContract.Columns.DATE)));
-                Logger.log(c2.getString(c2.getColumnIndex(DailyContract.Columns.AREA_ID)));
-            }
-            
+            Log.i(TAG, Integer.toString(areas.length));
+
             AreaAdapter adapter = new AreaAdapter(mContext, R.id.list_item_text_view, areas);
             setListAdapter(adapter);
-            
-            View tv = (View) view.findViewById(R.id.emptyView);
-            
-            if (areas.length > 0) {
-                tv.setVisibility(View.GONE);
-            } else {
-                tv.setVisibility(View.VISIBLE);
-            }
             
         } catch (JsonParseException e) {
             Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
@@ -516,6 +484,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         else {
             Toast.makeText(this.getActivity(), "Failed to load data. Check your internet settings.", Toast.LENGTH_SHORT).show();
         }
+        
     }
     
     /**

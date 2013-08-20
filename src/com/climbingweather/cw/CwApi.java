@@ -42,21 +42,6 @@ public class CwApi {
     private static final String TAG = CwApi.class.getName();
     
     /**
-     * Loader for NEARBY areas
-     */
-    private static final int LOADER_AREA_NEARBY = 1;
-    
-    /**
-     * Loader for FAVORITE areas
-     */
-    private static final int LOADER_AREA_FAVORITE = 2;
-    
-    /**
-     * Loader for SEARCH areas
-     */
-    private static final int LOADER_AREA_SEARCH = 3;
-    
-    /**
      * Constructor
      * @param context
      */
@@ -199,7 +184,7 @@ public class CwApi {
         String url = "/area/list/" + Double.toString(latitude) + "," + Double.toString(longitude);
         Bundle params = new Bundle();
         params.putString("days", "3");
-        initLoader(callback, url, params, LOADER_AREA_NEARBY, forceReload);
+        initLoader(callback, url, params, CwApiLoader.LOADER_AREA_NEARBY, forceReload);
     }
     
     /**
@@ -228,7 +213,7 @@ public class CwApi {
             String url = "/area/list/ids-" + idStr;
             Bundle params = new Bundle();
             params.putString("days", "3");
-            initLoader(callback, url, params, LOADER_AREA_FAVORITE, forceReload);
+            initLoader(callback, url, params, CwApiLoader.LOADER_AREA_FAVORITE, forceReload);
         }
     }
     
@@ -245,7 +230,7 @@ public class CwApi {
             String url = "/area/list/" + encodedSearch;
             Bundle params = new Bundle();
             params.putString("days", "3");
-            initLoader(callback, url, params, LOADER_AREA_SEARCH, true);
+            initLoader(callback, url, params, CwApiLoader.LOADER_AREA_SEARCH, true);
             Log.i("CW", url);
         } catch (UnsupportedEncodingException e) {
             Toast.makeText(mContext, "An error occurred while performing search", Toast.LENGTH_SHORT).show();

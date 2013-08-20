@@ -1,6 +1,10 @@
 package com.climbingweather.cw;
 
+import com.climbingweather.cw.RESTClient.HTTPMethod;
+
 import android.content.Context;
+import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
@@ -8,6 +12,14 @@ import android.util.Log;
  * Async Loader for ClimbingWeather.com API
  */
 public class CwApiLoader extends AsyncTaskLoader<CwApiLoaderResult> {
+    
+    private HTTPMethod mMethod;
+    
+    private Context mContext;
+    
+    private Uri mAction;
+    
+    private Bundle mParams;
     
     /**
      * Class for logging
@@ -19,6 +31,15 @@ public class CwApiLoader extends AsyncTaskLoader<CwApiLoaderResult> {
         super(context);
     }
     
+    public CwApiLoader(Context context, HTTPMethod method, Uri action, Bundle params) {
+        super(context);
+        
+        mMethod = method;
+        mAction = action;
+        mParams = params;
+        mContext = context;
+    }
+    
     @Override
     public CwApiLoaderResult loadInBackground() {
         
@@ -27,10 +48,10 @@ public class CwApiLoader extends AsyncTaskLoader<CwApiLoaderResult> {
         // If not fresh, reload using REST client TODO
         Log.i(TAG, "loadInBackground()");
         
-        //RESTClient client = new RESTClient(HTTPMethod.valueOf(mVerb.toString()), mAction, mParams);
-        //return client.sendRequest();
+        RESTClient client = new RESTClient(HTTPMethod.valueOf(mMethod.toString()), mAction, mParams);
+        RESTClientResponse response = client.sendRequest();
         
-        return new CwApiLoaderResult(); // TODO
+        return new CwApiLoaderResult(response); // TODO
     }
     
     @Override
@@ -60,6 +81,7 @@ public class CwApiLoader extends AsyncTaskLoader<CwApiLoaderResult> {
         Log.i(TAG, "Update last load");
         mLastLoad = System.currentTimeMillis();
         */
+        forceLoad();
     }
     
     @Override

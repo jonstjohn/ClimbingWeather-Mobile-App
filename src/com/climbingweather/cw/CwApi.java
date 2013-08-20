@@ -1,16 +1,22 @@
 package com.climbingweather.cw;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Handle ClimbingWeather.com api requests
@@ -34,6 +40,21 @@ public class CwApi {
     private static final String ARGS_PARAMS = "com.climbingweather.cw.ARGS_PARAMS";
     
     private static final String TAG = CwApi.class.getName();
+    
+    /**
+     * Loader for NEARBY areas
+     */
+    private static final int LOADER_AREA_NEARBY = 1;
+    
+    /**
+     * Loader for FAVORITE areas
+     */
+    private static final int LOADER_AREA_FAVORITE = 2;
+    
+    /**
+     * Loader for SEARCH areas
+     */
+    private static final int LOADER_AREA_SEARCH = 3;
     
     /**
      * Constructor
@@ -119,7 +140,7 @@ public class CwApi {
     }
     
     ///  LoaderCallbacks<D> callback
-    public void initLoader(AreaListFragment areaListFragment, String url, Bundle params, int loaderId, boolean forceReload)
+    public void initLoader(LoaderCallbacks<CwApiLoaderResult> callback, String url, Bundle params, int loaderId, boolean forceReload)
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         
@@ -154,18 +175,81 @@ public class CwApi {
         if (cache.isEnabled() && cache.isFresh(cacheFileName) && !forceReload) {
             
             Log.i(TAG, "Using cached file " + cacheFileName);
-            ((SherlockFragmentActivity) mContext).getSupportLoaderManager().initLoader(loaderId, args, areaListFragment);
+            ((SherlockFragmentActivity) mContext).getSupportLoaderManager().initLoader(loaderId, args, callback);
             
         } else {
         
             Log.i(TAG, "Cache not fresh, reloading");
-            ((SherlockFragmentActivity) mContext).getSupportLoaderManager().restartLoader(loaderId, args, areaListFragment);
+            ((SherlockFragmentActivity) mContext).getSupportLoaderManager().restartLoader(loaderId, args, callback);
             cache.write(cacheFileName, "1");
             
         }
         
     }
     
-
+    /**
+     * Load nearby areas
+     * @param callback
+     * @param latitude
+     * @param longitude
+     * @param forceReload
+     */
+    public void loadNearbyAreas(LoaderCallbacks<CwApiLoaderResult> callback, Double latitude, Double longitude, boolean forceReload)
+    {
+        String url = "/area/list/" + Double.toString(latitude) + "," + Double.toString(longitude);
+        Bundle params = new Bundle();
+        params.putString("days", "3");
+        initLoader(callback, url, params, LOADER_AREA_NEARBY, forceReload);
+    }
+    
+    /**
+     * Load favorite areas
+     * @param callback
+     * @param forceReload
+     */
+    public void loadFavoriteAreas(LoaderCallbacks<CwApiLoaderResult> callback, boolean forceReload)
+    {
+        
+        // Get ids from content provider
+        ArrayList<String> ids = new ArrayList<String>();
+        Cursor cursor = mContext.getContentResolver().query(
+                FavoritesContract.CONTENT_URI, null, null, null, FavoritesContract.Columns.NAME + " ASC");
+        while (cursor.moveToNext()) {
+            ids.add(cursor.getString(cursor.getColumnIndex(FavoritesContract.Columns.AREA_ID)));
+        }
+        
+        // Loop over favorite area ids to build URL
+        if (ids.size() > 0) {
+            String idStr = "";
+            for (int i = 0; i < ids.size() - 1; i++) {
+                idStr += ids.get(i) + ",";
+            }
+            idStr += ids.get(ids.size() - 1);
+            String url = "/area/list/ids-" + idStr;
+            Bundle params = new Bundle();
+            params.putString("days", "3");
+            initLoader(callback, url, params, LOADER_AREA_FAVORITE, forceReload);
+        }
+    }
+    
+    /**
+     * Load search areas
+     * @param callback
+     * @param search
+     * @param forceReload
+     */
+    public void loadSearchAreas(LoaderCallbacks<CwApiLoaderResult> callback, String search, boolean forceReload)
+    {
+        try {
+            String encodedSearch = URLEncoder.encode(search, "UTF-8");
+            String url = "/area/list/" + encodedSearch;
+            Bundle params = new Bundle();
+            params.putString("days", "3");
+            initLoader(callback, url, params, LOADER_AREA_SEARCH, true);
+            Log.i("CW", url);
+        } catch (UnsupportedEncodingException e) {
+            Toast.makeText(mContext, "An error occurred while performing search", Toast.LENGTH_SHORT).show();
+        }
+    }
 
 }

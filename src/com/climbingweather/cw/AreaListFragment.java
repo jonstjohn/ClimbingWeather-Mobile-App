@@ -35,7 +35,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class AreaListFragment extends SherlockListFragment implements LoaderCallbacks<RESTClientResponse>, DataFragmentInterface {
+public class AreaListFragment extends SherlockListFragment implements LoaderCallbacks<CwApiLoaderResult>, DataFragmentInterface {
 
     /**
      * Location manager for location updates
@@ -101,21 +101,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
      * Tag for logging
      */
     private static final String TAG = AreaListFragment.class.getName();
-    
-    /**
-     * Loader for NEARBY areas
-     */
-    private static final int LOADER_AREA_NEARBY = 1;
-    
-    /**
-     * Loader for FAVORITE areas
-     */
-    private static final int LOADER_AREA_FAVORITE = 2;
-    
-    /**
-     * Loader for SEARCH areas
-     */
-    private static final int LOADER_AREA_SEARCH = 3;
     
     private static final String ARGS_URI    = "com.climbingweather.cw.ARGS_URI";
     private static final String ARGS_PARAMS = "com.climbingweather.cw.ARGS_PARAMS";
@@ -289,54 +274,19 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
      */
     private void loadAreas(boolean forceReload)
     {
-        String url = "";
-        
         CwApi api = new CwApi(getActivity(), "2.0");
-        Bundle params = new Bundle();
-        params.putString("days", "3");
-        
         switch (typeId) {
             // NEARBY using latitude and longitude
             case TYPE_NEARBY:
-                url = "/area/list/" + Double.toString(latitude) + "," + Double.toString(longitude);
-                api.initLoader(this, url, params, LOADER_AREA_NEARBY, forceReload);
+                api.loadNearbyAreas(this, latitude, longitude, forceReload);
                 break;
             // FAVORITE using db adapter to fetch stored favorites
             case TYPE_FAVORITE:
-                
-                // Get ids from content provider
-                ArrayList<String> ids = new ArrayList<String>();
-                Cursor cursor = getActivity().getContentResolver().query(
-                        FavoritesContract.CONTENT_URI, null, null, null, FavoritesContract.Columns.NAME + " ASC");
-                while (cursor.moveToNext()) {
-                    ids.add(cursor.getString(cursor.getColumnIndex(FavoritesContract.Columns.AREA_ID)));
-                }
-                
-                // Loop over favorite area ids to build URL
-                if (ids.size() > 0) {
-                    String idStr = "";
-                    for (int i = 0; i < ids.size() - 1; i++) {
-                        idStr += ids.get(i) + ",";
-                    }
-                    idStr += ids.get(ids.size() - 1);
-                    url = "/area/list/ids-" + idStr; // + "?days=3";
-                    api.initLoader(this, url, params, LOADER_AREA_FAVORITE, forceReload);
-                // If no favorites, show empty view
-                } else {
-                    View tv = (View) view.findViewById(R.id.emptyView);
-                    tv.setVisibility(View.VISIBLE);
-                }
+                api.loadFavoriteAreas(this, forceReload);
                 break;
             // SEARCH build URL using search string
             case TYPE_SEARCH:
-                try {
-                    String encodedSearch = URLEncoder.encode(search, "UTF-8");
-                    url = "/area/list/" + encodedSearch;
-                    api.initLoader(this, url, params, LOADER_AREA_SEARCH, true);
-                    Log.i("CW", url);
-                } catch (UnsupportedEncodingException e) {
-                    Toast.makeText(mContext, "An error occurred while performing search", Toast.LENGTH_SHORT).show();
-                }
+                api.loadSearchAreas(this, search, forceReload);
                 break;
         }
 
@@ -400,6 +350,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     public void processJson(String result) {
     
         try {
+            Log.i(TAG, "processJson");
             Log.i(TAG, result);
             
             // Convert JSON into areas using GSON
@@ -530,12 +481,14 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     /**
      * Callback for loader
      */
-    public Loader<RESTClientResponse> onCreateLoader(int id, Bundle args) {
+    public Loader<CwApiLoaderResult> onCreateLoader(int id, Bundle args) {
         if (args != null && args.containsKey(ARGS_URI) && args.containsKey(ARGS_PARAMS)) {
-            Uri    action = args.getParcelable(ARGS_URI);
+            Log.i(TAG, "onCreateLoader()");
+            Uri uri = args.getParcelable(ARGS_URI);
             Bundle params = args.getParcelable(ARGS_PARAMS);
             getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE);
-            return new RESTLoader(this.getActivity(), RESTLoader.HTTPVerb.GET, action, params);
+            //return new RESTLoader(this.getActivity(), RESTLoader.HTTPVerb.GET, action, params);
+            return new CwApiLoader(this.getActivity(), RESTClient.HTTPMethod.GET, uri, params);
         }
         
         return null;
@@ -544,15 +497,19 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     /**
      * Callback for loader
      */
-    public void onLoadFinished(Loader<RESTClientResponse> loader, RESTClientResponse data) {
-        int    code = data.getCode();
-        String json = data.getData();
+    public void onLoadFinished(Loader<CwApiLoaderResult> loader, CwApiLoaderResult data) {
+        
+        Log.i(TAG, "onLoadFinished()");
+        RESTClientResponse response = data.getResponse();
+        int    code = response.getCode();
+        String json = response.getData();
         
         getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
         
         // Check to see if we got an HTTP 200 code and have some data.
         if (code == 200 && !json.equals("")) {
             Log.i(TAG, "onLoadFinished() using new loader");
+            Log.i(TAG, json);
             AreaListFragment.this.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
             processJson(json);
         }
@@ -564,7 +521,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     /**
      * Callback for loader
      */
-    public void onLoaderReset(Loader<RESTClientResponse> loader) {
+    public void onLoaderReset(Loader<CwApiLoaderResult> loader) {
     }
     
     /**

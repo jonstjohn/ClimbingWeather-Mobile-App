@@ -13,7 +13,7 @@ import android.util.Log;
 public class CwDbHelper extends SQLiteOpenHelper {
     
     private static final String DATABASE_NAME = "cw";
-    private static final int DATABASE_VERSION = 6; 
+    private static final int DATABASE_VERSION = 7; 
     
     public interface Tables {
         public static final String FAVORITES = "favorite";
@@ -133,9 +133,11 @@ public class CwDbHelper extends SQLiteOpenHelper {
                 "daily_updated INTEGER," +
                 "averages_updated INTEGER," +
                 "detail_updated INTEGER," +
-                "list_updated INTEGER)");
+                "list_updated INTEGER," +
+                "nearby INTEGER)");
         db.execSQL("CREATE INDEX area_listUpdatedIndex ON area(list_updated)");
         db.execSQL("CREATE INDEX area_detailUpdatedIndex ON area(detail_updated)");
+        db.execSQL("CREATE INDEX area_nearbyIndex ON area(nearby)");
     }
     
     /**

@@ -162,6 +162,10 @@ public class CwApiLoader extends AsyncTaskLoader<CwApiLoaderResult> {
             
             // Save areas
             for (int i = 0; i < areas.length; i++) {
+                Log.i(TAG, "Loader id: " + Integer.toString(getId()));
+                if (getId() == LOADER_AREA_NEARBY) {
+                    areas[i].setNearby(i);
+                }
                 areas[i].save(mContext);
             }
             

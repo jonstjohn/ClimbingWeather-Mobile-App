@@ -101,6 +101,11 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     private View view;
     
     /**
+     * Cursor
+     */
+    private Cursor mCursor;
+    
+    /**
      * Tag for logging
      */
     private static final String TAG = AreaListFragment.class.getName();
@@ -212,10 +217,12 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        String projection[] = {"area._id", "area._id AS area_id", "area.state_code", "area.name", "d1.high AS d1_high",
-                "d1.wsym AS d1_wsym", "d2.high AS d2_high", "d2.wsym AS d2_wsym", "d3.high AS d3_high", "d3.wsym AS d3_wsym"};
-        Cursor cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, projection, null, null, null);
-        AreaCursorAdapter adapter = new AreaCursorAdapter(mContext, cursor, 0);
+        if (typeId == TYPE_NEARBY) {
+            mCursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "nearby IS NOT NULL", null, "nearby ASC");
+        } else{
+            mCursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, null, null, null);
+        }
+        AreaCursorAdapter adapter = new AreaCursorAdapter(mContext, mCursor, 0);
         setListAdapter(adapter);
     }
     

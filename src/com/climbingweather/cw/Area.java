@@ -39,6 +39,9 @@ public class Area
     // url
     private String url;
     
+    // Nearby index
+    private String nearby;
+    
     // Forecast days
     private ForecastDay[] f;
     
@@ -185,6 +188,11 @@ public class Area
             values.put(AreasContract.Columns.STATE_CODE, state);
         }
         
+        if (nearby != null) {
+            Logger.log("Nearby: " + nearby);
+            values.put(AreasContract.Columns.NEARBY, nearby);
+        }
+        
         // Update timestamps
         Long timestamp = System.currentTimeMillis()/1000;
         values.put(AreasContract.Columns.LIST_UPDATED, timestamp);
@@ -242,5 +250,10 @@ public class Area
             }
         }
         return false;
+    }
+    
+    public void setNearby(int nearbyIndex)
+    {
+        nearby = Integer.toString(nearbyIndex);
     }
 }

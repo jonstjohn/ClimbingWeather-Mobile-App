@@ -47,7 +47,7 @@
             android:layout_weight="0.30">
             
             <TextView
-                android:drawableTop="@drawable/mist"
+                android:drawableTop="@drawable/dunno"
                 android:contentDescription="@string/loading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
 
                                 
             <TextView
-                android:drawableTop="@drawable/mist"
+                android:drawableTop="@drawable/dunno"
                 android:contentDescription="@string/loading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
                 android:textSize="12sp" />
             
             <TextView
-                android:drawableTop="@drawable/mist"
+                android:drawableTop="@drawable/dunno"
                 android:contentDescription="@string/loading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -96,7 +96,7 @@
     
      
     <ImageView
-        android:src="@drawable/mist"
+        android:src="@drawable/dunno"
         android:contentDescription="@string/loading"
         android:layout_width="20dp"
         android:layout_height="wrap_content"

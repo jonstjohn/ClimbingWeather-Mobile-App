@@ -1,6 +1,5 @@
 package com.climbingweather.cw;
 
-import com.climbingweather.cw.AreaListFragment.AreaAdapter;
 import com.climbingweather.cw.RESTClient.HTTPMethod;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;

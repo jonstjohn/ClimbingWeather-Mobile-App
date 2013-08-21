@@ -26,6 +26,12 @@ public final class AreasContract {
         public static final String DAILY_UPDATED = "daily_updated";
         public static final String HOURLY_UPDATED = "hourly_updated";
         public static final String AVERAGES_UPDATED = "averages_updated";
+        public static final String DAY1_HIGH = "d1_high";
+        public static final String DAY1_SYMBOL = "d1_wsym";
+        public static final String DAY2_HIGH = "d2_high";
+        public static final String DAY2_SYMBOL = "d2_wsym";
+        public static final String DAY3_HIGH = "d3_high";
+        public static final String DAY3_SYMBOL = "d3_wsym";
     }
 
 }

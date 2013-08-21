@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -29,6 +30,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -206,6 +209,16 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         return view;
     }
     
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        String projection[] = {"area._id", "area._id AS area_id", "area.state_code", "area.name", "d1.high AS d1_high",
+                "d1.wsym AS d1_wsym", "d2.high AS d2_high", "d2.wsym AS d2_wsym", "d3.high AS d3_high", "d3.wsym AS d3_wsym"};
+        Cursor cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, projection, null, null, null);
+        AreaCursorAdapter adapter = new AreaCursorAdapter(mContext, cursor, 0);
+        setListAdapter(adapter);
+    }
+    
     /**
      * On fragment start
      */
@@ -358,8 +371,8 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             areas = gson.fromJson(result, CwApiAreaListResponse.class).getAreas();
             Log.i(TAG, Integer.toString(areas.length));
 
-            AreaAdapter adapter = new AreaAdapter(mContext, R.id.list_item_text_view, areas);
-            setListAdapter(adapter);
+            //AreaAdapter adapter = new AreaAdapter(mContext, R.id.list_item_text_view, areas);
+            //setListAdapter(adapter);
             
         } catch (JsonParseException e) {
             Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
@@ -409,6 +422,68 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         {
             return ((Area) getItem(position)).getListRowView(convertView, parent, getContext());
         }
+    }
+    
+    public class AreaCursorAdapter extends CursorAdapter
+    {
+
+        public AreaCursorAdapter(Context context, Cursor c, int flags) {
+            super(context, c, flags);
+        }
+
+        @Override
+        public void bindView(View view, Context context, Cursor cursor) {
+            String cols[] = cursor.getColumnNames();
+            for (int i = 0; i < cols.length; i++) {
+                Log.i(TAG, cols[i]);
+            }
+            TextView nameTextView = (TextView) view.findViewById(R.id.name);
+            LinearLayout areaLinearLayout = (LinearLayout) view.findViewById(R.id.area);
+            ImageView loadingImageView = (ImageView) view.findViewById(R.id.loading);
+            TextView stateTextView = (TextView) view.findViewById(R.id.state);
+            TextView day1TextView = (TextView) view.findViewById(R.id.d1);
+            TextView day2TextView = (TextView) view.findViewById(R.id.d2);
+            TextView day3TextView = (TextView) view.findViewById(R.id.d3);
+        
+            nameTextView.setText(cursor.getString(cursor.getColumnIndex(AreasContract.Columns.NAME)));
+            stateTextView.setText(CwApplication.getStateNameFromCode(cursor.getString(cursor.getColumnIndex(AreasContract.Columns.STATE_CODE))));
+            
+            String d1Sym = cursor.getString(cursor.getColumnIndex(AreasContract.Columns.DAY1_SYMBOL));
+            if (d1Sym != null) {
+                String symbol1 = d1Sym.replace(".png", "");
+                day1TextView.setCompoundDrawablesWithIntrinsicBounds(0, context.getResources().getIdentifier(symbol1, "drawable", "com.climbingweather.cw"), 0, 0);
+            }
+            String high1 = cursor.getString(cursor.getColumnIndex(AreasContract.Columns.DAY1_HIGH));
+            day1TextView.setText(high1 == null ? "--" : high1 + (char) 0x00B0);
+            
+            String d2Sym = cursor.getString(cursor.getColumnIndex(AreasContract.Columns.DAY2_SYMBOL));
+            if (d2Sym != null) {
+                String symbol2 = d2Sym.replace(".png", "");
+                day2TextView.setCompoundDrawablesWithIntrinsicBounds(0, context.getResources().getIdentifier(symbol2, "drawable", "com.climbingweather.cw"), 0, 0);
+            }
+            String high2 = cursor.getString(cursor.getColumnIndex(AreasContract.Columns.DAY2_HIGH));
+            day2TextView.setText(high2 == null ? "--" : high2 + (char) 0x00B0);
+            
+            String d3Sym = cursor.getString(cursor.getColumnIndex(AreasContract.Columns.DAY3_SYMBOL));
+            if (d3Sym != null) {
+                String symbol3 = d3Sym.replace(".png", "");
+                day3TextView.setCompoundDrawablesWithIntrinsicBounds(0, context.getResources().getIdentifier(symbol3, "drawable", "com.climbingweather.cw"), 0, 0);
+            }
+            
+            String high3 = cursor.getString(cursor.getColumnIndex(AreasContract.Columns.DAY3_HIGH));
+            day3TextView.setText(high3 == null ? "--" : high3 + (char) 0x00B0);
+            
+            areaLinearLayout.setVisibility(View.VISIBLE);
+            loadingImageView.setVisibility(View.INVISIBLE);
+        }
+
+        @Override
+        public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
+            LayoutInflater inflater = LayoutInflater.from(context);
+            View view = inflater.inflate(R.layout.list_item_area, null, false);
+            return view;
+        }
+
     }
     
     /**

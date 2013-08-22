@@ -219,8 +219,13 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         super.onActivityCreated(savedInstanceState);
         if (typeId == TYPE_NEARBY) {
             mCursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "nearby IS NOT NULL", null, "nearby ASC");
-        } else{
+            mCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
+        } else if (typeId == TYPE_FAVORITE) {
+            mCursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "favorite.area_id IS NOT NULL", null, "area.name ASC");
+            mCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
+        } else {
             mCursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, null, null, null);
+            mCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
         }
         AreaCursorAdapter adapter = new AreaCursorAdapter(mContext, mCursor, 0);
         setListAdapter(adapter);

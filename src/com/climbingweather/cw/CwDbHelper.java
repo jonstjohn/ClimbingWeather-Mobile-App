@@ -13,7 +13,7 @@ import android.util.Log;
 public class CwDbHelper extends SQLiteOpenHelper {
     
     private static final String DATABASE_NAME = "cw";
-    private static final int DATABASE_VERSION = 7; 
+    private static final int DATABASE_VERSION = 9; 
     
     public interface Tables {
         public static final String FAVORITES = "favorite";

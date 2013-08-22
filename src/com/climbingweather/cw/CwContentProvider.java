@@ -108,7 +108,7 @@ public class CwContentProvider extends ContentProvider
         case ALL_AREAS:
             long areaId = db.replace(CwDbHelper.Tables.AREAS, null, values);
             _uri = Uri.parse(AreasContract.CONTENT_URI + "/" + areaId);
-            getContext().getContentResolver().notifyChange(_uri, null);
+            getContext().getContentResolver().notifyChange(AreasContract.CONTENT_URI, null);
             break;
         case SINGLE_AREA:
             break;
@@ -161,7 +161,8 @@ public class CwContentProvider extends ContentProvider
             queryBuilder.setTables("area"
                     + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now')) AS d1 ON area._id = d1.area_id"
                     + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now', '+1 day')) AS d2 ON area._id = d2.area_id"
-                    + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now', '+2 day')) AS d3 ON area._id = d3.area_id");
+                    + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now', '+2 day')) AS d3 ON area._id = d3.area_id"
+                    + " LEFT JOIN favorite ON area._id = favorite.area_id");
             if (projection == null) {
                 projection = AreasContract.PROJECTION_DEFAULT;
             }

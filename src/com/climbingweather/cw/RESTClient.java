@@ -58,14 +58,28 @@ public class RESTClient {
      */
     private Uri mUri;
     
+    /**
+     * Parameters
+     */
     private Bundle mParams;
     
+    /**
+     * Constructor
+     * @param method
+     * @param uri
+     */
     public RESTClient(HTTPMethod method, Uri uri) {
         
         mMethod   = method;
         mUri = uri;
     }
     
+    /**
+     * Constructor
+     * @param method
+     * @param uri
+     * @param params
+     */
     public RESTClient(HTTPMethod method, Uri uri, Bundle params) {
         mMethod   = method;
         mUri = uri;
@@ -79,9 +93,8 @@ public class RESTClient {
     public RESTClientResponse sendRequest() {
         
         try {
-            // At the very least we always need an action.
             if (mUri == null) {
-                Log.e(TAG, "You did not define an action. REST call canceled.");
+                Log.e(TAG, "You did not define a URI. REST call canceled.");
                 return new RESTClientResponse();
             }
             
@@ -143,7 +156,7 @@ public class RESTClient {
                 StatusLine responseStatus = response.getStatusLine();
                 int statusCode = responseStatus != null ? responseStatus.getStatusCode() : 0;
                 
-                // Create repsonse and return
+                // Create response and return
                 mRestResponse = new RESTClientResponse(
                         responseEntity != null
                                 ? EntityUtils.toString(responseEntity)
@@ -154,20 +167,16 @@ public class RESTClient {
             
             // Request was null if we get here, so let's just send our empty RESTResponse like usual.
             return new RESTClientResponse();
-        }
-        catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             Log.e(TAG, "URI syntax was incorrect. "+ methodToString(mMethod) +": "+ mUri.toString(), e);
             return new RESTClientResponse();
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "A UrlEncodedFormEntity was created with an unsupported encoding.", e);
             return new RESTClientResponse();
-        }
-        catch (ClientProtocolException e) {
+        } catch (ClientProtocolException e) {
             Log.e(TAG, "There was a problem when sending the request.", e);
             return new RESTClientResponse();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Log.e(TAG, "There was a problem when sending the request.", e);
             return new RESTClientResponse();
         }
@@ -197,12 +206,16 @@ public class RESTClient {
                 uri = uriBuilder.build();
                 request.setURI(new URI(uri.toString()));
             }
-        }
-        catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             Log.e(TAG, "URI syntax was incorrect: "+ uri.toString());
         }
     }
     
+    /**
+     * Convert params to list
+     * @param params
+     * @return
+     */
     private static List<BasicNameValuePair> paramsToList(Bundle params) {
         ArrayList<BasicNameValuePair> formList = new ArrayList<BasicNameValuePair>(params.size());
         
@@ -218,6 +231,11 @@ public class RESTClient {
         return formList;
     }
     
+    /**
+     * Convert method to string
+     * @param method
+     * @return
+     */
     private static String methodToString(HTTPMethod method) {
         switch (method) {
             case GET:

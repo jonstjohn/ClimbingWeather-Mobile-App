@@ -1,9 +1,5 @@
 package com.climbingweather.cw;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -588,17 +584,4 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         loadAreas(true);
     }
     
-    private String _formatAreaList(Cursor cursor)
-    {
-        String str = cursor.getString(cursor.getColumnIndex("name"));
-        str += " " + cursor.getString(cursor.getColumnIndex("d1_high"));
-        str += " " + cursor.getString(cursor.getColumnIndex("d1_wsym"));
-        str += " " + cursor.getString(cursor.getColumnIndex("d2_high"));
-        str += " " + cursor.getString(cursor.getColumnIndex("d2_wsym"));
-        str += " " + cursor.getString(cursor.getColumnIndex("d3_high"));
-        str += " " + cursor.getString(cursor.getColumnIndex("d3_wsym"));
-        
-        return str;
-        
-    }
 }

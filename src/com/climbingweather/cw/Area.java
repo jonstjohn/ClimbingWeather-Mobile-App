@@ -1,8 +1,5 @@
 package com.climbingweather.cw;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;

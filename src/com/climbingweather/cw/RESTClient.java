@@ -31,7 +31,7 @@ public class RESTClient {
     /**
      * Class for logging
      */
-    private static final String TAG = RESTLoader.class.getName();
+    private static final String TAG = RESTClient.class.getName();
     
     /**
      * Response

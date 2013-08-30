@@ -1,8 +1,6 @@
 package com.climbingweather.cw;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +22,6 @@ import android.view.ViewGroup;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -49,7 +46,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     /**
      * Areas
      */
-    private Area[] areas;
+    //private Area[] areas;
     
     /**
      * Context
@@ -100,6 +97,8 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
      * Cursor
      */
     private Cursor mCursor;
+    
+    private AreaCursorAdapter mAdapter;
     
     /**
      * Tag for logging
@@ -223,8 +222,30 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             mCursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, null, null, null);
             mCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
         }
-        AreaCursorAdapter adapter = new AreaCursorAdapter(mContext, mCursor, 0);
-        setListAdapter(adapter);
+        mAdapter = new AreaCursorAdapter(mContext, mCursor, 0);
+        setListAdapter(mAdapter);
+        
+        ListView lv = getListView();
+        lv.setTextFilterEnabled(true);
+        
+        // Set click listener for areas
+        lv.setOnItemClickListener(new OnItemClickListener() {
+            
+            /**
+             * On item click action, open area activity
+             */
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                
+                mCursor.moveToPosition(position);
+                String areaId = mCursor.getString(mCursor.getColumnIndex(AreasContract.Columns.AREA_ID));
+                String name = mCursor.getString(mCursor.getColumnIndex(AreasContract.Columns.NAME));
+                Intent i = new Intent(getActivity(), AreaFragmentActivity.class);
+                i.putExtra("areaId", areaId);
+                i.putExtra("name", name);
+                startActivity(i);
+            }
+            
+        });
     }
     
     /**
@@ -365,73 +386,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         }
     }
     
-    /**
-     * Load areas from JSON string result
-     */
-    public void processJson(String result) {
-    
-        try {
-            Log.i(TAG, "processJson");
-            Log.i(TAG, result);
-
-            // Convert JSON into areas using GSON
-            Gson gson = new Gson();
-            areas = gson.fromJson(result, CwApiAreaListResponse.class).getAreas();
-            Log.i(TAG, Integer.toString(areas.length));
-
-            //AreaAdapter adapter = new AreaAdapter(mContext, R.id.list_item_text_view, areas);
-            //setListAdapter(adapter);
-            
-        } catch (JsonParseException e) {
-            Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
-        }
-        
-        try {
-            ListView lv = getListView();
-            lv.setTextFilterEnabled(true);
-            
-            // Set click listener for areas
-            lv.setOnItemClickListener(new OnItemClickListener() {
-                
-                /**
-                 * On item click action, open area activity
-                 */
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    
-                    Area area = areas[position];
-                    Intent i = new Intent(getActivity(), AreaFragmentActivity.class);
-                    i.putExtra("areaId", Integer.valueOf(area.getId()).toString());
-                    i.putExtra("name", area.getName());
-                    startActivity(i);
-                }
-                
-            });
-        } catch (IllegalStateException e) {
-            Logger.log("Unable to getListView() in AreaListFragment processJson(), likely view destroyed during async");
-            return;
-        }
-      
-    }
-    
-    /**
-     * Area adapter for list
-     */
-    public class AreaAdapter extends ArrayAdapter<Area>
-    {
-        public AreaAdapter(Context context, int textViewResourceId,
-                Area[] objects) {
-            super(context, textViewResourceId, objects);
-        }
-
-        /**
-         * Get view
-         */
-        public View getView(int position, View convertView, ViewGroup parent)
-        {
-            return ((Area) getItem(position)).getListRowView(convertView, parent, getContext());
-        }
-    }
-    
     public class AreaCursorAdapter extends CursorAdapter
     {
 
@@ -441,10 +395,13 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
+            
+            /*
             String cols[] = cursor.getColumnNames();
             for (int i = 0; i < cols.length; i++) {
                 Log.i(TAG, cols[i]);
             }
+            */
             TextView nameTextView = (TextView) view.findViewById(R.id.name);
             LinearLayout areaLinearLayout = (LinearLayout) view.findViewById(R.id.area);
             ImageView loadingImageView = (ImageView) view.findViewById(R.id.loading);
@@ -552,7 +509,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         
         Log.i(TAG, "onLoadFinished()");
         RESTClientResponse response = data.getResponse();
-        int    code = response.getCode();
+        int code = response.getCode();
         String json = response.getData();
         
         getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
@@ -560,12 +517,9 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         // Check to see if we got an HTTP 200 code and have some data.
         if (code == 200 && !json.equals("")) {
             Log.i(TAG, "onLoadFinished() using new loader");
-            Log.i(TAG, json);
-            AreaListFragment.this.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
-            processJson(json);
         }
         else {
-            Toast.makeText(this.getActivity(), "Failed to load data. Check your internet settings.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.getActivity(), "Failed to load areas. Check your internet settings.", Toast.LENGTH_SHORT).show();
         }
         
     }

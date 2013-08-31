@@ -212,16 +212,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (typeId == TYPE_NEARBY) {
-            mCursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "nearby IS NOT NULL", null, "nearby ASC");
-            mCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
-        } else if (typeId == TYPE_FAVORITE) {
-            mCursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "favorite.area_id IS NOT NULL", null, "area.name ASC");
-            mCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
-        } else {
-            mCursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, null, null, null);
-            mCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
-        }
+        mCursor = getCursor();
         mAdapter = new AreaCursorAdapter(mContext, mCursor, 0);
         setListAdapter(mAdapter);
         
@@ -246,6 +237,27 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             }
             
         });
+    }
+    
+    /**
+     * Get cursor
+     * @return
+     */
+    private Cursor getCursor()
+    {
+        Cursor cursor;
+        if (typeId == TYPE_NEARBY) {
+            cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "nearby IS NOT NULL", null, "nearby ASC");
+            cursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
+        } else if (typeId == TYPE_FAVORITE) {
+            cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "favorite.area_id IS NOT NULL", null, "area.name ASC");
+            cursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
+        } else {
+            cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, null, null, null);
+            cursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
+        }
+        
+        return cursor;
     }
     
     /**
@@ -513,6 +525,12 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         String json = response.getData();
         
         getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
+        
+        mCursor = getCursor();
+        mAdapter.swapCursor(mCursor);
+        //mCursor.requery();
+        
+        mAdapter.notifyDataSetChanged();
         
         // Check to see if we got an HTTP 200 code and have some data.
         if (code == 200 && !json.equals("")) {

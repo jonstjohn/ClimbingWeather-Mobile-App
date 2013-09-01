@@ -166,9 +166,10 @@ public class CwApiLoader extends AsyncTaskLoader<CwApiLoaderResult> {
                 if (getId() == LOADER_AREA_NEARBY) {
                     areas[i].setNearby(i);
                 }
-                areas[i].save(mContext);
+                areas[i].save(mContext.getContentResolver());
             }
             
+            /*
             String projection[] = {"area._id AS area_id", "area.name", "d1.high AS d1_high",
                     "d1.wsym AS d1_wsym", "d2.high AS d2_high", "d2.wsym AS d2_wsym", "d3.high AS d3_high", "d3.wsym AS d3_wsym"};
             Cursor cursor = mContext.getContentResolver().query(
@@ -189,6 +190,7 @@ public class CwApiLoader extends AsyncTaskLoader<CwApiLoaderResult> {
                 Logger.log(c2.getString(c2.getColumnIndex(DailyContract.Columns.DATE)));
                 Logger.log(c2.getString(c2.getColumnIndex(DailyContract.Columns.AREA_ID)));
             }
+            */
             
         } catch (JsonParseException e) {
             Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();

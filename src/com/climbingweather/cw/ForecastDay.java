@@ -2,6 +2,7 @@ package com.climbingweather.cw;
 
 import java.util.ArrayList;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
@@ -183,7 +184,7 @@ public class ForecastDay {
         return hi;
     }
     
-    public Uri save(Context context, String areaId) {
+    public Uri save(ContentResolver contentResolver, String areaId) {
         
         ContentValues values = new ContentValues();
         values.put(DailyContract.Columns.AREA_ID, areaId);
@@ -199,7 +200,7 @@ public class ForecastDay {
         values.put(DailyContract.Columns.WEATHER_SYMBOL, sy);
         values.put(DailyContract.Columns.WIND_GUST, wg);
         values.put(DailyContract.Columns.WIND_SUSTAINED, ws);
-        Uri uri = context.getContentResolver().insert(
+        Uri uri = contentResolver.insert(
                 Uri.parse(DailyContract.CONTENT_URI.toString() + "/" + areaId), values);
         return uri;
     }

@@ -2,8 +2,10 @@ package com.climbingweather.cw;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
@@ -100,6 +102,8 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     
     private AreaCursorAdapter mAdapter;
     
+    private Intent mServiceIntent;
+    
     /**
      * Tag for logging
      */
@@ -107,7 +111,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     
     private static final String ARGS_URI    = "com.climbingweather.cw.ARGS_URI";
     private static final String ARGS_PARAMS = "com.climbingweather.cw.ARGS_PARAMS";
-
+    
     /**
      * Get instance
      * @return AreaListFragment
@@ -151,6 +155,8 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
       latitude = getArguments().getDouble("latitude");
       longitude = getArguments().getDouble("longitude");
       setRetainInstance(true);
+      
+      getActivity().registerReceiver(myReceiver, new IntentFilter("your.action"));
       
     }
     
@@ -315,7 +321,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     public void onResume()
     {
         super.onResume();
-        Log.i("CW", "AreaListFragment " + getScreenName() + " onResume()");
+        Log.i(TAG, "AreaListFragment " + getScreenName() + " onResume()");
         if (typeId == TYPE_NEARBY) {
             startLocation();
         }
@@ -343,6 +349,11 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                 api.loadSearchAreas(this, search, forceReload);
                 break;
         }
+        
+        mServiceIntent = new Intent(getActivity(), CwApiService.class);
+        mServiceIntent.setData(AreasContract.FAVORITES_URI);
+        
+        getActivity().startService(mServiceIntent);
 
     }
     
@@ -555,5 +566,12 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     {
         loadAreas(true);
     }
+    
+    private BroadcastReceiver myReceiver = new BroadcastReceiver() {        
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "Received intent in broadcast receiver");
+        }
+    };
     
 }

@@ -88,7 +88,7 @@ public class RESTClient {
 
     /**
      * Send request
-     * @return
+     * @return RESTClientResponse
      */
     public RESTClientResponse sendRequest() {
         

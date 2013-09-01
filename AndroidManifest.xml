@@ -91,7 +91,7 @@
         <meta-data android:name="android.appwidget.provider"
                    android:resource="@xml/cw_appwidget_info" />
         </receiver>
-        <service android:name=".CwApiService" />
+        <service android:name=".CwApiService" android:exported="false"/>
     
     </application>
 

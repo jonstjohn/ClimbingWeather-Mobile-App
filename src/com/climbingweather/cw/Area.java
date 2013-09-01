@@ -1,5 +1,6 @@
 package com.climbingweather.cw;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
@@ -164,7 +165,7 @@ public class Area
         return wsym;
     }
     
-    public Uri save(Context context)
+    public Uri save(ContentResolver contentResolver)
     {
         ContentValues values = new ContentValues();
         values.put(AreasContract.Columns.AREA_ID, id);
@@ -209,14 +210,14 @@ public class Area
             values.put(AreasContract.Columns.HOURLY_UPDATED, timestamp);
         }
         
-        Uri uri = context.getContentResolver().insert(
+        Uri uri = contentResolver.insert(
                 AreasContract.CONTENT_URI, values);
         
         String areaId = uri.getPathSegments().get(0);
         
         if (f != null) {
             for (int i = 0; i < f.length; i++) {
-                f[i].save(context, areaId);
+                f[i].save(contentResolver, areaId);
                 // TODO
                 //for (int j = 0; j < f[i].getHourCount(); j++) {
                 //    f[i].getHour(j).save(context, areaId);

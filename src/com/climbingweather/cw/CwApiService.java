@@ -39,7 +39,14 @@ public class CwApiService extends IntentService {
             if (uri.equals(AreasContract.FAVORITES_URI)) {
                 Log.i(TAG, intent.getDataString());
                 loadFavoriteAreas();
-                Intent i = new Intent("your.action");
+                Intent i = new Intent(AreaListFragment.INTENT_FILTER_FAVORITE);
+                sendBroadcast(i);
+            } else if (uri.equals(AreasContract.NEARBY_URI)) {
+                Log.i(TAG, intent.getDataString());
+                Double latitude = intent.getDoubleExtra("latitude", 0.0);
+                Double longitude = intent.getDoubleExtra("longitude", 0.0);
+                loadNearbyAreas(latitude, longitude);
+                Intent i = new Intent(AreaListFragment.INTENT_FILTER_NEARBY);
                 sendBroadcast(i);
             }
         }
@@ -47,8 +54,6 @@ public class CwApiService extends IntentService {
     
     /**
      * Load favorite areas
-     * @param callback
-     * @param forceReload
      */
     public void loadFavoriteAreas()
     {
@@ -93,12 +98,43 @@ public class CwApiService extends IntentService {
             
             RESTClient client = new RESTClient(HTTPMethod.valueOf("GET"), uri, mParams);
             RESTClientResponse response = client.sendRequest();
-            processResponse(response);
+            processResponse(response, false);
             //initLoader(callback, url, params, CwApiLoader.LOADER_AREA_FAVORITE, forceReload);
         }
     }
     
-    private void processResponse(RESTClientResponse response)
+    public void loadNearbyAreas(Double latitude, Double longitude) {
+        String url = "/area/list/" + Double.toString(latitude) + "," + Double.toString(longitude);
+        
+        Bundle params = new Bundle();
+        params.putString("days", "3");
+        
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        
+        Uri.Builder uriBuilder = new Uri.Builder()
+        .scheme("http")
+        .authority("api.climbingweather.com")
+        .path("/v2" + url)
+        .appendQueryParameter("apiKey", getApiKey())
+        .appendQueryParameter("tempUnit", prefs.getString("tempUnit", "f"))
+        .appendQueryParameter("version", "2.0");
+        
+        
+        for (String key : params.keySet()) {
+            uriBuilder.appendQueryParameter(key, params.getString(key));
+        }
+        
+        Uri uri = uriBuilder.build();
+        
+        Bundle mParams = new Bundle();
+        
+        RESTClient client = new RESTClient(HTTPMethod.valueOf("GET"), uri, mParams);
+        RESTClientResponse response = client.sendRequest();
+        processResponse(response, true);
+        
+    }
+    
+    private void processResponse(RESTClientResponse response, boolean isNearby)
     {
         int code = response.getCode();
         String json = response.getData();
@@ -106,12 +142,11 @@ public class CwApiService extends IntentService {
         // Check to see if we got an HTTP 200 code and have some data.
         if (code == 200 && !json.equals("")) {
             Log.i(TAG, "onLoadFinished() using service");
-            Log.i(TAG, json);
-            processJson(json);
+            processJson(json, isNearby);
         }
     }
     
-    private void processJson(String result)
+    private void processJson(String result, boolean isNearby)
     {
         try {
             Log.i(TAG, "processJson");
@@ -121,12 +156,14 @@ public class CwApiService extends IntentService {
             Gson gson = new Gson();
             Area[] areas = gson.fromJson(result, CwApiAreaListResponse.class).getAreas();
             
+            Log.i(TAG, Integer.toString(areas.length));
+            
             // Save areas
             for (int i = 0; i < areas.length; i++) {
                 //Log.i(TAG, "Loader id: " + Integer.toString(getId()));
-                //if (getId() == LOADER_AREA_NEARBY) {
-                //    areas[i].setNearby(i);
-                //}
+                if (isNearby) {
+                    areas[i].setNearby(i);
+                }
                 areas[i].save(getContentResolver());
             }
             
@@ -142,7 +179,7 @@ public class CwApiService extends IntentService {
                 Log.i(TAG, formatAreaList(cursor));
                 Log.i(TAG, cursor.getString(cursor.getColumnIndex("area_id")));
             }
-            
+             /*
             Log.i(TAG, "Daily rows:");
             Cursor c2 = getContentResolver().query(DailyContract.CONTENT_URI, null, null, null, null);
             while (c2.moveToNext()) {
@@ -150,6 +187,7 @@ public class CwApiService extends IntentService {
                 Log.i(TAG, c2.getString(c2.getColumnIndex(DailyContract.Columns.DATE)));
                 Log.i(TAG, c2.getString(c2.getColumnIndex(DailyContract.Columns.AREA_ID)));
             }
+            */
             
         } catch (JsonParseException e) {
             Log.i(TAG, "An error occurred while retrieving area data");

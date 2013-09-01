@@ -75,6 +75,10 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
      */
     public static final int TYPE_FAVORITE = 3;
     
+    public static final String INTENT_FILTER_NEARBY = "areas.nearby";
+    public static final String INTENT_FILTER_FAVORITE = "areas.favorite";
+    public static final String INTENT_FILTER_SEARCH = "areas.search";
+    
     /**
      * Latitude used for nearby
      */
@@ -155,8 +159,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
       latitude = getArguments().getDouble("latitude");
       longitude = getArguments().getDouble("longitude");
       setRetainInstance(true);
-      
-      getActivity().registerReceiver(myReceiver, new IntentFilter("your.action"));
       
     }
     
@@ -325,6 +327,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         if (typeId == TYPE_NEARBY) {
             startLocation();
         }
+        getActivity().registerReceiver(myReceiver, new IntentFilter(getIntentFilter()));
         loadAreas(false);
     }
     
@@ -334,15 +337,18 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
      */
     private void loadAreas(boolean forceReload)
     {
+        getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
         CwApi api = new CwApi(getActivity(), "2.0");
         switch (typeId) {
             // NEARBY using latitude and longitude
             case TYPE_NEARBY:
-                api.loadNearbyAreas(this, latitude, longitude, forceReload);
+                //api.loadNearbyAreas(this, latitude, longitude, forceReload);
+                CwApiServiceHelper.getInstance().startNearby(getActivity(), latitude, longitude);
                 break;
             // FAVORITE using db adapter to fetch stored favorites
             case TYPE_FAVORITE:
-                api.loadFavoriteAreas(this, forceReload);
+                //api.loadFavoriteAreas(this, forceReload);
+                CwApiServiceHelper.getInstance().startFavorites(getActivity());
                 break;
             // SEARCH build URL using search string
             case TYPE_SEARCH:
@@ -350,11 +356,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
                 break;
         }
         
-        mServiceIntent = new Intent(getActivity(), CwApiService.class);
-        mServiceIntent.setData(AreasContract.FAVORITES_URI);
-        
-        getActivity().startService(mServiceIntent);
-
     }
     
     /**
@@ -394,6 +395,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         if (typeId == TYPE_NEARBY) {
             removeLocationListener();
         }
+        getActivity().unregisterReceiver(myReceiver);
     }
     
     /**
@@ -571,7 +573,29 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "Received intent in broadcast receiver");
+            Log.i(TAG, intent.getAction());
+            getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
+            
+            mCursor = getCursor();
+            mAdapter.swapCursor(mCursor);
+            //mCursor.requery();
+            
+            mAdapter.notifyDataSetChanged();
         }
     };
+    
+    private String getIntentFilter() {
+        switch (typeId) {
+            case TYPE_FAVORITE:
+                return INTENT_FILTER_FAVORITE;
+            case TYPE_NEARBY:
+                return INTENT_FILTER_NEARBY;
+            case TYPE_SEARCH:
+                return INTENT_FILTER_SEARCH;
+        }
+        
+        return "UNKNOWN";
+            
+    }
     
 }

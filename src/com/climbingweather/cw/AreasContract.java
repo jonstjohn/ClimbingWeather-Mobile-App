@@ -16,6 +16,10 @@ public final class AreasContract {
     
     public static final Uri FAVORITES_URI = Uri.parse("content://" + AUTHORITY + "/favorites");
     
+    public static final Uri NEARBY_URI = Uri.parse("content://" + AUTHORITY + "/nearby");
+    
+    public static final Uri SEARCH_URI = Uri.parse("content://" + AUTHORITY + "/search");
+    
     public interface Columns {
         public static final String AREA_ID = "_id";
         public static final String NAME = "name";

@@ -3,6 +3,7 @@ package com.climbingweather.cw;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -49,6 +50,14 @@ public class MainActivity extends SherlockFragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         
         super.onCreate(savedInstanceState);
+        
+        // Delete all data for testing
+        CwDbHelper dbHelper = new CwDbHelper(this);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.delete(CwDbHelper.Tables.AREAS, null, null);
+        db.delete(CwDbHelper.Tables.FAVORITES, null, null);
+        db.delete(CwDbHelper.Tables.DAILY, null, null);
+        db.delete(CwDbHelper.Tables.STATES, null, null);
         
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         

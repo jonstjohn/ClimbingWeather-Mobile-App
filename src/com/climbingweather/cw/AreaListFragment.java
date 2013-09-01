@@ -342,16 +342,15 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         switch (typeId) {
             // NEARBY using latitude and longitude
             case TYPE_NEARBY:
-                //api.loadNearbyAreas(this, latitude, longitude, forceReload);
                 CwApiServiceHelper.getInstance().startNearby(getActivity(), latitude, longitude);
                 break;
             // FAVORITE using db adapter to fetch stored favorites
             case TYPE_FAVORITE:
-                //api.loadFavoriteAreas(this, forceReload);
                 CwApiServiceHelper.getInstance().startFavorites(getActivity());
                 break;
             // SEARCH build URL using search string
             case TYPE_SEARCH:
+                //CwApiServiceHelper.getInstance().startSearch(getActivity(), search);
                 api.loadSearchAreas(this, search, forceReload);
                 break;
         }

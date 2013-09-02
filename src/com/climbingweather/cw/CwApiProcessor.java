@@ -84,7 +84,7 @@ public class CwApiProcessor {
             
             RESTClient client = new RESTClient(HTTPMethod.valueOf("GET"), uri, mParams);
             RESTClientResponse response = client.sendRequest();
-            processResponse(response, false);
+            processAreasResponse(response, false);
         }
     }
     
@@ -96,10 +96,10 @@ public class CwApiProcessor {
         Bundle mParams = new Bundle();
         RESTClient client = new RESTClient(HTTPMethod.valueOf("GET"), uri, mParams);
         RESTClientResponse response = client.sendRequest();
-        processResponse(response, true);
+        processAreasResponse(response, true);
     }
     
-    private void processResponse(RESTClientResponse response, boolean isNearby)
+    private void processAreasResponse(RESTClientResponse response, boolean isNearby)
     {
         int code = response.getCode();
         String json = response.getData();
@@ -107,11 +107,11 @@ public class CwApiProcessor {
         // Check to see if we got an HTTP 200 code and have some data.
         if (code == 200 && !json.equals("")) {
             Log.i(TAG, "onLoadFinished() using service");
-            processJson(json, isNearby);
+            processAreasJson(json, isNearby);
         }
     }
     
-    private void processJson(String result, boolean isNearby)
+    private void processAreasJson(String result, boolean isNearby)
     {
         try {
             Log.i(TAG, "processJson");

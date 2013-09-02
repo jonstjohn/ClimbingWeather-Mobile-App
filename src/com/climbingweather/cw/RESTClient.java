@@ -1,14 +1,22 @@
 package com.climbingweather.cw;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
+import org.apache.http.Header;
+import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -18,8 +26,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import android.net.Uri;
@@ -145,24 +155,67 @@ public class RESTClient {
             }
             
             if (request != null) {
-                HttpClient client = new DefaultHttpClient();
+                DefaultHttpClient client = new DefaultHttpClient();
                 
-                Log.d(TAG, "Executing request: "+ methodToString(mMethod) +": "+ mUri.toString());
+                // Enable GZIP
+                try {
+                    client.addRequestInterceptor(new HttpRequestInterceptor() {
+
+                        public void process(
+                                final HttpRequest request,
+                                final HttpContext context) throws HttpException, IOException {
+                            if (!request.containsHeader("Accept-Encoding")) {
+                                request.addHeader("Accept-Encoding", "gzip");
+                            }
+                        }
+
+                    });
+
+                    client.addResponseInterceptor(new HttpResponseInterceptor() {
+
+                        public void process(
+                                final HttpResponse response,
+                                final HttpContext context) throws HttpException, IOException {
+                            HttpEntity entity = response.getEntity();
+                            if (entity != null) {
+                                Header ceheader = entity.getContentEncoding();
+                                if (ceheader != null) {
+                                    HeaderElement[] codecs = ceheader.getElements();
+                                    for (int i = 0; i < codecs.length; i++) {
+                                        if (codecs[i].getName().equalsIgnoreCase("gzip")) {
+                                            response.setEntity(
+                                                    new GzipDecompressingEntity(response.getEntity()));
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        
+
+                    });
+                    
+                    Log.d(TAG, "Executing request: "+ methodToString(mMethod) +": "+ mUri.toString());
+                    
+                    // Finally, we send our request using HTTP, synchronous.
+                    HttpResponse response = client.execute(request);
+                    
+                    HttpEntity responseEntity = response.getEntity();
+                    StatusLine responseStatus = response.getStatusLine();
+                    int statusCode = responseStatus != null ? responseStatus.getStatusCode() : 0;
+                    
+                    // Create response and return
+                    mRestResponse = new RESTClientResponse(
+                            responseEntity != null
+                                    ? EntityUtils.toString(responseEntity)
+                                    : null,
+                            statusCode);
+                    return mRestResponse;
+                } finally {
+                    Log.e(TAG, "An error occurred while processing REST request.");
+                }
                 
-                // Finally, we send our request using HTTP, synchronous.
-                HttpResponse response = client.execute(request);
-                
-                HttpEntity responseEntity = response.getEntity();
-                StatusLine responseStatus = response.getStatusLine();
-                int statusCode = responseStatus != null ? responseStatus.getStatusCode() : 0;
-                
-                // Create response and return
-                mRestResponse = new RESTClientResponse(
-                        responseEntity != null
-                                ? EntityUtils.toString(responseEntity)
-                                : null,
-                        statusCode);
-                return mRestResponse;
             }
             
             // Request was null if we get here, so let's just send our empty RESTResponse like usual.
@@ -253,4 +306,23 @@ public class RESTClient {
         
         return "";
     }
+    
+    static class GzipDecompressingEntity extends HttpEntityWrapper {
+        public GzipDecompressingEntity(final HttpEntity entity) {
+           super(entity);
+        }
+
+        @Override
+        public InputStream getContent() throws IOException, IllegalStateException {
+           // the wrapped entity's getContent() decides about repeatability
+           InputStream wrappedin = wrappedEntity.getContent();
+           return new GZIPInputStream(wrappedin);
+        }
+
+        @Override
+        public long getContentLength() {
+           // length of ungzipped content is not known
+           return -1;
+        }
+}
 }

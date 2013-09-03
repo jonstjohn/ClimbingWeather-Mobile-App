@@ -213,7 +213,7 @@ public class Area
         Uri uri = contentResolver.insert(
                 AreasContract.CONTENT_URI, values);
         
-        String areaId = uri.getPathSegments().get(0);
+        String areaId = uri.getPathSegments().get(1);
         
         if (f != null) {
             for (int i = 0; i < f.length; i++) {

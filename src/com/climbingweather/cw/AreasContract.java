@@ -5,20 +5,15 @@ import android.net.Uri;
 public final class AreasContract {
     
     /**
-     * Authority
-     */
-    public static final String AUTHORITY = "com.climbingweather.cw.provider.areas";
-    
-    /**
      * URI
      */
-    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    public static final Uri CONTENT_URI = Uri.parse("content://" + CwContentProvider.AUTHORITY + "/areas");
     
-    public static final Uri FAVORITES_URI = Uri.parse("content://" + AUTHORITY + "/favorites");
+    public static final Uri FAVORITES_URI = Uri.parse(CONTENT_URI + "/favorites");
     
-    public static final Uri NEARBY_URI = Uri.parse("content://" + AUTHORITY + "/nearby");
+    public static final Uri NEARBY_URI = Uri.parse(CONTENT_URI + "/nearby");
     
-    public static final Uri SEARCH_URI = Uri.parse("content://" + AUTHORITY + "/search");
+    public static final Uri SEARCH_URI = Uri.parse(CONTENT_URI + "/search");
     
     public interface Columns {
         public static final String AREA_ID = "_id";

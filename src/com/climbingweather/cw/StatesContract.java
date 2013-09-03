@@ -5,14 +5,9 @@ import android.net.Uri;
 public final class StatesContract {
     
     /**
-     * Authority
-     */
-    public static final String AUTHORITY = "com.climbingweather.cw.provider.states";
-    
-    /**
      * URI
      */
-    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    public static final Uri CONTENT_URI = Uri.parse("content://" + CwContentProvider.AUTHORITY + "/states");
     
     /**
      * Columns

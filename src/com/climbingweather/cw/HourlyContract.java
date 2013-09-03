@@ -3,15 +3,11 @@ package com.climbingweather.cw;
 import android.net.Uri;
 
 public final class HourlyContract {
-    /**
-     * Authority
-     */
-    public static final String AUTHORITY = "com.climbingweather.cw.provider.hourly";
-    
+
     /**
      * URI
      */
-    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    public static final Uri CONTENT_URI = Uri.parse("content://" + CwContentProvider.AUTHORITY + "/hourly");
     
     public interface Columns {
         public static final String ID = "_id";

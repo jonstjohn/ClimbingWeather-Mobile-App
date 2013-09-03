@@ -20,6 +20,11 @@ public class CwContentProvider extends ContentProvider
 {
     private CwDbHelper dbHelper;
     
+    /**
+     * Authority
+     */
+    public static final String AUTHORITY = "com.climbingweather.cw.provider";
+    
     private static final int ALL_FAVORITES = 1;
     private static final int SINGLE_FAVORITE = 2;
     private static final int ALL_STATES = 3;
@@ -36,15 +41,15 @@ public class CwContentProvider extends ContentProvider
     public static final UriMatcher uriMatcher;
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(FavoritesContract.AUTHORITY, null, ALL_FAVORITES);
-        uriMatcher.addURI(FavoritesContract.AUTHORITY, "#", SINGLE_FAVORITE);
-        uriMatcher.addURI(StatesContract.AUTHORITY, null, ALL_STATES);
-        uriMatcher.addURI(StatesContract.AUTHORITY, "#", SINGLE_STATE);
-        uriMatcher.addURI(AreasContract.AUTHORITY, null, ALL_AREAS);
-        uriMatcher.addURI(AreasContract.AUTHORITY, "#", SINGLE_AREA);
-        uriMatcher.addURI(DailyContract.AUTHORITY, "#", AREA_DAILY);
-        uriMatcher.addURI(HourlyContract.AUTHORITY, "#", AREA_HOURLY);
-        uriMatcher.addURI(DailyContract.AUTHORITY, null, ALL_DAILY);
+        uriMatcher.addURI(AUTHORITY, "/favorites", ALL_FAVORITES);
+        uriMatcher.addURI(AUTHORITY, "/favorites/#", SINGLE_FAVORITE);
+        uriMatcher.addURI(AUTHORITY, "/states", ALL_STATES);
+        uriMatcher.addURI(AUTHORITY, "/states/#", SINGLE_STATE);
+        uriMatcher.addURI(AUTHORITY, "/areas", ALL_AREAS);
+        uriMatcher.addURI(AUTHORITY, "/areas/#", SINGLE_AREA);
+        uriMatcher.addURI(AUTHORITY, "/daily/#", AREA_DAILY);
+        uriMatcher.addURI(AUTHORITY, "/hourly/#", AREA_HOURLY);
+        uriMatcher.addURI(AUTHORITY, "/daily", ALL_DAILY);
     }
     
     public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE

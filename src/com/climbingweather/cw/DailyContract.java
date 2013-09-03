@@ -5,14 +5,9 @@ import android.net.Uri;
 public final class DailyContract {
 
     /**
-     * Authority
-     */
-    public static final String AUTHORITY = "com.climbingweather.cw.provider.daily";
-    
-    /**
      * URI
      */
-    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    public static final Uri CONTENT_URI = Uri.parse("content://" + CwContentProvider.AUTHORITY + "/daily");
     
     public interface Columns {
         public static final String ID = "_id";

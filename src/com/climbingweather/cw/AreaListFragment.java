@@ -277,11 +277,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         Log.i("CW", "AreaListFragment " + getScreenName() + " onStart()");
         super.onStart();
         
-        // Start location for nearby areas
-        if (typeId == TYPE_NEARBY) {
-            startLocation();
-        }
-        
         // Record to google analytics
         ((CwApplication) this.getActivity().getApplication()).getGaTracker().sendView(getScreenName());
         
@@ -337,7 +332,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
      */
     private void loadAreas(boolean forceReload)
     {
-        getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
+        getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE);
         CwApi api = new CwApi(getActivity(), "2.0");
         switch (typeId) {
             // NEARBY using latitude and longitude
@@ -405,9 +400,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     {
         Log.i("CW", "AreaListFragment " + getScreenName() + " onStop()");
         super.onStop();
-        if (typeId == TYPE_NEARBY) {
-            removeLocationListener();
-        }
     }
     
     public class AreaCursorAdapter extends CursorAdapter

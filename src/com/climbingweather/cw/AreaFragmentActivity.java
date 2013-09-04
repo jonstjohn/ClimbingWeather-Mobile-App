@@ -234,6 +234,7 @@ public class AreaFragmentActivity extends SherlockFragmentActivity
         values.put(FavoritesContract.Columns.NAME, name);
         getContentResolver().insert(
                 FavoritesContract.CONTENT_URI, values);
+        CwDbHelper.dumpFavorites(this);
     }
     
     /**

@@ -105,6 +105,7 @@ public class CwContentProvider extends ContentProvider
         case ALL_FAVORITES:
             long favoriteId = db.insert(CwDbHelper.Tables.FAVORITES, null, values);
             _uri = Uri.parse(FavoritesContract.CONTENT_URI + "/" + favoriteId);
+            Log.i(TAG, _uri.toString());
             getContext().getContentResolver().notifyChange(_uri, null);
             break;
         case SINGLE_FAVORITE:

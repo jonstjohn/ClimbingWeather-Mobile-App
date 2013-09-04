@@ -15,6 +15,8 @@ public class CwDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "cw";
     private static final int DATABASE_VERSION = 10; 
     
+    private static final String TAG = CwDbHelper.class.getName();
+    
     public interface Tables {
         public static final String FAVORITES = "favorite";
         public static final String STATES = "state";
@@ -230,6 +232,33 @@ public class CwDbHelper extends SQLiteOpenHelper {
                 "area_id INTEGER NOT NULL REFERENCES area(_id) ON DELETE CASCADE);");
         
         db.execSQL("CREATE UNIQUE INDEX searchAreas_searchAreaIndex ON search_area(search_id, area_id)");
+    }
+    
+    public static void dumpFavorites(Context context) {
+        testQuery(context, "SELECT _id, area_id, name FROM favorite");
+    }
+    
+    /**
+     * Test a query and output some information
+     * @param sql
+     */
+    public static void testQuery(Context context, String sql)
+    {
+        CwDbHelper dbHelper = new CwDbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+        
+        int cnt = cursor.getColumnCount();
+        
+        Log.i(TAG, "Testing query: " + sql);
+        Log.i(TAG, "Found " + Integer.toString(cursor.getCount()) + " rows");
+        Log.i(TAG, "Rows");
+        while (cursor.moveToNext()) {
+            for (int i = 0; i < cnt; i++) {
+                Log.i(TAG, cursor.getString(i));
+            }
+        }
+        
     }
 
 }

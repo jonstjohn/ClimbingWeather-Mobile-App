@@ -255,6 +255,7 @@ public class AreaListFragment extends SherlockListFragment implements DataFragme
             cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "nearby IS NOT NULL", null, "nearby ASC");
             cursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
         } else if (typeId == TYPE_FAVORITE) {
+            CwDbHelper.testQuery(getActivity(), "SELECT area_id FROM favorite");
             cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "favorite.area_id IS NOT NULL", null, "area.name ASC");
             cursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
         } else if (typeId == TYPE_SEARCH) {
@@ -325,6 +326,7 @@ public class AreaListFragment extends SherlockListFragment implements DataFragme
         }
         getActivity().registerReceiver(myReceiver, new IntentFilter(getIntentFilter()));
         loadAreas(false);
+        CwDbHelper.dumpFavorites(getActivity());
     }
     
     /**
@@ -392,6 +394,7 @@ public class AreaListFragment extends SherlockListFragment implements DataFragme
             removeLocationListener();
         }
         getActivity().unregisterReceiver(myReceiver);
+        CwDbHelper.dumpFavorites(getActivity());
     }
     
     /**

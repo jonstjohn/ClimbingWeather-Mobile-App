@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
@@ -43,6 +44,8 @@ public class MainActivity extends SherlockFragmentActivity {
     
     private CwPagerAdapter adapter;
     
+    private static final String TAG = MainActivity.class.getName();
+    
     /** 
      * Called when the activity is first created. 
      */
@@ -51,15 +54,19 @@ public class MainActivity extends SherlockFragmentActivity {
         
         super.onCreate(savedInstanceState);
         
+        Log.i(TAG, "onCreate()");
+        
         // Delete all data for testing
         CwDbHelper dbHelper = new CwDbHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.delete(CwDbHelper.Tables.AREAS, null, null);
-        db.delete(CwDbHelper.Tables.FAVORITES, null, null);
+        //db.delete(CwDbHelper.Tables.FAVORITES, null, null);
         db.delete(CwDbHelper.Tables.DAILY, null, null);
         db.delete(CwDbHelper.Tables.STATES, null, null);
         db.delete(CwDbHelper.Tables.SEARCH, null, null);
         db.delete(CwDbHelper.Tables.SEARCH_AREA, null, null);
+        
+        CwDbHelper.dumpFavorites(this);
         
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         

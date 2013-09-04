@@ -1,11 +1,14 @@
 package com.climbingweather.cw;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import com.climbingweather.cw.RESTClient.HTTPMethod;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -14,6 +17,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.util.Log;
+import android.widget.Toast;
 
 public class CwApiProcessor {
     
@@ -84,7 +88,10 @@ public class CwApiProcessor {
             
             RESTClient client = new RESTClient(HTTPMethod.valueOf("GET"), uri, mParams);
             RESTClientResponse response = client.sendRequest();
-            processAreasResponse(response, false);
+            
+            Bundle processParams = new Bundle();
+            processParams.putParcelable("uri", AreasContract.FAVORITES_URI);
+            processAreasResponse(response, processParams);
         }
     }
     
@@ -96,10 +103,36 @@ public class CwApiProcessor {
         Bundle mParams = new Bundle();
         RESTClient client = new RESTClient(HTTPMethod.valueOf("GET"), uri, mParams);
         RESTClientResponse response = client.sendRequest();
-        processAreasResponse(response, true);
+        
+        Bundle processParams = new Bundle();
+        processParams.putParcelable("uri", AreasContract.NEARBY_URI);
+        processAreasResponse(response, processParams);
     }
     
-    private void processAreasResponse(RESTClientResponse response, boolean isNearby)
+    public void startSearch(String search) {
+        
+        try {
+            String encodedSearch = URLEncoder.encode(search, "UTF-8");
+            String url = "/area/list/" + encodedSearch;
+            Uri uri = buildUri(url);
+            Log.i(TAG, uri.toString());
+            
+            Bundle params = new Bundle();
+            RESTClient client = new RESTClient(HTTPMethod.valueOf("GET"), uri, params);
+            RESTClientResponse response = client.sendRequest();
+            
+            Bundle processParams = new Bundle();
+            processParams.putParcelable("uri", AreasContract.SEARCH_URI);
+            processParams.putString("search", search);
+            processAreasResponse(response, processParams);
+        } catch (UnsupportedEncodingException e) {
+            Log.i(TAG, "Unsupported encoding");
+        }
+        
+        
+    }
+    
+    private void processAreasResponse(RESTClientResponse response, Bundle processParams)
     {
         int code = response.getCode();
         String json = response.getData();
@@ -107,12 +140,14 @@ public class CwApiProcessor {
         // Check to see if we got an HTTP 200 code and have some data.
         if (code == 200 && !json.equals("")) {
             Log.i(TAG, "onLoadFinished() using service");
-            processAreasJson(json, isNearby);
+            processAreasJson(json, processParams);
         }
     }
     
-    private void processAreasJson(String result, boolean isNearby)
+    private Area[] processAreasJson(String result, Bundle processParams)
     {
+        Uri contentUri = processParams.getParcelable("uri");
+        
         try {
             Log.i(TAG, "processJson");
             Log.i(TAG, result);
@@ -123,13 +158,33 @@ public class CwApiProcessor {
             
             Log.i(TAG, Integer.toString(areas.length));
             
+            String searchId = null;
+            
+            // Save search term
+            if (contentUri.equals(AreasContract.SEARCH_URI)) {
+                ContentValues values = new ContentValues();
+                values.put("search", processParams.getString("search"));;
+                Uri searchUri = mContext.getContentResolver().insert(AreasContract.SEARCH_URI, values);
+                searchId = searchUri.getPathSegments().get(2);
+                Log.i(TAG, "Search id: " + searchId);
+            }
+            
             // Save areas
             for (int i = 0; i < areas.length; i++) {
                 //Log.i(TAG, "Loader id: " + Integer.toString(getId()));
-                if (isNearby) {
+                if (contentUri.equals(AreasContract.NEARBY_URI)) {
                     areas[i].setNearby(i);
                 }
+                
                 areas[i].save(mContext.getContentResolver());
+                
+                if (contentUri.equals(AreasContract.SEARCH_URI)) {
+                    ContentValues sValues = new ContentValues();
+                    sValues.put("search_id", searchId);
+                    sValues.put("area_id", areas[i].getId());
+                    Uri uri = mContext.getContentResolver().insert(AreasContract.SEARCH_AREA_URI, sValues);
+                    Log.i(TAG, uri.toString());
+                }
             }
             
             String projection[] = {"area._id AS area_id", "area.name", "d1.high AS d1_high",
@@ -154,8 +209,12 @@ public class CwApiProcessor {
             }
             */
             
+            
+            return areas;
+            
         } catch (JsonParseException e) {
             Log.i(TAG, "An error occurred while retrieving area data");
+            return new Area[0];
         }
         
     }

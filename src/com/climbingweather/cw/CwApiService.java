@@ -48,6 +48,12 @@ public class CwApiService extends IntentService {
                 loadNearbyAreas(latitude, longitude);
                 Intent i = new Intent(AreaListFragment.INTENT_FILTER_NEARBY);
                 sendBroadcast(i);
+            } else if (uri.equals(AreasContract.SEARCH_URI)) {
+                Log.i(TAG, intent.getDataString());
+                String search = intent.getStringExtra("search");
+                loadSearchAreas(search);
+                Intent i = new Intent(AreaListFragment.INTENT_FILTER_SEARCH);
+                sendBroadcast(i);
             }
         }
     }
@@ -65,6 +71,11 @@ public class CwApiService extends IntentService {
         
         CwApiProcessor processor = new CwApiProcessor(getApplicationContext());
         processor.startNearbyAreas(latitude, longitude);
+    }
+    
+    public void loadSearchAreas(String search) {
+        CwApiProcessor processor = new CwApiProcessor(getApplicationContext());
+        processor.startSearch(search);
     }
     
 }

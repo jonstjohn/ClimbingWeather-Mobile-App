@@ -15,6 +15,8 @@ public final class AreasContract {
     
     public static final Uri SEARCH_URI = Uri.parse(CONTENT_URI + "/search");
     
+    public static final Uri SEARCH_AREA_URI = Uri.parse(CONTENT_URI + "/searchArea");
+    
     public interface Columns {
         public static final String AREA_ID = "_id";
         public static final String NAME = "name";

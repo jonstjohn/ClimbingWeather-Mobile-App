@@ -7,13 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -30,10 +28,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class AreaListFragment extends SherlockListFragment implements LoaderCallbacks<CwApiLoaderResult>, DataFragmentInterface {
+public class AreaListFragment extends SherlockListFragment implements DataFragmentInterface {
 
     /**
      * Location manager for location updates
@@ -106,15 +103,10 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     
     private AreaCursorAdapter mAdapter;
     
-    private Intent mServiceIntent;
-    
     /**
      * Tag for logging
      */
     private static final String TAG = AreaListFragment.class.getName();
-    
-    private static final String ARGS_URI    = "com.climbingweather.cw.ARGS_URI";
-    private static final String ARGS_PARAMS = "com.climbingweather.cw.ARGS_PARAMS";
     
     /**
      * Get instance
@@ -183,6 +175,11 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             searchEdit.setOnEditorActionListener(new OnEditorActionListener() {
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        // TODO for now, just delete all existing search data and search again
+                        CwDbHelper dbHelper = new CwDbHelper(getActivity());
+                        SQLiteDatabase db = dbHelper.getWritableDatabase();
+                        db.delete(CwDbHelper.Tables.SEARCH, null, null);
+                        db.delete(CwDbHelper.Tables.SEARCH_AREA, null, null);
                         loadAreas(false);
                     }
                     return false;
@@ -260,6 +257,10 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
         } else if (typeId == TYPE_FAVORITE) {
             cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "favorite.area_id IS NOT NULL", null, "area.name ASC");
             cursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
+        } else if (typeId == TYPE_SEARCH) {
+            // TODO
+            cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "search_area.area_id IS NOT NULL", null, "search_area._id ASC");
+            cursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
         } else {
             cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, null, null, null);
             cursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
@@ -333,7 +334,7 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
     private void loadAreas(boolean forceReload)
     {
         getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE);
-        CwApi api = new CwApi(getActivity(), "2.0");
+        //CwApi api = new CwApi(getActivity(), "2.0");
         switch (typeId) {
             // NEARBY using latitude and longitude
             case TYPE_NEARBY:
@@ -346,7 +347,8 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             // SEARCH build URL using search string
             case TYPE_SEARCH:
                 //CwApiServiceHelper.getInstance().startSearch(getActivity(), search);
-                api.loadSearchAreas(this, search, forceReload);
+                CwApiServiceHelper.getInstance().startSearch(getActivity(), search);
+                //api.loadSearchAreas(this, search, forceReload);
                 break;
         }
         
@@ -500,56 +502,6 @@ public class AreaListFragment extends SherlockListFragment implements LoaderCall
             Logger.log("Removing location listener from nearby areas");
             lm.removeUpdates(locationListener);
         }
-    }
-    
-    /**
-     * Callback for loader
-     */
-    public Loader<CwApiLoaderResult> onCreateLoader(int id, Bundle args) {
-        if (args != null && args.containsKey(ARGS_URI) && args.containsKey(ARGS_PARAMS)) {
-            Log.i(TAG, "onCreateLoader()");
-            Uri uri = args.getParcelable(ARGS_URI);
-            Bundle params = args.getParcelable(ARGS_PARAMS);
-            getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE);
-            //return new RESTLoader(this.getActivity(), RESTLoader.HTTPVerb.GET, action, params);
-            return new CwApiLoader(this.getActivity(), RESTClient.HTTPMethod.GET, uri, params);
-        }
-        
-        return null;
-    }
-
-    /**
-     * Callback for loader
-     */
-    public void onLoadFinished(Loader<CwApiLoaderResult> loader, CwApiLoaderResult data) {
-        
-        Log.i(TAG, "onLoadFinished()");
-        RESTClientResponse response = data.getResponse();
-        int code = response.getCode();
-        String json = response.getData();
-        
-        getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
-        
-        mCursor = getCursor();
-        mAdapter.swapCursor(mCursor);
-        //mCursor.requery();
-        
-        mAdapter.notifyDataSetChanged();
-        
-        // Check to see if we got an HTTP 200 code and have some data.
-        if (code == 200 && !json.equals("")) {
-            Log.i(TAG, "onLoadFinished() using new loader");
-        }
-        else {
-            Toast.makeText(this.getActivity(), "Failed to load areas. Check your internet settings.", Toast.LENGTH_SHORT).show();
-        }
-        
-    }
-    
-    /**
-     * Callback for loader
-     */
-    public void onLoaderReset(Loader<CwApiLoaderResult> loader) {
     }
     
     /**

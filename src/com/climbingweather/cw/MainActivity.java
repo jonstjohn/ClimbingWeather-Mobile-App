@@ -58,6 +58,8 @@ public class MainActivity extends SherlockFragmentActivity {
         db.delete(CwDbHelper.Tables.FAVORITES, null, null);
         db.delete(CwDbHelper.Tables.DAILY, null, null);
         db.delete(CwDbHelper.Tables.STATES, null, null);
+        db.delete(CwDbHelper.Tables.SEARCH, null, null);
+        db.delete(CwDbHelper.Tables.SEARCH_AREA, null, null);
         
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         

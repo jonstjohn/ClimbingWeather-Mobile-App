@@ -33,7 +33,9 @@ public class CwContentProvider extends ContentProvider
     private static final int SINGLE_AREA = 6;
     private static final int AREA_DAILY = 7;
     private static final int AREA_HOURLY = 8;
-    private static final int ALL_DAILY = 8;
+    private static final int ALL_DAILY = 9;
+    private static final int ALL_SEARCH = 10;
+    private static final int ALL_SEARCH_AREA = 11;
     
     /**
      * URI matcher
@@ -50,6 +52,8 @@ public class CwContentProvider extends ContentProvider
         uriMatcher.addURI(AUTHORITY, "/daily/#", AREA_DAILY);
         uriMatcher.addURI(AUTHORITY, "/hourly/#", AREA_HOURLY);
         uriMatcher.addURI(AUTHORITY, "/daily", ALL_DAILY);
+        uriMatcher.addURI(AUTHORITY, "/areas/search", ALL_SEARCH);
+        uriMatcher.addURI(AUTHORITY, "/areas/searchArea", ALL_SEARCH_AREA);
     }
     
     public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
@@ -130,6 +134,16 @@ public class CwContentProvider extends ContentProvider
             _uri = HourlyContract.CONTENT_URI;
             getContext().getContentResolver().notifyChange(_uri, null); // TODO
             break;
+        case ALL_SEARCH:
+            long searchId = db.replace(CwDbHelper.Tables.SEARCH, null, values);
+            _uri = Uri.parse(AreasContract.SEARCH_URI + "/" + searchId);
+            getContext().getContentResolver().notifyChange(uri, null); // TOOD
+            break;
+        case ALL_SEARCH_AREA:
+            long searchAreaId = db.replace(CwDbHelper.Tables.SEARCH_AREA, null, values);
+            _uri = Uri.parse(AreasContract.SEARCH_AREA_URI + "/" + searchAreaId);
+            getContext().getContentResolver().notifyChange(uri, null); // TOOD
+            break;
         default:
             throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
@@ -170,7 +184,8 @@ public class CwContentProvider extends ContentProvider
                     + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now', 'localtime')) AS d1 ON area._id = d1.area_id"
                     + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now', '+1 day', 'localtime')) AS d2 ON area._id = d2.area_id"
                     + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now', '+2 day', 'localtime')) AS d3 ON area._id = d3.area_id"
-                    + " LEFT JOIN favorite ON area._id = favorite.area_id");
+                    + " LEFT JOIN favorite ON area._id = favorite.area_id"
+                    + " LEFT JOIN search_area ON area._id = search_area.area_id");
             if (projection == null) {
                 projection = AreasContract.PROJECTION_DEFAULT;
             }

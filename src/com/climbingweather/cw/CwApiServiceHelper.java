@@ -31,4 +31,12 @@ public class CwApiServiceHelper {
         
         context.startService(serviceIntent);
     }
+    
+    public void startSearch(Context context, String search) {
+        Intent serviceIntent = new Intent(context, CwApiService.class);
+        serviceIntent.setData(AreasContract.SEARCH_URI);
+        serviceIntent.putExtra("search", search);
+        
+        context.startService(serviceIntent);
+    }
 }

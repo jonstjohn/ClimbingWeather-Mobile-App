@@ -158,7 +158,6 @@ public class RESTClient {
                 DefaultHttpClient client = new DefaultHttpClient();
                 
                 // Enable GZIP
-                try {
                     client.addRequestInterceptor(new HttpRequestInterceptor() {
 
                         public void process(
@@ -212,9 +211,6 @@ public class RESTClient {
                                     : null,
                             statusCode);
                     return mRestResponse;
-                } finally {
-                    Log.e(TAG, "An error occurred while processing REST request.");
-                }
                 
             }
             

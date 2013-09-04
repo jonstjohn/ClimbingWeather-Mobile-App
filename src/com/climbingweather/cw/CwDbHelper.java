@@ -13,7 +13,7 @@ import android.util.Log;
 public class CwDbHelper extends SQLiteOpenHelper {
     
     private static final String DATABASE_NAME = "cw";
-    private static final int DATABASE_VERSION = 9; 
+    private static final int DATABASE_VERSION = 10; 
     
     public interface Tables {
         public static final String FAVORITES = "favorite";
@@ -21,10 +21,21 @@ public class CwDbHelper extends SQLiteOpenHelper {
         public static final String AREAS = "area";
         public static final String DAILY = "daily";
         public static final String HOURLY = "hourly";
+        public static final String SEARCH = "search";
+        public static final String SEARCH_AREA = "search_area";
     }
     
     CwDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+    
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        if (!db.isReadOnly()) {
+            // Enable foreign key constraints
+            db.execSQL("PRAGMA foreign_keys=ON;");
+        }
     }
     
     @Override
@@ -35,6 +46,7 @@ public class CwDbHelper extends SQLiteOpenHelper {
         createAreaTable(db);
         createDailyTable(db);
         createHourlyTable(db);
+        createSearchTables(db);
 
     }
 
@@ -48,6 +60,8 @@ public class CwDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS area");
         db.execSQL("DROP TABLE IF EXISTS daily");
         db.execSQL("DROP TABLE IF EXISTS hourly");
+        db.execSQL("DROP TABLE IF EXISTS search");
+        db.execSQL("DROP TABLE IF EXISTS search_area");
         onCreate(db);
 
     }
@@ -100,7 +114,7 @@ public class CwDbHelper extends SQLiteOpenHelper {
     private void createFavoriteTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE favorite (" +
                 "_id integer primary key autoincrement," +
-                "area_id integer unique," +
+                "area_id integer unique REFERENCES area(_id) ON DELETE CASCADE," +
                 "name text not null);");
     }
     /**
@@ -147,7 +161,7 @@ public class CwDbHelper extends SQLiteOpenHelper {
     private void createDailyTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE daily (" +
                 "_id INTEGER PRIMARY KEY," +
-                "area_id INTEGER," +
+                "area_id INTEGER REFERENCES area(_id) ON DELETE CASCADE," +
                 "high INTEGER," +
                 "low INTEGER," +
                 "precip_day INTEGER," +
@@ -177,7 +191,7 @@ public class CwDbHelper extends SQLiteOpenHelper {
     private void createHourlyTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE hourly (" +
                 "_id INTEGER PRIMARY KEY," +
-                "area_id INTEGER," +
+                "area_id INTEGER REFERENCES area(_id) ON DELETE CASCADE," +
                 "temp INTEGER," +
                 "precip INTEGER," +
                 "timestamp INTEGER," +
@@ -195,6 +209,27 @@ public class CwDbHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE UNIQUE INDEX hourly_timestampIndex ON hourly(timestamp)");
         db.execSQL("CREATE INDEX hourly_updatedIndex ON hourly(updated)");
         db.execSQL("CREATE INDEX hourly_detailUpdatedIndex ON hourly(detail_updated)");
+    }
+    
+    /**
+     * Create search tables
+     * @param db
+     */
+    private void createSearchTables(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE search (" +
+                "_id integer primary key autoincrement," +
+                "updated integer," +
+                "search TEXT UNIQUE NOT NULL);");
+        
+        db.execSQL("CREATE INDEX search_searchIndex ON search(search)");
+        db.execSQL("CREATE INDEX search_updatedIndex ON search(updated)");
+        
+        db.execSQL("CREATE TABLE search_area (" +
+                "_id integer primary key autoincrement," +
+                "search_id INTEGER NOT NULL REFERENCES search(_id) ON DELETE CASCADE," +
+                "area_id INTEGER NOT NULL REFERENCES area(_id) ON DELETE CASCADE);");
+        
+        db.execSQL("CREATE UNIQUE INDEX searchAreas_searchAreaIndex ON search_area(search_id, area_id)");
     }
 
 }

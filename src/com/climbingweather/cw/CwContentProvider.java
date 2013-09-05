@@ -222,7 +222,7 @@ public class CwContentProvider extends ContentProvider
             for (String s: segs) {
                 Logger.log(s);
             }
-            String areaId = uri.getPathSegments().get(0);
+            String areaId = uri.getPathSegments().get(1);
             selection = FavoritesContract.Columns.AREA_ID + "=" + areaId
                     + (!TextUtils.isEmpty(selection) ? 
                             " AND (" + selection + ')' : "");

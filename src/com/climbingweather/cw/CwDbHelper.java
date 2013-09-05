@@ -13,7 +13,7 @@ import android.util.Log;
 public class CwDbHelper extends SQLiteOpenHelper {
     
     private static final String DATABASE_NAME = "cw";
-    private static final int DATABASE_VERSION = 10; 
+    private static final int DATABASE_VERSION = 11; 
     
     private static final String TAG = CwDbHelper.class.getName();
     
@@ -116,7 +116,7 @@ public class CwDbHelper extends SQLiteOpenHelper {
     private void createFavoriteTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE favorite (" +
                 "_id integer primary key autoincrement," +
-                "area_id integer unique REFERENCES area(_id) ON DELETE CASCADE," +
+                "area_id integer unique," +
                 "name text not null);");
     }
     /**
@@ -229,7 +229,7 @@ public class CwDbHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE search_area (" +
                 "_id integer primary key autoincrement," +
                 "search_id INTEGER NOT NULL REFERENCES search(_id) ON DELETE CASCADE," +
-                "area_id INTEGER NOT NULL REFERENCES area(_id) ON DELETE CASCADE);");
+                "area_id INTEGER NOT NULL);");
         
         db.execSQL("CREATE UNIQUE INDEX searchAreas_searchAreaIndex ON search_area(search_id, area_id)");
     }

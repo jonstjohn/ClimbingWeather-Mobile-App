@@ -238,6 +238,10 @@ public class CwDbHelper extends SQLiteOpenHelper {
         testQuery(context, "SELECT _id, area_id, name FROM favorite");
     }
     
+    public static void dumpStates(Context context) {
+        testQuery(context, "SELECT _id, name, state_code, areas, updated FROM state");
+    }
+    
     /**
      * Test a query and output some information
      * @param sql

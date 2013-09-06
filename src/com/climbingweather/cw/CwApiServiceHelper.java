@@ -39,4 +39,10 @@ public class CwApiServiceHelper {
         
         context.startService(serviceIntent);
     }
+    
+    public void startStates(Context context) {
+        Intent serviceIntent = new Intent(context, CwApiService.class);
+        serviceIntent.setData(StatesContract.CONTENT_URI);
+        context.startService(serviceIntent);
+    }
 }

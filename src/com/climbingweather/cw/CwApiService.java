@@ -24,6 +24,8 @@ public class CwApiService extends IntentService {
     
     public static final int FAVORITE_AREAS = 1;
     
+    private static final String INTENT_FILTER_STATE = "state";
+    
     public CwApiService() {
         super("CwApiService");
     }
@@ -54,6 +56,10 @@ public class CwApiService extends IntentService {
                 loadSearchAreas(search);
                 Intent i = new Intent(AreaListFragment.INTENT_FILTER_SEARCH);
                 sendBroadcast(i);
+            } else if (uri.equals(StatesContract.CONTENT_URI)) {
+                Log.i(TAG, intent.getDataString());
+                loadStates();
+                Intent i = new Intent(INTENT_FILTER_STATE);
             }
         }
     }
@@ -61,21 +67,26 @@ public class CwApiService extends IntentService {
     /**
      * Load favorite areas
      */
-    public void loadFavoriteAreas()
+    private void loadFavoriteAreas()
     {
         CwApiProcessor processor = new CwApiProcessor(getApplicationContext());
         processor.startFavoriteAreas();
     }
     
-    public void loadNearbyAreas(Double latitude, Double longitude) {
+    private void loadNearbyAreas(Double latitude, Double longitude) {
         
         CwApiProcessor processor = new CwApiProcessor(getApplicationContext());
         processor.startNearbyAreas(latitude, longitude);
     }
     
-    public void loadSearchAreas(String search) {
+    private void loadSearchAreas(String search) {
         CwApiProcessor processor = new CwApiProcessor(getApplicationContext());
         processor.startSearch(search);
+    }
+    
+    private void loadStates() {
+        CwApiProcessor processor = new CwApiProcessor(getApplicationContext());
+        processor.startStates();
     }
     
 }

@@ -91,6 +91,7 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
     
     public void loadStates()
     {
+        CwApiServiceHelper.getInstance().startStates(getActivity());
         Logger.log("loadStates()");
         if (view != null) {
             Logger.log("View is not null");

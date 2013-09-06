@@ -132,6 +132,40 @@ public class CwApiProcessor {
         
     }
     
+    public void startStates() {
+        String url = "/state/list";
+        Uri uri = buildUri(url);
+        
+        Bundle params = new Bundle();
+        RESTClient client = new RESTClient(HTTPMethod.valueOf("GET"), uri, params);
+        RESTClientResponse clientResponse = client.sendRequest();
+        
+        int code = clientResponse.getCode();
+        String json = clientResponse.getData();
+        
+        if (code == 200 && !json.equals("")) {
+            Gson gson = new Gson();
+            CwApiStateListResponse response = gson.fromJson(json, CwApiStateListResponse.class);
+            State[] states = response.getStates();
+            
+            Long timestamp = System.currentTimeMillis()/1000;
+            
+            // Save states to content provider
+            for (int i = 0; i < states.length; i++) {
+                ContentValues values = new ContentValues();
+                values.put(StatesContract.Columns.STATE_CODE, states[i].getCode());
+                values.put(StatesContract.Columns.NAME, states[i].getName());
+                values.put(StatesContract.Columns.AREAS, states[i].getAreaCount());
+                values.put(StatesContract.Columns.UPDATED, timestamp);
+                mContext.getContentResolver().insert(
+                        StatesContract.CONTENT_URI, values);
+            }
+        }
+        
+        CwDbHelper.dumpStates(mContext);
+        
+    }
+    
     private void processAreasResponse(RESTClientResponse response, Bundle processParams)
     {
         int code = response.getCode();

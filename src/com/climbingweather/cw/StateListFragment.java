@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -77,6 +78,7 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
     	
         Log.i("CW", "StateListFragment onActivityCreated()");
     	super.onActivityCreated(savedInstanceState);
+    	
     }
     
     @Override
@@ -194,7 +196,8 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
             inflater = LayoutInflater.from(context);
             this.context = context;
             mCursor = getActivity().getContentResolver().query(
-                    StatesContract.CONTENT_URI, null, null, null, "NAME DESC");
+                    StatesContract.CONTENT_URI, null, null, null, "NAME ASC");
+            mCursor.setNotificationUri(getActivity().getContentResolver(), StatesContract.CONTENT_URI);
         }
         
         public void addState(State state)
@@ -288,11 +291,12 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         }
 
         public Object getGroup(int groupPosition) {
-            return states.get(groupPosition);
+            return mCursor.moveToPosition(groupPosition);
+            //return states.get(groupPosition);
         }
 
         public int getGroupCount() {
-            return states.size();
+            return mCursor.getCount();
         }
 
         public long getGroupId(int groupPosition) {
@@ -309,12 +313,10 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
             mCursor.moveToPosition(groupPosition);
             
             TextView nameTextView = (TextView) convertView.findViewById(R.id.name);
-            //String stateStr = states.get(groupPosition).getName();
             String stateStr = mCursor.getString(mCursor.getColumnIndex(StatesContract.Columns.NAME));
             nameTextView.setText(stateStr);
             
             TextView areaCountTextView = (TextView) convertView.findViewById(R.id.areaCount);
-            //String areaCount = Integer.toString(states.get(groupPosition).getAreaCount());
             String areaCount = mCursor.getString(mCursor.getColumnIndex(StatesContract.Columns.AREAS));
             areaCountTextView.setText(areaCount + " areas");
      
@@ -518,5 +520,5 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
     {
         loadStates();
     }
-
+    
 }

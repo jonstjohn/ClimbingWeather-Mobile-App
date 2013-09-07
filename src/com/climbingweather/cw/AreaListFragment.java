@@ -218,6 +218,7 @@ public class AreaListFragment extends SherlockListFragment implements DataFragme
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mCursor = getCursor();
+        mCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
         mAdapter = new AreaCursorAdapter(mContext, mCursor, 0);
         setListAdapter(mAdapter);
         
@@ -253,18 +254,14 @@ public class AreaListFragment extends SherlockListFragment implements DataFragme
         Cursor cursor;
         if (typeId == TYPE_NEARBY) {
             cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "nearby IS NOT NULL", null, "nearby ASC");
-            cursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
         } else if (typeId == TYPE_FAVORITE) {
             CwDbHelper.testQuery(getActivity(), "SELECT area_id FROM favorite");
             cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "favorite.area_id IS NOT NULL", null, "area.name ASC");
-            cursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
         } else if (typeId == TYPE_SEARCH) {
             // TODO
             cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, "search_area.area_id IS NOT NULL", null, "search_area._id ASC");
-            cursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
         } else {
             cursor = getActivity().getContentResolver().query(AreasContract.CONTENT_URI, null, null, null, null);
-            cursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
         }
         
         return cursor;
@@ -523,6 +520,7 @@ public class AreaListFragment extends SherlockListFragment implements DataFragme
             getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
             
             mCursor = getCursor();
+            mCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
             mAdapter.swapCursor(mCursor);
             //mCursor.requery();
             

@@ -1,8 +1,10 @@
 package com.climbingweather.cw;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -189,15 +191,17 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         
         private Context context;
         
-        private Cursor mCursor;
+        private Cursor mStateCursor;
+        
+        private HashMap<String, Cursor> mStateAreaCursors = new HashMap<String, Cursor>();
         
         public StateExpandableListAdapter(Context context)
         {
             inflater = LayoutInflater.from(context);
             this.context = context;
-            mCursor = getActivity().getContentResolver().query(
+            mStateCursor = getActivity().getContentResolver().query(
                     StatesContract.CONTENT_URI, null, null, null, "NAME ASC");
-            mCursor.setNotificationUri(getActivity().getContentResolver(), StatesContract.CONTENT_URI);
+            mStateCursor.setNotificationUri(getActivity().getContentResolver(), StatesContract.CONTENT_URI);
         }
         
         public void addState(State state)
@@ -233,8 +237,8 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         public int getChildrenCount(int groupPosition) {
             
             // TODO
-            //mCursor.moveToPosition(groupPosition);
-            //State state = State.getInstanceFromCode(getActivity(), mCursor.getString(mCursor.getColumnIndex(StatesContract.Columns.STATE_CODE)));
+            //mStateCursor.moveToPosition(groupPosition);
+            //State state = State.getInstanceFromCode(getActivity(), mStateCursor.getString(mStateCursor.getColumnIndex(StatesContract.Columns.STATE_CODE)));
             
             if (!states.get(groupPosition).hasAreas()) {
                 return 1;
@@ -291,12 +295,12 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         }
 
         public Object getGroup(int groupPosition) {
-            return mCursor.moveToPosition(groupPosition);
+            return mStateCursor.moveToPosition(groupPosition);
             //return states.get(groupPosition);
         }
 
         public int getGroupCount() {
-            return mCursor.getCount();
+            return mStateCursor.getCount();
         }
 
         public long getGroupId(int groupPosition) {
@@ -310,14 +314,14 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
                 convertView = inflater.inflate(R.layout.list_item_state, parent,false);
             }
      
-            mCursor.moveToPosition(groupPosition);
+            mStateCursor.moveToPosition(groupPosition);
             
             TextView nameTextView = (TextView) convertView.findViewById(R.id.name);
-            String stateStr = mCursor.getString(mCursor.getColumnIndex(StatesContract.Columns.NAME));
+            String stateStr = mStateCursor.getString(mStateCursor.getColumnIndex(StatesContract.Columns.NAME));
             nameTextView.setText(stateStr);
             
             TextView areaCountTextView = (TextView) convertView.findViewById(R.id.areaCount);
-            String areaCount = mCursor.getString(mCursor.getColumnIndex(StatesContract.Columns.AREAS));
+            String areaCount = mStateCursor.getString(mStateCursor.getColumnIndex(StatesContract.Columns.AREAS));
             areaCountTextView.setText(areaCount + " areas");
      
             return convertView;
@@ -335,12 +339,21 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         public void onGroupExpanded (int groupPosition)
         {
             // Check for state areas
-            mCursor.moveToPosition(groupPosition);
-            String stateCode = mCursor.getString(mCursor.getColumnIndex(StatesContract.Columns.STATE_CODE));
+            mStateCursor.moveToPosition(groupPosition);
+            String stateCode = mStateCursor.getString(mStateCursor.getColumnIndex(StatesContract.Columns.STATE_CODE));
             if (!states.get(groupPosition).hasAreas()) {
                 // Load async
                 new GetAreasJsonTask(groupPosition, context).execute("/state/area/" + stateCode + "?days=3");
+                
+                
+                CwApiServiceHelper.getInstance().startStateAreas(context, stateCode);
             }
+            
+            String[] selectionArgs = {stateCode};
+            Cursor areaCursor = getActivity().getContentResolver().query(
+                    AreasContract.CONTENT_URI, null, "state_code = ?", selectionArgs, "area.name ASC");
+            areaCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
+            mStateAreaCursors.put(stateCode, areaCursor);
         }
         
         /**
@@ -520,5 +533,23 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
     {
         loadStates();
     }
+    
+    /*
+    private BroadcastReceiver myReceiver = new BroadcastReceiver() {        
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "Received intent in broadcast receiver");
+            Log.i(TAG, intent.getAction());
+            getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
+            
+            mCursor = getCursor();
+            mCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
+            mAdapter.swapCursor(mCursor);
+            //mCursor.requery();
+            
+            mAdapter.notifyDataSetChanged();
+        }
+    };
+    */
     
 }

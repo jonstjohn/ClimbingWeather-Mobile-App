@@ -26,6 +26,8 @@ public class CwApiService extends IntentService {
     
     private static final String INTENT_FILTER_STATE = "state";
     
+    private static final String INTENT_FILTER_STATE_AREAS = "state_areas";
+    
     public CwApiService() {
         super("CwApiService");
     }
@@ -56,10 +58,17 @@ public class CwApiService extends IntentService {
                 loadSearchAreas(search);
                 Intent i = new Intent(AreaListFragment.INTENT_FILTER_SEARCH);
                 sendBroadcast(i);
+            } else if (uri.equals(AreasContract.CONTENT_URI)){
+                Log.i(TAG, intent.getDataString());
+                String stateCode = intent.getStringExtra("stateCode");
+                loadStateAreas(stateCode);
+                Intent i = new Intent(INTENT_FILTER_STATE_AREAS);
+                sendBroadcast(i);
             } else if (uri.equals(StatesContract.CONTENT_URI)) {
                 Log.i(TAG, intent.getDataString());
                 loadStates();
                 Intent i = new Intent(INTENT_FILTER_STATE);
+                sendBroadcast(i);
             }
         }
     }
@@ -87,6 +96,11 @@ public class CwApiService extends IntentService {
     private void loadStates() {
         CwApiProcessor processor = new CwApiProcessor(getApplicationContext());
         processor.startStates();
+    }
+    
+    private void loadStateAreas(String stateCode) {
+        CwApiProcessor processor = new CwApiProcessor(getApplicationContext());
+        processor.startStateAreas(stateCode);
     }
     
 }

@@ -132,6 +132,26 @@ public class CwApiProcessor {
         
     }
     
+    public void startStateAreas(String stateCode) {
+        try {
+            String encodedSearch = URLEncoder.encode(stateCode, "UTF-8");
+            String url = "/area/list/" + encodedSearch;
+            Uri uri = buildUri(url);
+            Log.i(TAG, uri.toString());
+            
+            Bundle params = new Bundle();
+            RESTClient client = new RESTClient(HTTPMethod.valueOf("GET"), uri, params);
+            RESTClientResponse response = client.sendRequest();
+            
+            Bundle processParams = new Bundle();
+            processParams.putParcelable("uri", AreasContract.CONTENT_URI);
+            processParams.putString("stateCode", stateCode);
+            processAreasResponse(response, processParams);
+        } catch (UnsupportedEncodingException e) {
+            Log.i(TAG, "Unsupported encoding");
+        }
+    }
+    
     public void startStates() {
         String url = "/state/list";
         Uri uri = buildUri(url);

@@ -45,4 +45,12 @@ public class CwApiServiceHelper {
         serviceIntent.setData(StatesContract.CONTENT_URI);
         context.startService(serviceIntent);
     }
+    
+    public void startStateAreas(Context context, String stateCode) {
+        Intent serviceIntent = new Intent(context, CwApiService.class);
+        serviceIntent.setData(AreasContract.CONTENT_URI);
+        serviceIntent.putExtra("stateCode", stateCode);
+        
+        context.startService(serviceIntent);
+    }
 }

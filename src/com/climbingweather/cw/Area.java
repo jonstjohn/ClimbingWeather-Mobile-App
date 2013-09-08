@@ -3,6 +3,7 @@ package com.climbingweather.cw;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -253,5 +254,49 @@ public class Area
     public void setNearby(int nearbyIndex)
     {
         nearby = Integer.toString(nearbyIndex);
+    }
+    
+    public static View bindViewCursor(View view, Context context, Cursor cursor) {
+        
+        TextView nameTextView = (TextView) view.findViewById(R.id.name);
+        LinearLayout areaLinearLayout = (LinearLayout) view.findViewById(R.id.area);
+        ImageView loadingImageView = (ImageView) view.findViewById(R.id.loading);
+        TextView stateTextView = (TextView) view.findViewById(R.id.state);
+        TextView day1TextView = (TextView) view.findViewById(R.id.d1);
+        TextView day2TextView = (TextView) view.findViewById(R.id.d2);
+        TextView day3TextView = (TextView) view.findViewById(R.id.d3);
+    
+        nameTextView.setText(cursor.getString(cursor.getColumnIndex(AreasContract.Columns.NAME)));
+        stateTextView.setText(CwApplication.getStateNameFromCode(cursor.getString(cursor.getColumnIndex(AreasContract.Columns.STATE_CODE))));
+        
+        String d1Sym = cursor.getString(cursor.getColumnIndex(AreasContract.Columns.DAY1_SYMBOL));
+        if (d1Sym != null) {
+            String symbol1 = d1Sym.replace(".png", "");
+            day1TextView.setCompoundDrawablesWithIntrinsicBounds(0, context.getResources().getIdentifier(symbol1, "drawable", "com.climbingweather.cw"), 0, 0);
+        }
+        String high1 = cursor.getString(cursor.getColumnIndex(AreasContract.Columns.DAY1_HIGH));
+        day1TextView.setText(high1 == null ? "--" : high1 + (char) 0x00B0);
+        
+        String d2Sym = cursor.getString(cursor.getColumnIndex(AreasContract.Columns.DAY2_SYMBOL));
+        if (d2Sym != null) {
+            String symbol2 = d2Sym.replace(".png", "");
+            day2TextView.setCompoundDrawablesWithIntrinsicBounds(0, context.getResources().getIdentifier(symbol2, "drawable", "com.climbingweather.cw"), 0, 0);
+        }
+        String high2 = cursor.getString(cursor.getColumnIndex(AreasContract.Columns.DAY2_HIGH));
+        day2TextView.setText(high2 == null ? "--" : high2 + (char) 0x00B0);
+        
+        String d3Sym = cursor.getString(cursor.getColumnIndex(AreasContract.Columns.DAY3_SYMBOL));
+        if (d3Sym != null) {
+            String symbol3 = d3Sym.replace(".png", "");
+            day3TextView.setCompoundDrawablesWithIntrinsicBounds(0, context.getResources().getIdentifier(symbol3, "drawable", "com.climbingweather.cw"), 0, 0);
+        }
+        
+        String high3 = cursor.getString(cursor.getColumnIndex(AreasContract.Columns.DAY3_HIGH));
+        day3TextView.setText(high3 == null ? "--" : high3 + (char) 0x00B0);
+        
+        areaLinearLayout.setVisibility(View.VISIBLE);
+        loadingImageView.setVisibility(View.INVISIBLE);
+        
+        return view;
     }
 }

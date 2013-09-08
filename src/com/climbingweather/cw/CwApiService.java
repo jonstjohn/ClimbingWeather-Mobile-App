@@ -24,9 +24,9 @@ public class CwApiService extends IntentService {
     
     public static final int FAVORITE_AREAS = 1;
     
-    private static final String INTENT_FILTER_STATE = "state";
+    public static final String INTENT_FILTER_STATE = "state";
     
-    private static final String INTENT_FILTER_STATE_AREAS = "state_areas";
+    public static final String INTENT_FILTER_STATE_AREAS = "state_areas";
     
     public CwApiService() {
         super("CwApiService");
@@ -63,6 +63,7 @@ public class CwApiService extends IntentService {
                 String stateCode = intent.getStringExtra("stateCode");
                 loadStateAreas(stateCode);
                 Intent i = new Intent(INTENT_FILTER_STATE_AREAS);
+                i.putExtra("stateCode", stateCode);
                 sendBroadcast(i);
             } else if (uri.equals(StatesContract.CONTENT_URI)) {
                 Log.i(TAG, intent.getDataString());

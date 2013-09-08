@@ -60,7 +60,7 @@ public class MainActivity extends SherlockFragmentActivity {
         CwDbHelper dbHelper = new CwDbHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.delete(CwDbHelper.Tables.AREAS, null, null);
-        //db.delete(CwDbHelper.Tables.FAVORITES, null, null);
+        db.delete(CwDbHelper.Tables.FAVORITES, null, null);
         db.delete(CwDbHelper.Tables.DAILY, null, null);
         db.delete(CwDbHelper.Tables.STATES, null, null);
         db.delete(CwDbHelper.Tables.SEARCH, null, null);

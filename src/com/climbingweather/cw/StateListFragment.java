@@ -1,17 +1,13 @@
 package com.climbingweather.cw;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -23,21 +19,19 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonParseException;
 
 public class StateListFragment extends ExpandableListFragment implements DataFragmentInterface {
 	
     // State objects
-    private ArrayList<State> states = new ArrayList<State>();
+    //private ArrayList<State> states = new ArrayList<State>();
     
     private long lastUpdateMillis = 0L;
     
     private View view;
     
     private static final String TAG = StateListFragment.class.getName();
+    
+    private StateExpandableListAdapter mAdapter;
     
     /**
      * Adapter
@@ -80,6 +74,8 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
     	
         Log.i("CW", "StateListFragment onActivityCreated()");
     	super.onActivityCreated(savedInstanceState);
+    	mAdapter = new StateExpandableListAdapter(mContext);
+        setListAdapter(mAdapter);
     	
     }
     
@@ -95,18 +91,8 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
     
     public void loadStates()
     {
+        getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE);
         CwApiServiceHelper.getInstance().startStates(getActivity());
-        Logger.log("loadStates()");
-        if (view != null) {
-            Logger.log("View is not null");
-            ExpandableListView lv = getExpandableListView();
-            new GetStatesJsonTask(this).execute("/state/list");
-            
-            // Set on item click listener
-            lv.setOnChildClickListener(this);
-        } else {
-            Logger.log("View is null");
-        }
     }
     
     @Override
@@ -114,10 +100,10 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
             int childPosition, long id) {
         // use groupPosition and childPosition to locate the current item in the adapter
         Log.i(TAG, "Child clicked");
-        Area area = states.get(groupPosition).getArea(childPosition);
+        Cursor cursor = ((StateExpandableListAdapter) getListAdapter()).getChild(groupPosition, childPosition);
         Intent i = new Intent(getActivity(), AreaFragmentActivity.class);
-        i.putExtra("areaId", Integer.valueOf(area.getId()).toString());
-        i.putExtra("name", area.getName());
+        i.putExtra("areaId", cursor.getString(cursor.getColumnIndex(AreasContract.Columns.AREA_ID)));
+        i.putExtra("name", cursor.getString(cursor.getColumnIndex(AreasContract.Columns.NAME)));
         startActivity(i);
         return true;
     }
@@ -160,6 +146,8 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
     {
         Log.i("CW", "StateListFragment onPause()");
         super.onPause();
+        
+        getActivity().unregisterReceiver(myReceiver);
     }
     
     /**
@@ -169,6 +157,9 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
     {
         Log.i("CW", "StateListFragment onResume()");
         super.onResume();
+        
+        getActivity().registerReceiver(myReceiver, new IntentFilter(CwApiService.INTENT_FILTER_STATE));
+        getActivity().registerReceiver(myReceiver, new IntentFilter(CwApiService.INTENT_FILTER_STATE_AREAS));
     }
   
     
@@ -204,30 +195,41 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
             mStateCursor.setNotificationUri(getActivity().getContentResolver(), StatesContract.CONTENT_URI);
         }
         
-        public void addState(State state)
-        {
-            states.add(state);
-        }
-        
-        public void addStates(State[] addStates)
-        {
-            for (int i = 0; i < addStates.length; i++) {
-                states.add(addStates[i]);
+        public Cursor getChild(int groupPosition, int childPosition) {
+            
+            if (!hasAreasLoaded(groupPosition)) {
+                return null;
+                
             }
+            
+            return getAreaCursor(groupPosition, childPosition);
         }
         
-        public void removeAllStates()
-        {
-            Log.i("CW", "Remove all states");
-            states.clear();
+        private String getStateCode(int groupPosition) {
+            mStateCursor.moveToPosition(groupPosition);
+            return mStateCursor.getString(mStateCursor.getColumnIndex(StatesContract.Columns.STATE_CODE));
         }
         
-        public Object getChild(int groupPosition, int childPosition) {
-            if (!states.get(groupPosition).hasAreas()) {
+        private boolean hasAreasLoaded(String stateCode) {
+            return mStateAreaCursors.containsKey(stateCode);
+        }
+        
+        private boolean hasAreasLoaded(int groupPosition) {
+            return mStateAreaCursors.containsKey(getStateCode(groupPosition));
+        }
+        
+        private Cursor getAreaCursor(int groupPosition, int childPosition) {
+            if (!hasAreasLoaded(groupPosition)) {
                 return null;
             }
-
-            return states.get(groupPosition).getArea(childPosition);
+            
+            Cursor cursor = mStateAreaCursors.get(getStateCode(groupPosition));
+            Log.i(TAG, "getAreaCursor()");
+            Log.i(TAG, "Cursor count: " + Integer.toString(cursor.getCount()));
+            Log.i(TAG, "Move to position: " + Integer.toString(childPosition));;
+            cursor.moveToPosition(childPosition);
+            CwDbHelper.dumpCursorRow(cursor);
+            return cursor;
         }
 
         public long getChildId(int groupPosition, int childPosition) {
@@ -236,14 +238,12 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
 
         public int getChildrenCount(int groupPosition) {
             
-            // TODO
-            //mStateCursor.moveToPosition(groupPosition);
-            //State state = State.getInstanceFromCode(getActivity(), mStateCursor.getString(mStateCursor.getColumnIndex(StatesContract.Columns.STATE_CODE)));
+            String stateCode = getStateCode(groupPosition);
             
-            if (!states.get(groupPosition).hasAreas()) {
-                return 1;
+            if (mStateAreaCursors.containsKey(stateCode)) {
+                return mStateAreaCursors.get(stateCode).getCount();
             } else {
-                return states.get(groupPosition).getAreaCount();
+                return 1;
             }
         }
 
@@ -264,7 +264,8 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
                 View convertView, ViewGroup parent)
         {
-            State state = states.get(groupPosition);
+            mStateCursor.moveToPosition(groupPosition);
+            String stateCode = mStateCursor.getString(mStateCursor.getColumnIndex(StatesContract.Columns.STATE_CODE));
             
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.list_item_area, parent,false);
@@ -274,15 +275,11 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
             LinearLayout areaLinearLayout = (LinearLayout) convertView.findViewById(R.id.area);
             ImageView loadingImageView = (ImageView) convertView.findViewById(R.id.loading);
             
-            if (state.hasAreas()) {
+            if (hasAreasLoaded(stateCode) && mStateAreaCursors.get(stateCode).getCount() > 0) {
                 
-                Area area = state.getArea(childPosition);
-                convertView = area.getListRowView(convertView, parent, this.context);
-                TextView stateTextView = (TextView) convertView.findViewById(R.id.state);
-                stateTextView.setText(states.get(groupPosition).getName());
-                
-                areaLinearLayout.setVisibility(View.VISIBLE);
-                loadingImageView.setVisibility(View.INVISIBLE);
+                Cursor areaCursor = getChild(groupPosition, childPosition);
+                CwDbHelper.dumpCursor(areaCursor);
+                Area.bindViewCursor(convertView, context, areaCursor);
                 
             } else {
                 nameTextView.setText("Loading areas ...");
@@ -341,11 +338,7 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
             // Check for state areas
             mStateCursor.moveToPosition(groupPosition);
             String stateCode = mStateCursor.getString(mStateCursor.getColumnIndex(StatesContract.Columns.STATE_CODE));
-            if (!states.get(groupPosition).hasAreas()) {
-                // Load async
-                new GetAreasJsonTask(groupPosition, context).execute("/state/area/" + stateCode + "?days=3");
-                
-                
+            if (!hasAreasLoaded(groupPosition)) {
                 CwApiServiceHelper.getInstance().startStateAreas(context, stateCode);
             }
             
@@ -356,171 +349,20 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
             mStateAreaCursors.put(stateCode, areaCursor);
         }
         
-        /**
-         * Add areas to state
-         * @param String stateCode
-         * @param String areaId
-         * @param HashMap<String, String> areaData
-         */
-        public void addAreaToState(int statePosition, Area area)
-        {
-            states.get(statePosition).addArea(area);
+        public void refreshStates() {
+            mStateCursor = getActivity().getContentResolver().query(
+                    StatesContract.CONTENT_URI, null, null, null, "NAME ASC");
+            notifyDataSetChanged();
+        }
+        public void refreshStateAreas(String stateCode) {
+            String[] selectionArgs = {stateCode};
+            Cursor areaCursor = getActivity().getContentResolver().query(
+                    AreasContract.CONTENT_URI, null, "state_code = ?", selectionArgs, "area.name ASC");
+            areaCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
+            mStateAreaCursors.put(stateCode, areaCursor);
+            notifyDataSetChanged();
         }
         
-        /**
-         * Add areas to state
-         * @param String stateCode
-         * @param String areaId
-         * @param HashMap<String, String> areaData
-         */
-        public void addAreasToState(int statePosition, Area[] areas)
-        {
-            states.get(statePosition).addAreas(areas);
-        }
-
-    }
-    
-    /**
-     * Asynchronous get JSON task
-     */
-    private class GetStatesJsonTask extends AsyncTask<String, Void, String> {
-        
-        private ExpandableListFragment listFragment;
-        
-        public GetStatesJsonTask(ExpandableListFragment listFragment) {
-            this.listFragment = listFragment;
-        }
-        
-        protected void onPreExecute() {
-            listFragment.getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE); 
-        }
-        
-        /**
-         * Execute in background
-         */
-        protected String doInBackground(String... args) {
-            
-              CwApi api = new CwApi(mContext, "2.0");
-              String result = api.getJson(args[0]);
-              
-              
-              Gson gson = new Gson();
-              CwApiStateListResponse response = gson.fromJson(result, CwApiStateListResponse.class);
-              State[] states = response.getStates();
-              
-              Long timestamp = System.currentTimeMillis()/1000;
-              
-              // Save states to content provider
-              for (int i = 0; i < states.length; i++) {
-                  ContentValues values = new ContentValues();
-                  values.put(StatesContract.Columns.STATE_CODE, states[i].getCode());
-                  values.put(StatesContract.Columns.NAME, states[i].getName());
-                  values.put(StatesContract.Columns.AREAS, states[i].getAreaCount());
-                  values.put(StatesContract.Columns.UPDATED, timestamp);
-                  getActivity().getContentResolver().insert(
-                          StatesContract.CONTENT_URI, values);
-              }
-              
-              return result;
-
-        }
-        
-        /**
-         * After execute (in UI thread context)
-         */
-        protected void onPostExecute(String result)
-        {
-            Log.i("CW", "Finishing StateListFragment JSON task");
-            
-            lastUpdateMillis = System.currentTimeMillis();
-
-            // Setup adapter
-            stateAdapter = new StateExpandableListAdapter(mContext);
-            stateAdapter.removeAllStates();
-            
-            try {
-                Gson gson = new Gson();
-                CwApiStateListResponse response = gson.fromJson(result, CwApiStateListResponse.class);
-                State[] states = response.getStates();
-                
-                /*
-                Long timestamp = System.currentTimeMillis()/1000;
-                
-                // Save states to content provider
-                for (int i = 0; i < states.length; i++) {
-                    ContentValues values = new ContentValues();
-                    values.put(StatesContract.Columns.STATE_CODE, states[i].getCode());
-                    values.put(StatesContract.Columns.NAME, states[i].getName());
-                    values.put(StatesContract.Columns.AREAS, states[i].getAreaCount());
-                    values.put(StatesContract.Columns.UPDATED, timestamp);
-                    getActivity().getContentResolver().insert(
-                            StatesContract.CONTENT_URI, values);
-                }
-                */
-                
-                stateAdapter.addStates(states);
-                setListAdapter(stateAdapter);
-                stateAdapter.notifyDataSetChanged();
-                
-                StateListFragment.this.getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE); 
-              
-            } catch (JsonParseException e) {
-              
-                Toast.makeText(mContext, "An error occurred while retrieving state data", Toast.LENGTH_SHORT).show();
-              
-            }
-            
-        }
-    }
-    
-    /**
-     * Asynchronous get JSON task
-     */
-    private class GetAreasJsonTask extends AsyncTask<String, Void, String> {
-        
-        private int statePosition;
-        
-        private Context context;
-        
-        public GetAreasJsonTask(int mStatePosition, Context context)
-        {
-            this.context = context;
-            statePosition = mStatePosition;
-        }
-        /**
-         * Execute in background
-         */
-        protected String doInBackground(String... args) {
-            
-              CwApi api = new CwApi(mContext, "2.0");
-              return api.getJson(args[0]);
-
-        }
-        
-        protected void onPreExecute() {
-            ((Activity) context).setProgressBarIndeterminateVisibility(Boolean.TRUE); 
-        }
-        
-        /**
-         * After execute (in UI thread context)
-         */
-        protected void onPostExecute(String result)
-        {
-            ((Activity) context).setProgressBarIndeterminateVisibility(Boolean.FALSE); 
-            
-            try {
-                Gson gson = new Gson();
-                CwApiAreaListResponse response = gson.fromJson(result, CwApiAreaListResponse.class);
-                Area[] areas = response.getAreas();
-                stateAdapter.addAreasToState(statePosition, areas);
-                stateAdapter.notifyDataSetChanged();
-              
-            } catch (JsonParseException e) {
-              
-                Toast.makeText(mContext, "An error occurred while retrieving area data", Toast.LENGTH_SHORT).show();
-              
-            }
-        }
     }
     
     // Check to see if data is fresh
@@ -534,22 +376,24 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         loadStates();
     }
     
-    /*
     private BroadcastReceiver myReceiver = new BroadcastReceiver() {        
         @Override
         public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            
             Log.i(TAG, "Received intent in broadcast receiver");
             Log.i(TAG, intent.getAction());
+            
+            if (action == CwApiService.INTENT_FILTER_STATE) {
+                mAdapter.refreshStates();
+            } else if (action == CwApiService.INTENT_FILTER_STATE_AREAS) {
+                String stateCode = intent.getStringExtra("stateCode");
+                mAdapter.refreshStateAreas(stateCode);
+            }
             getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
             
-            mCursor = getCursor();
-            mCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);
-            mAdapter.swapCursor(mCursor);
-            //mCursor.requery();
             
-            mAdapter.notifyDataSetChanged();
         }
     };
-    */
     
 }

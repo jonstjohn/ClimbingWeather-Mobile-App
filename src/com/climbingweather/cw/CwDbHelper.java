@@ -248,13 +248,16 @@ public class CwDbHelper extends SQLiteOpenHelper {
      */
     public static void testQuery(Context context, String sql)
     {
+        Log.i(TAG, "Testing query: " + sql);
         CwDbHelper dbHelper = new CwDbHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
-        
+        dumpCursor(cursor);
+    }
+    
+    public static void dumpCursor(Cursor cursor) {
         int cnt = cursor.getColumnCount();
         
-        Log.i(TAG, "Testing query: " + sql);
         Log.i(TAG, "Found " + Integer.toString(cursor.getCount()) + " rows");
         Log.i(TAG, "Rows");
         while (cursor.moveToNext()) {
@@ -262,7 +265,16 @@ public class CwDbHelper extends SQLiteOpenHelper {
                 Log.i(TAG, cursor.getString(i));
             }
         }
+    }
+    
+    public static void dumpCursorRow(Cursor cursor) {
+        int cnt = cursor.getColumnCount();
         
+        Log.i(TAG, "Dumping cursor row");
+        for (int i = 0; i < cnt; i++) {
+            Log.i(TAG, cursor.getColumnName(i) + ": " + cursor.getString(i));
+        }
+        Log.i(TAG, "Finished dumping cursor row");
     }
 
 }

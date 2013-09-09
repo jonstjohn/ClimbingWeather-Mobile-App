@@ -2,6 +2,7 @@ package com.climbingweather.cw;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -473,7 +474,10 @@ public class AreaListFragment extends SherlockListFragment implements DataFragme
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "Received intent in broadcast receiver");
             Log.i(TAG, intent.getAction());
-            getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
+            
+            if (!CwServiceHelper.getInstance(mContext).isServiceRunning()) {
+                getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
+            }
             
             mCursor = getCursor();
             mCursor.setNotificationUri(getActivity().getContentResolver(), AreasContract.CONTENT_URI);

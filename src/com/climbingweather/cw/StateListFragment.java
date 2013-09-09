@@ -2,6 +2,7 @@ package com.climbingweather.cw;
 
 import java.util.HashMap;
 
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -338,6 +339,7 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
             mStateCursor.moveToPosition(groupPosition);
             String stateCode = mStateCursor.getString(mStateCursor.getColumnIndex(StatesContract.Columns.STATE_CODE));
             if (!hasAreasLoaded(groupPosition)) {
+                getActivity().setProgressBarIndeterminateVisibility(Boolean.TRUE);
                 CwApiServiceHelper.getInstance().startStateAreas(context, stateCode);
             }
             
@@ -375,7 +377,7 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
         loadStates();
     }
     
-    private BroadcastReceiver myReceiver = new BroadcastReceiver() {        
+    private BroadcastReceiver myReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -389,7 +391,10 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
                 String stateCode = intent.getStringExtra("stateCode");
                 mAdapter.refreshStateAreas(stateCode);
             }
-            getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
+            
+            if (!CwServiceHelper.getInstance(mContext).isServiceRunning()) {
+                getActivity().setProgressBarIndeterminateVisibility(Boolean.FALSE);
+            }
             
             
         }

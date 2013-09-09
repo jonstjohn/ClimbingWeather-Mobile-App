@@ -278,7 +278,6 @@ public class StateListFragment extends ExpandableListFragment implements DataFra
             if (hasAreasLoaded(stateCode) && mStateAreaCursors.get(stateCode).getCount() > 0) {
                 
                 Cursor areaCursor = getChild(groupPosition, childPosition);
-                CwDbHelper.dumpCursor(areaCursor);
                 Area.bindViewCursor(convertView, context, areaCursor);
                 
             } else {

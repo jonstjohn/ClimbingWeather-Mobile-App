@@ -258,6 +258,8 @@ public class CwDbHelper extends SQLiteOpenHelper {
     public static void dumpCursor(Cursor cursor) {
         int cnt = cursor.getColumnCount();
         
+        int currentPosition = cursor.getPosition();
+        
         Log.i(TAG, "Found " + Integer.toString(cursor.getCount()) + " rows");
         Log.i(TAG, "Rows");
         while (cursor.moveToNext()) {
@@ -265,6 +267,8 @@ public class CwDbHelper extends SQLiteOpenHelper {
                 Log.i(TAG, cursor.getString(i));
             }
         }
+        
+        cursor.moveToPosition(currentPosition);
     }
     
     public static void dumpCursorRow(Cursor cursor) {

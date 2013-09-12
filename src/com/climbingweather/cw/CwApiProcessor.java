@@ -17,18 +17,39 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.util.Log;
-import android.widget.Toast;
 
+/**
+ * Climbing Weather API processor
+ * The API processor receives start requests from the CwApiService
+ * and notifies the CwContentProvider that a request is in progress.
+ * It then starts a REST requests using the RESTClient and sends the
+ * updated results to the CwContentProvider.  Finally, it tells the
+ * CwApiService that the process is completed.
+ */
 public class CwApiProcessor {
     
+    /**
+     * Tag for logging
+     */
     private static final String TAG = CwApiProcessor.class.getName();
     
+    /**
+     * Context
+     */
     private Context mContext;
     
+    /**
+     * Constructor
+     * @param context
+     */
     public CwApiProcessor(Context context) {
         mContext = context;
     }
     
+    /**
+     * Get favorite ids from content provider
+     * @return ArrayList<String>
+     */
     private ArrayList<String> getFavoriteIds() {
         
         // Get ids from content provider
@@ -42,7 +63,12 @@ public class CwApiProcessor {
         
     }
     
-    private Uri buildUri(String url) {
+    /**
+     * Build Climbing Weather API Uri
+     * @param url
+     * @return Uri
+     */
+    private Uri buildCwApiUri(String url) {
         Bundle params = new Bundle();
         params.putString("days", "3");
         
@@ -65,11 +91,9 @@ public class CwApiProcessor {
     }
     
     /**
-     * Load favorite areas
+     * Start processing favorite areas
      */
-    public void startFavoriteAreas()
-    {
-        
+    public void startFavoriteAreas() {
         // Get ids from content provider
         ArrayList<String> ids = getFavoriteIds();
         
@@ -82,7 +106,7 @@ public class CwApiProcessor {
             idStr += ids.get(ids.size() - 1);
             String url = "/area/list/ids-" + idStr;
             
-            Uri uri = buildUri(url);
+            Uri uri = buildCwApiUri(url);
             
             Bundle mParams = new Bundle();
             
@@ -95,10 +119,15 @@ public class CwApiProcessor {
         }
     }
     
+    /**
+     * Start processing nearby areas
+     * @param Double latitude
+     * @param Double longitude
+     */
     public void startNearbyAreas(Double latitude, Double longitude) {
         String url = "/area/list/" + Double.toString(latitude) + "," + Double.toString(longitude);
         
-        Uri uri = buildUri(url);
+        Uri uri = buildCwApiUri(url);
         
         Bundle mParams = new Bundle();
         RESTClient client = new RESTClient(HTTPMethod.valueOf("GET"), uri, mParams);
@@ -109,13 +138,15 @@ public class CwApiProcessor {
         processAreasResponse(response, processParams);
     }
     
+    /**
+     * Start processing search
+     * @param String search
+     */
     public void startSearch(String search) {
-        
         try {
             String encodedSearch = URLEncoder.encode(search, "UTF-8");
             String url = "/area/list/" + encodedSearch;
-            Uri uri = buildUri(url);
-            Log.i(TAG, uri.toString());
+            Uri uri = buildCwApiUri(url);
             
             Bundle params = new Bundle();
             RESTClient client = new RESTClient(HTTPMethod.valueOf("GET"), uri, params);
@@ -132,12 +163,15 @@ public class CwApiProcessor {
         
     }
     
+    /**
+     * Start processing state areas
+     * @param String stateCode
+     */
     public void startStateAreas(String stateCode) {
         try {
             String encodedSearch = URLEncoder.encode(stateCode, "UTF-8");
             String url = "/area/list/" + encodedSearch;
-            Uri uri = buildUri(url);
-            Log.i(TAG, uri.toString());
+            Uri uri = buildCwApiUri(url);
             
             Bundle params = new Bundle();
             RESTClient client = new RESTClient(HTTPMethod.valueOf("GET"), uri, params);
@@ -152,9 +186,12 @@ public class CwApiProcessor {
         }
     }
     
+    /**
+     * Start processing states
+     */
     public void startStates() {
         String url = "/state/list";
-        Uri uri = buildUri(url);
+        Uri uri = buildCwApiUri(url);
         
         Bundle params = new Bundle();
         RESTClient client = new RESTClient(HTTPMethod.valueOf("GET"), uri, params);
@@ -182,10 +219,13 @@ public class CwApiProcessor {
             }
         }
         
-        CwDbHelper.dumpStates(mContext);
-        
     }
     
+    /**
+     * Process areas response
+     * @param RESTClientResponse response
+     * @param Bundle processParams
+     */
     private void processAreasResponse(RESTClientResponse response, Bundle processParams)
     {
         int code = response.getCode();
@@ -193,24 +233,24 @@ public class CwApiProcessor {
         
         // Check to see if we got an HTTP 200 code and have some data.
         if (code == 200 && !json.equals("")) {
-            Log.i(TAG, "onLoadFinished() using service");
             processAreasJson(json, processParams);
         }
     }
     
+    /**
+     * Process areas JSON
+     * @param String result
+     * @param Bundle processParams
+     * @return
+     */
     private Area[] processAreasJson(String result, Bundle processParams)
     {
         Uri contentUri = processParams.getParcelable("uri");
         
         try {
-            Log.i(TAG, "processJson");
-            Log.i(TAG, result);
-            
             // Convert JSON into areas using GSON
             Gson gson = new Gson();
             Area[] areas = gson.fromJson(result, CwApiAreaListResponse.class).getAreas();
-            
-            Log.i(TAG, Integer.toString(areas.length));
             
             String searchId = null;
             
@@ -220,12 +260,10 @@ public class CwApiProcessor {
                 values.put("search", processParams.getString("search"));;
                 Uri searchUri = mContext.getContentResolver().insert(AreasContract.SEARCH_URI, values);
                 searchId = searchUri.getPathSegments().get(2);
-                Log.i(TAG, "Search id: " + searchId);
             }
             
             // Save areas
             for (int i = 0; i < areas.length; i++) {
-                //Log.i(TAG, "Loader id: " + Integer.toString(getId()));
                 if (contentUri.equals(AreasContract.NEARBY_URI)) {
                     areas[i].setNearby(i);
                 }
@@ -236,33 +274,9 @@ public class CwApiProcessor {
                     ContentValues sValues = new ContentValues();
                     sValues.put("search_id", searchId);
                     sValues.put("area_id", areas[i].getId());
-                    Uri uri = mContext.getContentResolver().insert(AreasContract.SEARCH_AREA_URI, sValues);
-                    Log.i(TAG, uri.toString());
+                    mContext.getContentResolver().insert(AreasContract.SEARCH_AREA_URI, sValues);
                 }
             }
-            
-            String projection[] = {"area._id AS area_id", "area.name", "d1.high AS d1_high",
-                    "d1.wsym AS d1_wsym", "d2.high AS d2_high", "d2.wsym AS d2_wsym", "d3.high AS d3_high", "d3.wsym AS d3_wsym"};
-            Cursor cursor = mContext.getContentResolver().query(
-                    AreasContract.CONTENT_URI,
-                    projection, null, null, null
-            );
-            Log.i(TAG, "Areas Result");
-            Log.i(TAG, Integer.toString(cursor.getCount()));
-            while (cursor.moveToNext()) {
-                Log.i(TAG, formatAreaList(cursor));
-                Log.i(TAG, cursor.getString(cursor.getColumnIndex("area_id")));
-            }
-             /*
-            Log.i(TAG, "Daily rows:");
-            Cursor c2 = getContentResolver().query(DailyContract.CONTENT_URI, null, null, null, null);
-            while (c2.moveToNext()) {
-                Log.i(TAG, c2.getString(c2.getColumnIndex(DailyContract.Columns.ID)));
-                Log.i(TAG, c2.getString(c2.getColumnIndex(DailyContract.Columns.DATE)));
-                Log.i(TAG, c2.getString(c2.getColumnIndex(DailyContract.Columns.AREA_ID)));
-            }
-            */
-            
             
             return areas;
             
@@ -275,7 +289,7 @@ public class CwApiProcessor {
     
     /**
      * Get API key
-     * @return
+     * @return String
      */
     private String getApiKey()
     {
@@ -291,6 +305,11 @@ public class CwApiProcessor {
         return apiKey;
     }
     
+    /**
+     * Format area list
+     * @param Cursor cursor
+     * @return String
+     */
     private String formatAreaList(Cursor cursor)
     {
         String str = cursor.getString(cursor.getColumnIndex("name"));

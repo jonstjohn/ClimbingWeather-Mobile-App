@@ -18,6 +18,9 @@ import android.util.Log;
  */
 public class CwContentProvider extends ContentProvider
 {
+    /**
+     * CW database helper
+     */
     private CwDbHelper dbHelper;
     
     /**
@@ -25,6 +28,9 @@ public class CwContentProvider extends ContentProvider
      */
     public static final String AUTHORITY = "com.climbingweather.cw.provider";
     
+    /**
+     * Constants to define request types
+     */
     private static final int ALL_FAVORITES = 1;
     private static final int SINGLE_FAVORITE = 2;
     private static final int ALL_STATES = 3;
@@ -56,11 +62,9 @@ public class CwContentProvider extends ContentProvider
         uriMatcher.addURI(AUTHORITY, "/areas/searchArea", ALL_SEARCH_AREA);
     }
     
-    public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE
-            + "/favorites";
-    public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE
-            + "/favorites";
-
+    /**
+     * Tag for logging
+     */
     private static final String TAG = CwContentProvider.class.getName();
     
     /**

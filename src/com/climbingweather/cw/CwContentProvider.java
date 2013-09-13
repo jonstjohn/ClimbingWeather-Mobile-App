@@ -1,9 +1,6 @@
 package com.climbingweather.cw;
 
-import java.util.List;
-
 import android.content.ContentProvider;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -14,7 +11,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 /**
- * CW Content Provider
+ * Climbing Weather Content Provider
  */
 public class CwContentProvider extends ContentProvider
 {
@@ -81,19 +78,7 @@ public class CwContentProvider extends ContentProvider
      */
     @Override
     public String getType(Uri uri) {
-      
-        switch (uriMatcher.match(uri)) {
-        case ALL_FAVORITES: 
-            return "vnd.android.cursor.dir/vnd.com.climbingweather.cw.provider.favorites";
-        case SINGLE_FAVORITE: 
-            return "vnd.android.cursor.item/vnd.com.climbingweather.cw.provider.favorites";
-        case ALL_STATES:
-            return "vnd.android.cursor.dir/vnd.com.climbingweather.cw.provider.states";
-        case SINGLE_STATE:
-            return "vnd.android.cursor.item/vnd.com.climbingweather.cw.provider.states";
-        default: 
-            throw new IllegalArgumentException("Unsupported URI: " + uri);
-        }
+        return null;
     }
     
     /**
@@ -106,44 +91,54 @@ public class CwContentProvider extends ContentProvider
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         
         switch (uriMatcher.match(uri)) {
+        // Insert favorite
         case ALL_FAVORITES:
             long favoriteId = db.insert(CwDbHelper.Tables.FAVORITES, null, values);
             _uri = Uri.parse(FavoritesContract.CONTENT_URI + "/" + favoriteId);
             Log.i(TAG, _uri.toString());
             getContext().getContentResolver().notifyChange(_uri, null);
             break;
+        // Insert on single favorite does nothing
         case SINGLE_FAVORITE:
             break;
+        // Insert state
         case ALL_STATES:
             long stateId = db.replace(CwDbHelper.Tables.STATES, null, values);
             _uri = Uri.parse(FavoritesContract.CONTENT_URI + "/" + stateId);
             getContext().getContentResolver().notifyChange(_uri, null);
             break;
+        // Insert on single state does nothing
         case SINGLE_STATE:
             break;
+        // Insert area
         case ALL_AREAS:
             long areaId = db.replace(CwDbHelper.Tables.AREAS, null, values);
             _uri = Uri.parse(AreasContract.CONTENT_URI + "/" + areaId);
             getContext().getContentResolver().notifyChange(AreasContract.CONTENT_URI, null);
             Log.i(TAG, "notifyChange()");
             break;
+        // Insert on single area does nothing
         case SINGLE_AREA:
             break;
+        // Insert daily forecast row
         case AREA_DAILY:
             db.replace(CwDbHelper.Tables.DAILY, null, values);
             _uri = DailyContract.CONTENT_URI;
             getContext().getContentResolver().notifyChange(_uri, null); // TODO
             break;
+        // Insert hourly forecast row
         case AREA_HOURLY:
             db.replace(CwDbHelper.Tables.HOURLY, null, values);
             _uri = HourlyContract.CONTENT_URI;
             getContext().getContentResolver().notifyChange(_uri, null); // TODO
             break;
+        // Insert search
         case ALL_SEARCH:
             long searchId = db.replace(CwDbHelper.Tables.SEARCH, null, values);
             _uri = Uri.parse(AreasContract.SEARCH_URI + "/" + searchId);
             getContext().getContentResolver().notifyChange(uri, null); // TOOD
             break;
+        // Insert search area
         case ALL_SEARCH_AREA:
             long searchAreaId = db.replace(CwDbHelper.Tables.SEARCH_AREA, null, values);
             _uri = Uri.parse(AreasContract.SEARCH_AREA_URI + "/" + searchAreaId);
@@ -168,22 +163,32 @@ public class CwContentProvider extends ContentProvider
         
         Log.i("CW", "QUERY");
         switch (uriMatcher.match(uri)) {
+        
+        // Query all favorites
         case ALL_FAVORITES:
             queryBuilder.setTables(CwDbHelper.Tables.FAVORITES);
             break;
+            
+        // Query single favorite (uses favorite id)
         case SINGLE_FAVORITE:
             queryBuilder.setTables(CwDbHelper.Tables.FAVORITES);
             String favoriteId = uri.getPathSegments().get(1);
             queryBuilder.appendWhere(FavoritesContract.Columns.ID + "=" + favoriteId);
             break;
+            
+        // Query all states
         case ALL_STATES:
             queryBuilder.setTables(CwDbHelper.Tables.STATES);
             break;
+            
+        // Query single state (uses state id)
         case SINGLE_STATE:
             queryBuilder.setTables(CwDbHelper.Tables.STATES);
             String id = uri.getPathSegments().get(1);
             queryBuilder.appendWhere(StatesContract.Columns.ID + "=" + id);
             break;
+            
+        // Query all areas - does a left join on daily forecasts so row contains 3 days of forecasts
         case ALL_AREAS:
             queryBuilder.setTables("area"
                     + " LEFT JOIN (SELECT area_id, date, high, wsym FROM daily WHERE date = date('now', 'localtime')) AS d1 ON area._id = d1.area_id"
@@ -195,9 +200,12 @@ public class CwContentProvider extends ContentProvider
                 projection = AreasContract.PROJECTION_DEFAULT;
             }
             break;
+            
+        // Query all daily - probably not really used
         case ALL_DAILY:
             queryBuilder.setTables(CwDbHelper.Tables.DAILY);
             break;
+            
         default:
             throw new IllegalArgumentException("Unsupported URI: " + uri);
         }
@@ -218,14 +226,13 @@ public class CwContentProvider extends ContentProvider
         int deleteCount = 0;
         
         switch (uriMatcher.match(uri)) {
+        
+        // Delete all favorites - not implemented
         case ALL_FAVORITES:
-            //do nothing 
             break;
+            
+        // Delete a single favorite
         case SINGLE_FAVORITE:
-            List<String> segs = uri.getPathSegments();
-            for (String s: segs) {
-                Logger.log(s);
-            }
             String areaId = uri.getPathSegments().get(1);
             selection = FavoritesContract.Columns.AREA_ID + "=" + areaId
                     + (!TextUtils.isEmpty(selection) ? 
@@ -233,9 +240,12 @@ public class CwContentProvider extends ContentProvider
             deleteCount = db.delete(CwDbHelper.Tables.FAVORITES, selection, selectionArgs);
             getContext().getContentResolver().notifyChange(uri, null);
             break;
+            
+        // Delete all states - not implemented
         case ALL_STATES:
-            //do nothing 
             break;
+            
+        // Delete a single state
         case SINGLE_STATE:
             String stateId = uri.getPathSegments().get(1);
             selection = StatesContract.Columns.ID + "=" + stateId
@@ -262,9 +272,12 @@ public class CwContentProvider extends ContentProvider
         int updateCount = 0;
         
         switch (uriMatcher.match(uri)) {
+        
+        // Update all favorites - not implemented
         case ALL_FAVORITES:
-            //do nothing 
             break;
+            
+        // Update single favorite
         case SINGLE_FAVORITE:
             String favoriteId = uri.getPathSegments().get(1);
             selection = FavoritesContract.Columns.ID + "=" + favoriteId
@@ -273,9 +286,12 @@ public class CwContentProvider extends ContentProvider
             updateCount = db.update(CwDbHelper.Tables.FAVORITES, values, selection, selectionArgs);
             getContext().getContentResolver().notifyChange(uri, null);
             break;
+            
+        // Update all states - not implemented
         case ALL_STATES:
-            // do nothing
             break;
+            
+        // Update single state
         case SINGLE_STATE:
             String stateId = uri.getPathSegments().get(1);
             selection = StatesContract.Columns.ID + "=" + stateId
